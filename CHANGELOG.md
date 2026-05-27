@@ -1,0 +1,33 @@
+# CHANGELOG
+
+## v1.0.0 - Offline UMP Analyzer MVP
+- **Release principal**: Aplicação consolidada como Analisador Offline MVP.
+- Documentação refinada, limitação estrita declarada (não atua como MIDI Host em tempo real).
+- Build local e automação orientada por testes consolidados.
+
+## v0.9.0 - GitHub Actions CI
+- Workflow de compilação contínua e asserção unitária isolada implementados via nuvem (Windows 2022 + Qt6).
+
+## v0.8.0 - Automated Parser Test Harness
+- Script PowerShell `run_tests.ps1` e binário `UmpParserTests` adicionados ao CMake, isolando a análise hex fora da UI gráfica para validação profunda.
+
+## v0.7.0 - Robustness & Input Validation
+- Mecanismos rigorosos implementados para bloquear *crashes* de memória: rejeição limpa de limites ímpares hexadecimais, caracteres invisíveis falhos e arquivos de log massivos (> 1MB).
+
+## v0.6.0 - Enhanced Usability UI
+- Adição da Barra de Pesquisa, botão global Copy to Clipboard (tabulado) e rótulos de contabilidade (Pacotes Lidos vs Erros). 
+
+## v0.5.0 - Partial SysEx7/SysEx8/MDS parsing
+- Descoberta e tradução de cabeçalhos estáticos (Group, Status, Form, Byte Count) de mensagens nativas MT 0x3 e MT 0x5.
+
+## v0.4.0 - Partial Flex Data parsing
+- Tradução de cabeçalhos de propriedades do Message Type 0xD, extraindo estaticamente as formatações sem dependência do MIDI-CI.
+
+## v0.3.0 - Partial UMP Stream parsing
+- Extração lógica das declarações exclusivas do MT 0xF (Endpoints, Product Instance, Protocol/Blocks) sem usar reconstrução real ou interagir como Host.
+
+## v0.2.0 - Parsing básico de Voice Messages
+- Conversão binária limpa das fatias hexadecimais pertinentes aos Message Types 0x2 (MIDI 1.0) e 0x4 (MIDI 2.0).
+
+## v0.1.0 - Port Inicial C++ / Qt6
+- Configuração básica CMake e interface *boilerplate* importando as telas do protótipo em C#.

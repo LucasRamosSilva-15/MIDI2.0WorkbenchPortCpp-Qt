@@ -1,82 +1,53 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-**Versão:** v0.9.0 - GitHub Actions CI
+**Versão:** v1.0.0 - Offline UMP Analyzer MVP
 
-## Status da versão v0.9.0
+## Visão Geral do MVP
+O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
 
-Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.9.0** mantém todos os avanços da v0.8.0 e integra o projeto na nuvem de **Integração Contínua (CI) do GitHub Actions**:
-- **Automated Windows Build**: Cada `push` ou `pull_request` instancia uma máquina virtual limpa Windows (MSVC 2022) com Qt6 e garante que os executáveis de binários e de testes não estejam quebrados.
-- **Fail-Safe Tests**: A nuvem obriga a execução do pacote `tests\run_tests.ps1` bloqueando *commits* que destruam as regras matemáticas já estabelecidas e atestando a robustez dos decodificadores UMP de forma pública e transparente.
+**O que este projeto FAZ:**
+- Ingestão passiva de registros textuais UMP brutos (aceita blocos hexadecimais colados na interface ou leitura de arquivos `.txt`).
+- Desmembramento matemático e detalhamento estático dos cabeçalhos dos Message Types:
+  - MT 0x2 (MIDI 1.0 Channel Voice)
+  - MT 0x4 (MIDI 2.0 Channel Voice)
+  - MT 0x3 (SysEx7 - Cabeçalho Parcial)
+  - MT 0x5 (SysEx8/MDS - Cabeçalho Parcial)
+  - MT 0xD (Flex Data - Cabeçalho Parcial)
+  - MT 0xF (UMP Stream - Descobertas Endpoint, Função e Dispositivo)
+- Sanitização de dados robusta, rastreando lixo textual, letras inválidas, arquivos obesos ou contagem de bytes quebrada no vetor sem travar.
 
-### Funcionalidades Suportadas Parcialmente
-Atualmente, o parser offline reconhece e descreve os seguintes dados:
-- **MIDI 1.0 Channel Voice**
-- **MIDI 2.0 Channel Voice básico**
-- **SysEx7 MT 0x3 com parsing parcial de cabeçalho:** Group, Form/Status, Byte Count e Payload bruto em bytes reais.
-- **SysEx8/MDS MT 0x5 com parsing parcial de cabeçalho:** Group, Form/Status, Byte Count, Stream ID em SysEx8 e Payload bruto em bytes reais.
-- **Flex Data MT 0xD com parsing parcial de cabeçalho:** Group, Format, Address, Channel, Bank e Status; payload interno preservado como bruto.
-- **UMP Stream / Endpoint** parcialmente
+**O que este projeto NÃO FAZ (Limitações Conhecidas):**
+- **NÃO é um MIDI Host real.** Ele não conecta, não envia e não ouve dispositivos MIDI 1.0 / 2.0 físicos pelo Windows.
+- **NÃO suporta Windows MIDI Services ou Drivers USB.**
+- **NÃO implementa MIDI-CI** (Property Exchange, Profile Configuration, Protocol Negotiation). As interpretações de payload são brutas ou estáticas.
+- **NÃO reconstrói fragmentação UMP**. Pacotes SysEx ou Flex partidos em pacotes menores (Start/Continue/End) são avaliados isoladamente pacote por pacote de forma forense, sem concatenação temporária de estado (buffer state).
 
-### SysEx7 / SysEx8 / Mixed Data Set
-A evolução traz o desmembramento técnico da palavra fundamental de cabeçalhos de sistema exclusivo:
-- **SysEx7 MT 0x3** é tratado estritamente como mensagem UMP de 64 bits.
-- **SysEx8/MDS MT 0x5** é tratado estritamente como mensagem UMP de 128 bits.
-- O parser identifica e extrai **Group**, **Form/Status** (Start, Continue, End, Complete, MDS Header, MDS Payload) e **Byte Count** (Número de Bytes válidos).
-- **SysEx7** possui no máximo 6 bytes de dados por pacote.
-- **SysEx8** possui Stream ID separado e no máximo 13 bytes de dados por pacote.
-- **MDS** não usa Stream ID nesse parser e possui até 14 bytes de payload por pacote.
-- O Payload bruto é exibido rigorosamente como **bytes reais válidos**, respeitando o limite do Byte Count.
-- O parser considera que parte dos bytes de dados pode vir da própria word0, não apenas das words seguintes.
-- Não identifica o fabricante.
-- Não decodifica o conteúdo interno SysEx.
-- Não reconstrói fragmentos de múltiplos pacotes.
-- Não usa buffer de estado.
-- Mantém incondicionalmente a tag de segurança **parcial/não detalhado**.
+## Infraestrutura Tecnológica (Testes e CI)
+A versão `v1.0.0` suporta testes nativos puramente C++, desacoplados da interface gráfica Qt:
+- **Automação de Testes Local (`UmpParserTests`)**: Cobertura paramétrica contra pacotes mentirosos, sujeira alfanumérica e validação semântica de MT.
+- **GitHub Actions (CI)**: Configurado em `.github/workflows/ci.yml`. A cada commit/push na branch `main`, o Windows na nuvem reinstala o compilador MSVC 2022 e a suíte Qt6, testando toda a sanidade binária e aprovando via verde passivo (*Fail-Safe*).
 
-### Flex Data MT 0xD
-O projeto possui uma mecânica dedicada ao Message Type 0xD, extraindo o cabeçalho de roteamento:
-- Extrai **Group**, **Format**, **Address**, **Channel** (quando Address = Channel), **Bank** e **Status**.
-- O payload interno é preservado passivamente como bruto.
-- Não interpreta subdados (como texto, letras, metadados internos ou tempo).
+## Instruções de Build Local
 
-### Status Parcialmente Reconhecidos em UMP Stream (MT 0xF)
-Como consolidado, o formato 0xF mantém a leitura descritiva parcial para os dez formatos fundamentais:
-- Endpoint Discovery
-- Endpoint Info Notification
-- Device Identity Notification
-- Endpoint Name Notification
-- Product Instance ID Notification
-- Stream Configuration Request
-- Stream Configuration Notification
-- Function Block Discovery
-- Function Block Info Notification
-- Function Block Name Notification
+Para compilar manualmente na sua máquina Windows utilizando MSVC 2022:
+1. Tenha o Qt6 configurado e exposto na sua variável `CMAKE_PREFIX_PATH`.
+2. Em um terminal / PowerShell na raiz, digite:
+   ```powershell
+   cmake -B build -DCMAKE_BUILD_TYPE=Release
+   cmake --build build --config Release
+   ```
+3. Execute o app em: `build\Release\MidiUmpAnalyzer.exe`
 
-É importante detalhar que campos textuais longos usam exclusivamente extração de texto *ASCII filtrada*, varrendo apenas aquele pacote em si. A regra universal contínua diz que a fragmentação das mensagens não é reconstruída.
+## Instruções de Testes Locais
 
-## Limitações Estritas (Escopo MVP)
-O projeto opera como leitura forense puramente passiva. Desse modo, reiteramos as restrições:
-- Sem MIDI real.
-- Sem MIDI-CI real.
-- Sem Property Exchange.
-- Sem USB MIDI 2.0.
-- Sem Windows MIDI Services.
-- Sem respostas automáticas.
-- Sem driver nativo.
-- Sem reconstrução de mensagens fragmentadas.
-
-## Testes Manuais
-Toda a auditoria visual deste projeto para simular a chegada dos bits está rigorosamente documentada como uma bateria de testes manual listada passo a passo em:
-[TESTS.md](./TESTS.md)
-*O arquivo conta com validações recém implementadas:*
-- **Teste 23** cobre visualmente o SysEx7.
-- **Teste 24** cobre visualmente o SysEx8.
-- **Teste 25** cobre visualmente o MDS Header.
-
-## Build do Projeto
-Requisitos: CMake 3.16+, Qt 6.11.1, Visual Studio 2022.
-
+Rode os testes passivos independentes via PowerShell:
 ```powershell
-cmake -B build -G "Visual Studio 17 2022" -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64"
-cmake --build build --config Release
+powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 ```
+*(Você pode usar a flag opcional `-SkipBuild` caso já tenha rodado o CMake antes e queira apenas os resultados do binário).*
+
+## Roadmap
+O que esperar para as próximas evoluções (*Pós-MVP*):
+- Investigação controlada para integração com interfaces UMP MIDI via OS (Windows MIDI Services).
+- Injeção de estado isolado para reconstrução *stateless* em tempo real de mensagens UMP fragmentadas (SysEx, Flex).
+- Parser avançado de dados proprietários sem corromper a leitura bruta existente.
