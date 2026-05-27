@@ -143,7 +143,13 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Type: Stream/Endpoint (0xF)
 - Description: UMP Stream: Product Instance ID Notification [ASCII filtrado: 'SN123456789012'] (Form: Complete, Status bruto: 0x004, Payload bruto: 31323334 35363738 39303132, parcial/não detalhado)
 
-### 22. Mensagem UMP de 96 bits (Reservada / Futura)
+### 22. Mensagem UMP de 128 bits (Flex Data - Metadata Text)
+**Entrada:** `D0000101 41000000 00000000 00000000`
+**Comportamento Esperado:**
+- Type: Flex Data (0xD)
+- Description: Flex Data [Group: 0, Addr: Channel, Ch: 0, Bank: 0x01, Status: 0x01] (Form: Complete, Payload bruto: 41000000 00000000 00000000, parcial/não detalhado)
+
+### 23. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)

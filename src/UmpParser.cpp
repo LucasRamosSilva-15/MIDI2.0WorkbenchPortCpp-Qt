@@ -158,11 +158,28 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
                                 .arg(words[3], 8, 16, QChar('0')).toUpper();
             parsed.description = QString("Data Message (SysEx8/MDS, Payload bruto: %1)").arg(payload);
         } else if (parsed.messageType == 0xD && words.size() >= 4) {
+            uint8_t format = (word0 >> 22) & 0x3;
+            uint8_t address = (word0 >> 20) & 0x3;
+            uint8_t channel = (word0 >> 16) & 0xF;
+            uint8_t statusBank = (word0 >> 8) & 0xFF;
+            uint8_t status = word0 & 0xFF;
+
+            QString formStr = format == 0 ? "Complete" : (format == 1 ? "Start" : (format == 2 ? "Continue" : "End"));
+            QString addrStr = address == 0 ? "Channel" : (address == 1 ? "Group" : "Reserved");
+
+            QString chStr = "";
+            if (address == 0) {
+                chStr = QString(", Ch: %1").arg(channel);
+            }
+
             QString payload = QString("%1 %2 %3")
                                 .arg(words[1], 8, 16, QChar('0'))
                                 .arg(words[2], 8, 16, QChar('0'))
                                 .arg(words[3], 8, 16, QChar('0')).toUpper();
-            parsed.description = QString("Flex Data (parcial/não detalhado, Payload bruto: %1)").arg(payload);
+
+            parsed.description = QString("Flex Data [Group: %1, Addr: %2%3, Bank: 0x%4, Status: 0x%5] (Form: %6, Payload bruto: %7, parcial/não detalhado)")
+                              .arg(parsed.group).arg(addrStr).arg(chStr)
+                              .arg(statusBank, 2, 16, QChar('0')).arg(status, 2, 16, QChar('0')).arg(formStr).arg(payload);
         } else if (parsed.messageType == 0xF && words.size() >= 4) {
             // MT 0xF (UMP Stream): O cabeçalho base é comum a todos os Stream Messages.
             // Bits 27-26: Form (2 bits)
