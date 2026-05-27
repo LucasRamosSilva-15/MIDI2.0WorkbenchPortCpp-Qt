@@ -111,7 +111,19 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Type: Stream/Endpoint (0xF)
 - Description: UMP Stream: Stream Configuration Notification [Protocol: 1 (MIDI 1.0), JR_RX: 0, JR_TX: 0] (Form: End, Status bruto: 0x006, Payload bruto: 00000000 00000000 00000000, parcial/não detalhado)
 
-### 17. Mensagem UMP de 96 bits (Reservada / Futura)
+### 17. Mensagem UMP de 128 bits (Function Block Discovery)
+**Entrada:** `F010FF03 00000000 00000000 00000000`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Function Block Discovery [FB#: 255, ReqName: 1, ReqInfo: 1] (Form: Complete, Status bruto: 0x010, Payload bruto: 00000000 00000000 00000000, parcial/não detalhado)
+
+### 18. Mensagem UMP de 128 bits (Function Block Info Notification)
+**Entrada:** `F0118311 02040100 00000000 00000000`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Function Block Info Notification [FB#: 3, Active: 1, Dir: 1, UI: 1, M1: 0 | Grp: 2, Len: 4, CI: 1, SysEx: 0] (Form: Complete, Status bruto: 0x011, Payload bruto: 02040100 00000000 00000000, parcial/não detalhado)
+
+### 19. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)

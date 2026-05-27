@@ -255,6 +255,35 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
 
                 extraInfo = QString(" [%1, JR_RX: %2, JR_TX: %3]")
                                 .arg("Protocol: " + protocolStr).arg(jrRx).arg(jrTx);
+            } else if (status == 0x10 && words.size() >= 1) {
+                // Function Block Discovery (0x010)
+                // Os parâmetros (fbNum, reqName, reqInfo) residem nos 16 bits inferiores da word0
+                uint8_t fbNum = (word0 >> 8) & 0xFF;
+                uint8_t reqName = (word0 >> 1) & 0x1;
+                uint8_t reqInfo = word0 & 0x1;
+
+                extraInfo = QString(" [FB#: %1, ReqName: %2, ReqInfo: %3]")
+                                .arg(fbNum).arg(reqName).arg(reqInfo);
+            } else if (status == 0x11 && words.size() >= 2) {
+                // Function Block Info Notification (0x011)
+                // word0 (16 bits inferiores) carrega as flags de estado (Active), UI Hint e Direction
+                // word1 (32 bits integrais) carrega o First Group, Length, MIDI-CI e SysEx Streams
+                uint32_t word1 = words[1];
+                
+                uint8_t active = (word0 >> 15) & 0x1;
+                uint8_t fbNum = (word0 >> 8) & 0x7F;
+                uint8_t uiHint = (word0 >> 4) & 0x3;
+                uint8_t isMidi1 = (word0 >> 2) & 0x3;
+                uint8_t direction = word0 & 0x3;
+
+                uint8_t firstGrp = (word1 >> 24) & 0xFF;
+                uint8_t grpLen = (word1 >> 16) & 0xFF;
+                uint8_t midiCi = (word1 >> 8) & 0x7F;
+                uint8_t maxSysex = word1 & 0xFF;
+
+                extraInfo = QString(" [FB#: %1, Active: %2, Dir: %3, UI: %4, M1: %5 | Grp: %6, Len: %7, CI: %8, SysEx: %9]")
+                                .arg(fbNum).arg(active).arg(direction).arg(uiHint).arg(isMidi1)
+                                .arg(firstGrp).arg(grpLen).arg(midiCi).arg(maxSysex);
             }
 
             QString payload = QString("%1 %2 %3")
