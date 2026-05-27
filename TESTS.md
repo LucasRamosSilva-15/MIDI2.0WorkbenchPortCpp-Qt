@@ -149,7 +149,28 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Type: Flex Data (0xD)
 - Description: Flex Data [Group: 0, Addr: Channel, Ch: 0, Bank: 0x01, Status: 0x01] (Form: Complete, Payload bruto: 41000000 00000000 00000000, parcial/não detalhado)
 
-### 23. Mensagem UMP de 96 bits (Reservada / Futura)
+### 23. Mensagem UMP de 64 bits (Data Message - SysEx7)
+*Nota: SysEx7 carrega no máximo 6 bytes de dados por pacote.*
+**Entrada:** `30040000 00000000`
+**Comportamento Esperado:**
+- Type: Data Message (0x3)
+- Description: Data Message (SysEx7) [Group: 0, Form: Complete, Bytes: 4] (Payload bruto: 00 00 00 00, parcial/não detalhado)
+
+### 24. Mensagem UMP de 128 bits (Data Message - SysEx8)
+*Nota: SysEx8 carrega no máximo 13 bytes de dados por pacote, com o campo de StreamID extraído separadamente no cabeçalho.*
+**Entrada:** `501D0000 00000000 00000000 00000000`
+**Comportamento Esperado:**
+- Type: Data Message (0x5)
+- Description: Data Message (SysEx8) [Group: 0, Form: Start, StreamID: 0x00, Bytes: 13] (Payload bruto: 00 00 00 00 00 00 00 00 00 00 00 00 00, parcial/não detalhado)
+
+### 25. Mensagem UMP de 128 bits (Data Message - MDS)
+*Nota: Mixed Data Set (MDS) não utiliza StreamID, logo permite até 14 bytes de dados válidos por pacote.*
+**Entrada:** `508E0000 00000000 00000000 00000000`
+**Comportamento Esperado:**
+- Type: Data Message (0x5)
+- Description: Data Message (MDS) [Group: 0, Form: MDS Header, Bytes: 14] (Payload bruto: 00 00 00 00 00 00 00 00 00 00 00 00 00 00, parcial/não detalhado)
+
+### 26. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)

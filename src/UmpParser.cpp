@@ -149,14 +149,110 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
         } else if (parsed.messageType == 0x1) {
             parsed.description = "System Real Time / System Common";
         } else if (parsed.messageType == 0x3 && words.size() >= 2) {
-            QString payload = QString("%1").arg(words[1], 8, 16, QChar('0')).toUpper();
-            parsed.description = QString("Data Message (SysEx7, Payload bruto: %1)").arg(payload);
+            uint8_t format = (word0 >> 20) & 0xF;
+            uint8_t numBytes = (word0 >> 16) & 0xF;
+            if (numBytes > 6) numBytes = 6;
+
+            QString formStr;
+            switch(format) {
+                case 0: formStr = "Complete"; break;
+                case 1: formStr = "Start"; break;
+                case 2: formStr = "Continue"; break;
+                case 3: formStr = "End"; break;
+                default: formStr = QString("Unknown(0x%1)").arg(format, 1, 16); break;
+            }
+
+            uint8_t bytes[6];
+            bytes[0] = (word0 >> 8) & 0xFF;
+            bytes[1] = word0 & 0xFF;
+            bytes[2] = (words[1] >> 24) & 0xFF;
+            bytes[3] = (words[1] >> 16) & 0xFF;
+            bytes[4] = (words[1] >> 8) & 0xFF;
+            bytes[5] = words[1] & 0xFF;
+
+            QString payload = "";
+            for (int i=0; i<numBytes; ++i) {
+                if (i > 0) payload += " ";
+                payload += QString("%1").arg(bytes[i], 2, 16, QChar('0')).toUpper();
+            }
+
+            parsed.description = QString("Data Message (SysEx7) [Group: %1, Form: %2, Bytes: %3] (Payload bruto: %4, parcial/não detalhado)")
+                                    .arg(parsed.group).arg(formStr).arg(numBytes).arg(payload);
         } else if (parsed.messageType == 0x5 && words.size() >= 4) {
-            QString payload = QString("%1 %2 %3")
+            uint8_t format = (word0 >> 20) & 0xF;
+            uint8_t numBytes = (word0 >> 16) & 0xF;
+            
+            QString payload = "";
+            if (format <= 3) {
+                // SysEx8
+                if (numBytes > 13) numBytes = 13;
+                uint8_t streamId = (word0 >> 8) & 0xFF;
+                
+                uint8_t bytes[13];
+                bytes[0] = word0 & 0xFF;
+                bytes[1] = (words[1] >> 24) & 0xFF;
+                bytes[2] = (words[1] >> 16) & 0xFF;
+                bytes[3] = (words[1] >> 8) & 0xFF;
+                bytes[4] = words[1] & 0xFF;
+                bytes[5] = (words[2] >> 24) & 0xFF;
+                bytes[6] = (words[2] >> 16) & 0xFF;
+                bytes[7] = (words[2] >> 8) & 0xFF;
+                bytes[8] = words[2] & 0xFF;
+                bytes[9] = (words[3] >> 24) & 0xFF;
+                bytes[10] = (words[3] >> 16) & 0xFF;
+                bytes[11] = (words[3] >> 8) & 0xFF;
+                bytes[12] = words[3] & 0xFF;
+                
+                for (int i=0; i<numBytes; ++i) {
+                    if (i > 0) payload += " ";
+                    payload += QString("%1").arg(bytes[i], 2, 16, QChar('0')).toUpper();
+                }
+                
+                QString formStr;
+                switch(format) {
+                    case 0: formStr = "Complete"; break;
+                    case 1: formStr = "Start"; break;
+                    case 2: formStr = "Continue"; break;
+                    case 3: formStr = "End"; break;
+                }
+                parsed.description = QString("Data Message (SysEx8) [Group: %1, Form: %2, StreamID: 0x%3, Bytes: %4] (Payload bruto: %5, parcial/não detalhado)")
+                                        .arg(parsed.group).arg(formStr).arg(streamId, 2, 16, QChar('0')).arg(numBytes).arg(payload);
+            } else if (format == 8 || format == 9) {
+                // MDS
+                if (numBytes > 14) numBytes = 14;
+                uint8_t bytes[14];
+                bytes[0] = (word0 >> 8) & 0xFF;
+                bytes[1] = word0 & 0xFF;
+                bytes[2] = (words[1] >> 24) & 0xFF;
+                bytes[3] = (words[1] >> 16) & 0xFF;
+                bytes[4] = (words[1] >> 8) & 0xFF;
+                bytes[5] = words[1] & 0xFF;
+                bytes[6] = (words[2] >> 24) & 0xFF;
+                bytes[7] = (words[2] >> 16) & 0xFF;
+                bytes[8] = (words[2] >> 8) & 0xFF;
+                bytes[9] = words[2] & 0xFF;
+                bytes[10] = (words[3] >> 24) & 0xFF;
+                bytes[11] = (words[3] >> 16) & 0xFF;
+                bytes[12] = (words[3] >> 8) & 0xFF;
+                bytes[13] = words[3] & 0xFF;
+                
+                for (int i=0; i<numBytes; ++i) {
+                    if (i > 0) payload += " ";
+                    payload += QString("%1").arg(bytes[i], 2, 16, QChar('0')).toUpper();
+                }
+                
+                QString formStr = (format == 8) ? "MDS Header" : "MDS Payload";
+                parsed.description = QString("Data Message (MDS) [Group: %1, Form: %2, Bytes: %3] (Payload bruto: %4, parcial/não detalhado)")
+                                        .arg(parsed.group).arg(formStr).arg(numBytes).arg(payload);
+            } else {
+                QString formStr = QString("Unknown(0x%1)").arg(format, 1, 16);
+                payload = QString("%1 %2 %3")
                                 .arg(words[1], 8, 16, QChar('0'))
                                 .arg(words[2], 8, 16, QChar('0'))
                                 .arg(words[3], 8, 16, QChar('0')).toUpper();
-            parsed.description = QString("Data Message (SysEx8/MDS, Payload bruto: %1)").arg(payload);
+                parsed.description = QString("Data Message (SysEx8/MDS) [Group: %1, Form: %2, Bytes: %3] (Payload bruto word1-3: %4, parcial/não detalhado)")
+                                        .arg(parsed.group).arg(formStr).arg(numBytes).arg(payload);
+            }
         } else if (parsed.messageType == 0xD && words.size() >= 4) {
             uint8_t format = (word0 >> 22) & 0x3;
             uint8_t address = (word0 >> 20) & 0x3;
