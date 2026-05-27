@@ -85,6 +85,8 @@ void MainWindow::interpretClicked() {
         return;
     }
 
+    m_tableWidget->setRowCount(0); // Limpa a tabela antes de cada nova interpretação
+
     logMessage(QString("Processando %1 bytes de texto...").arg(input.length()));
 
     // Remove espaços, quebras de linha e tabs para formar um buffer contínuo de palavras hexadecimais
