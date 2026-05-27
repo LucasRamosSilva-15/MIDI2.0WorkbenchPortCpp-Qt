@@ -242,12 +242,12 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
                                 .arg(modLsb, 2, 16, QChar('0')).arg(modMsb, 2, 16, QChar('0'))
                                 .arg(rev1, 2, 16, QChar('0')).arg(rev2, 2, 16, QChar('0'))
                                 .arg(rev3, 2, 16, QChar('0')).arg(rev4, 2, 16, QChar('0')).toUpper();
-            } else if (status == 0x03 && words.size() >= 4) {
-                // Endpoint Name Notification (0x003)
+            } else if ((status == 0x03 || status == 0x04) && words.size() >= 4) {
+                // Endpoint Name Notification (0x003) e Product Instance ID Notification (0x004)
                 uint8_t form = (word0 >> 26) & 0x3;
                 
                 QString nameStr = "";
-                // Os 2 bytes inferiores da Word 0 (bits 15-0) já podem conter ASCII no Endpoint Name
+                // Os 2 bytes inferiores da Word 0 (bits 15-0) já podem conter ASCII no nome/ID
                 for (int shift = 8; shift >= 0; shift -= 8) {
                     char c = (word0 >> shift) & 0xFF;
                     if (c >= 32 && c <= 126) nameStr += QChar(c);

@@ -137,7 +137,13 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Type: Stream/Endpoint (0xF)
 - Description: UMP Stream: Endpoint Name Notification [ASCII filtrado: 'Korg Kronos'] (Form: Complete, Status bruto: 0x003, Payload bruto: 7267204B 726F6E6F 73000000, parcial/não detalhado)
 
-### 21. Mensagem UMP de 96 bits (Reservada / Futura)
+### 21. Mensagem UMP de 128 bits (Product Instance ID Notification)
+**Entrada:** `F004534E 31323334 35363738 39303132`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Product Instance ID Notification [ASCII filtrado: 'SN123456789012'] (Form: Complete, Status bruto: 0x004, Payload bruto: 31323334 35363738 39303132, parcial/não detalhado)
+
+### 22. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)

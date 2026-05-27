@@ -29,6 +29,7 @@ O formato 0xF possui parsing parcial robusto com foco em visibilidade estática:
 - **Endpoint Info Notification (0x001)** (Versão, Static FB, etc)
 - **Device Identity Notification (0x002)** (Fabricante, Modelo e Revisão extraídos com máscaras de 7-bits)
 - **Endpoint Name Notification (0x003)** (O aplicativo exibe apenas uma visualização **ASCII filtrada** com os caracteres visíveis deste pacote. Não utiliza buffer e não reconstrói fragmentos).
+- **Product Instance ID Notification (0x004)** (Extração de strings idêntica ao Endpoint Name: segura, não fragmentada, mantendo payload).
 - **Stream Configuration Request (0x005)** (Parsing do Protocolo exigido e Jitter Reduction)
 - **Stream Configuration Notification (0x006)** (Parsing do Protocolo aceito)
 - **Function Block Discovery (0x010)** (Alvos da descoberta mapeados na primeira palavra)
