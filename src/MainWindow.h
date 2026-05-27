@@ -4,6 +4,8 @@
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QLineEdit>
+#include <QLabel>
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -16,8 +18,10 @@ private slots:
     void interpretClicked();
     void openFileClicked();
     void saveLogClicked();
+    void copyTableClicked();
     void clearClicked();
     void loadExamplesClicked();
+    void filterTable(const QString& text);
 
 private:
     void setupUi();
@@ -27,8 +31,12 @@ private:
     QPushButton* m_interpretBtn;
     QPushButton* m_openFileBtn;
     QPushButton* m_saveLogBtn;
+    QPushButton* m_copyTableBtn;
     QPushButton* m_clearBtn;
     QPushButton* m_loadExamplesBtn;
+    
+    QLineEdit* m_filterField;
+    QLabel* m_statsLabel;
     
     QTableWidget* m_tableWidget;
     QTextEdit* m_logPanel;

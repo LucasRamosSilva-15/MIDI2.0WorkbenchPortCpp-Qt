@@ -1,10 +1,14 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-**Versão:** v0.5.0 - Partial SysEx7/SysEx8/MDS parsing
+**Versão:** v0.6.0 - Enhanced Usability UI
 
-## Status da versão v0.5.0
+## Status da versão v0.6.0
 
-Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.5.0** mantém todos os avanços da v0.4.0 e adiciona o *parsing* parcial para os formatos de sistema exclusivo: **MT 0x3 SysEx7** e **MT 0x5 SysEx8 / Mixed Data Set**.
+Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.6.0** mantém todos os avanços da v0.5.0 e adiciona ferramentas de interface cruciais de usabilidade (*Quality of Life*):
+- **Barra de Filtro em Tempo Real**: Filtre pacotes dinamicamente pelo tipo da mensagem (ex: *SysEx*, *Flex*).
+- **Cópia Instantânea**: O botão `Copiar Tabela` transfere rapidamente o grid visível validado para a Área de Transferência.
+- **Auditoria Qualitativa**: Uma label contabiliza o Total Analisado, Lidos com Sucesso e Erros Críticos de truncamento.
+- **Suíte Prática de Exemplos**: O botão `Carregar exemplos` agora conta não apenas com pacotes básicos, mas despeja um escopo de SysEx7, SysEx8, MDS, Flex e UMP Stream para avaliação visual imediata.
 
 ### Funcionalidades Suportadas Parcialmente
 Atualmente, o parser offline reconhece e descreve os seguintes dados:
