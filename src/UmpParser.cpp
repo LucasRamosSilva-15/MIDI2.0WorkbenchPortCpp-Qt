@@ -164,15 +164,67 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
                                 .arg(words[3], 8, 16, QChar('0')).toUpper();
             parsed.description = QString("Flex Data (parcial/não detalhado, Payload bruto: %1)").arg(payload);
         } else if (parsed.messageType == 0xF && words.size() >= 4) {
-            // Extraímos 10 bits (27 a 18 na especificação, aqui simplificamos offset 16 pra fins brutos de debug visual)
-            uint16_t statusRaw = (word0 >> 16) & 0x3FF;
+            // MT 0xF (UMP Stream): O cabeçalho base é comum a todos os Stream Messages.
+            // Bits 27-26: Form (2 bits)
+            // Bits 25-16: Status (10 bits)
+            uint8_t form = (word0 >> 26) & 0x3;
+            uint16_t status = (word0 >> 16) & 0x3FF;
+            
+            QString formStr;
+            switch(form) {
+                case 0: formStr = "Complete"; break;
+                case 1: formStr = "Start"; break;
+                case 2: formStr = "Continue"; break;
+                case 3: formStr = "End"; break;
+            }
+
+            QString statusName;
+            switch(status) {
+                case 0x00: statusName = "Endpoint Discovery"; break;
+                case 0x01: statusName = "Endpoint Info Notification"; break;
+                case 0x02: statusName = "Device Identity Notification"; break;
+                case 0x03: statusName = "Endpoint Name Notification"; break;
+                case 0x04: statusName = "Product Instance Id Notification"; break;
+                case 0x05: statusName = "Stream Configuration Request"; break;
+                case 0x06: statusName = "Stream Configuration Notification"; break;
+                case 0x10: statusName = "Function Block Discovery"; break;
+                case 0x11: statusName = "Function Block Info Notification"; break;
+                case 0x12: statusName = "Function Block Name Notification"; break;
+                default: statusName = "não detalhado"; break;
+            }
+
+            QString extraInfo = "";
+            // Extração estrita para o Status 0x001 (Endpoint Info Notification).
+            // Estes campos como UMP Version, numFb, M1/M2 Support, etc., aplicam-se APENAS
+            // a esta notificação específica e NÃO são campos genéricos de toda mensagem UMP Stream.
+            if (status == 0x01 && words.size() >= 2) {
+                uint32_t word1 = words[1];
+                uint8_t major = (word0 >> 8) & 0xFF;
+                uint8_t minor = word0 & 0xFF;
+                uint8_t staticFb = (word1 >> 31) & 0x1;
+                uint8_t numFb = (word1 >> 24) & 0x7F;
+                uint8_t midi2 = (word1 >> 9) & 0x1;
+                uint8_t midi1 = (word1 >> 8) & 0x1;
+                uint8_t jrRx = (word1 >> 1) & 0x1;
+                uint8_t jrTx = word1 & 0x1;
+
+                extraInfo = QString(" [UMP v%1.%2, FuncBlocks: %3 (Static: %4), M2: %5, M1: %6, JRR: %7, JRT: %8]")
+                                .arg(major).arg(minor)
+                                .arg(numFb).arg(staticFb)
+                                .arg(midi2).arg(midi1)
+                                .arg(jrRx).arg(jrTx);
+            }
+
             QString payload = QString("%1 %2 %3")
                                 .arg(words[1], 8, 16, QChar('0'))
                                 .arg(words[2], 8, 16, QChar('0'))
                                 .arg(words[3], 8, 16, QChar('0')).toUpper();
             
-            parsed.description = QString("UMP Stream Message (Status bruto: 0x%1, Payload bruto: %2, parcial/não detalhado)")
-                                    .arg(QString("%1").arg(statusRaw, 3, 16, QChar('0')).toUpper())
+            parsed.description = QString("UMP Stream: %1%2 (Form: %3, Status bruto: 0x%4, Payload bruto: %5, parcial/não detalhado)")
+                                    .arg(statusName)
+                                    .arg(extraInfo)
+                                    .arg(formStr)
+                                    .arg(QString("%1").arg(status, 3, 16, QChar('0')).toUpper())
                                     .arg(payload);
         } else {
             // Tipos Reservados: 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xE

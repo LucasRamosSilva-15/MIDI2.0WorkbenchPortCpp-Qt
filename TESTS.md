@@ -72,13 +72,38 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Type: Flex Data (0xD)
 - Description: Flex Data (parcial/não detalhado, Payload bruto: 11223344 55667788 99AABBCC)
 
-### 11. Mensagem UMP de 128 bits (Endpoint / Stream)
+### 11. Mensagem UMP de 128 bits (Endpoint Discovery)
 **Entrada:** `F0000000 11223344 55667788 99AABBCC`
 **Comportamento Esperado:**
 - Type: Stream/Endpoint (0xF)
-- Description: UMP Stream Message (Status bruto: 0x000, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+- Description: UMP Stream: Endpoint Discovery (Form: Complete, Status bruto: 0x000, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
 
-### 12. Mensagem UMP de 96 bits (Reservada / Futura)
+### 12. Mensagem UMP de 128 bits (Validação Específica de Endpoint Info Notification)
+**Nota:** Este teste valida os bits internos que só existem em notificações de informações de Endpoint (Status 0x001), e não em mensagens de Stream genéricas.
+**Entrada:** `F0010101 82000303 00000000 00000000`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Endpoint Info Notification [UMP v1.1, FuncBlocks: 2 (Static: 1), M2: 1, M1: 1, JRR: 1, JRT: 1] (Form: Complete, Status bruto: 0x001, Payload bruto: 82000303 00000000 00000000, parcial/não detalhado)
+
+### 13. Mensagem UMP de 128 bits (Device Identity Notification)
+**Entrada:** `F0020000 11223344 55667788 99AABBCC`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Device Identity Notification (Form: Complete, Status bruto: 0x002, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+
+### 14. Mensagem UMP de 128 bits (Stream Configuration Request)
+**Entrada:** `F0050000 11223344 55667788 99AABBCC`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Stream Configuration Request (Form: Complete, Status bruto: 0x005, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+
+### 15. Mensagem UMP de 128 bits (Stream Configuration Notification)
+**Entrada:** `FC060000 11223344 55667788 99AABBCC`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Stream Configuration Notification (Form: End, Status bruto: 0x006, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+
+### 16. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)
@@ -89,10 +114,10 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 
 ## 🔴 Testes de Tratamento de Erros
 
-### 13. Entrada Incompleta (Buffer sob fluxo)
+### 14. Entrada Incompleta (Buffer sob fluxo)
 **Entrada:** `40904000` (Um pacote de 64 bits cortado na metade)
 **Comportamento:** O pacote é descartado para proteger o parser e o Log reporta: `Erro de empacotamento UMP: O Message Type 0x4 determina um pacote...`
 
-### 14. Entrada Inválida (Corrupção de texto)
+### 15. Entrada Inválida (Corrupção de texto)
 **Entrada:** `LIXO_AQUI_TESTE`
 **Comportamento:** O Log aborta o parse dizendo: `Erro Crítico: A string 'LIXO_AQU' contém texto ou caracteres hexadecimais inválidos.`
