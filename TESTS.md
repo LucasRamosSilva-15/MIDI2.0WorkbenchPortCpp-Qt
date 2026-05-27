@@ -174,8 +174,25 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)
-- Status/Channel/Group: - (Não aplicáveis)
-- Description: Reserved / Future Use (Não interpretado)
+- Description: Message Type 0xB não mapeado (Reservado) (Payload bruto: B0000000 00000000 00000000, parcial/não detalhado)
+
+## 🪲 Testes de Robustez e Entradas Maliciosas
+
+### 27. Teste de Sobra Hexadecimal (Truncamento Ímpar)
+**Entrada:** `20904000 409`
+**Comportamento Esperado:**
+- O parser deve recusar a entrada com a mensagem: *O tamanho da entrada (11 caracteres hexadecimais) não forma words exatas. Há uma sobra de 3 caractere(s).*
+
+### 28. Teste de Caractere Inválido Encondido
+**Entrada:** `20904000 XX904000`
+**Comportamento Esperado:**
+- O parser deve bloquear antes de processar: *Encontrado caractere inválido 'X' (posição 8).*
+
+### 29. Teste de Pacote Incompleto (Message Type Mentiroso)
+**Entrada:** `30040000`
+*(Nota: MT 0x3 SysEx7 exige sempre 2 words, ou seja, 64 bits. Mas mandamos só 1 word).*
+**Comportamento Esperado:**
+- A UI exibirá a mensagem de erro: *Pacote Incompleto. MT 0x3 esperava 2 palavras.* E não fará o parsing.
 
 ---
 

@@ -1,14 +1,15 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-**Versão:** v0.6.0 - Enhanced Usability UI
+**Versão:** v0.7.0 - Robustness & Input Validation
 
-## Status da versão v0.6.0
+## Status da versão v0.7.0
 
-Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.6.0** mantém todos os avanços da v0.5.0 e adiciona ferramentas de interface cruciais de usabilidade (*Quality of Life*):
-- **Barra de Filtro em Tempo Real**: Filtre pacotes dinamicamente pelo tipo da mensagem (ex: *SysEx*, *Flex*).
-- **Cópia Instantânea**: O botão `Copiar Tabela` transfere rapidamente o grid visível validado para a Área de Transferência.
-- **Auditoria Qualitativa**: Uma label contabiliza o Total Analisado, Lidos com Sucesso e Erros Críticos de truncamento.
-- **Suíte Prática de Exemplos**: O botão `Carregar exemplos` agora conta não apenas com pacotes básicos, mas despeja um escopo de SysEx7, SysEx8, MDS, Flex e UMP Stream para avaliação visual imediata.
+Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.7.0** mantém todos os avanços da v0.6.0 e solidifica a arquitetura defensiva do projeto focando em Robustez e Tolerância a Falhas:
+- **Resiliência de Arquivos**: O projeto bloqueia arquivos maiores que 1 MB prevenindo travamentos ou estouro de memória no loop primário.
+- **Auditoria Léxica Hexadecimal**: Agora a interface rastreia o caractere exato e a posição de invasores de texto escondidos dentro do *payload*, recusando processar chaves sujas.
+- **Detecção de Truncamento**: Se os caracteres enviados não fecharem perfeitamente no limite matemático UMP (múltiplos de 8 caracteres/32 bits), o app alerta exatamente quantos caracteres restaram (sobras) como diagnóstico forense.
+- **Pacotes Interrompidos**: O Parser agora lida agressivamente com *Message Types* que anunciam, digamos, "4 palavras" no cabeçalho, mas cujos dados físicos enviados são menores, impedindo *crashes* de memória e acusando o truncamento incompleto.
+- **Tolerância Branca Segura**: Espaços, quebras de linha e tabs continuam sendo higienizados sem acionar os alarmes, viabilizando recortes brutos de tabelas externas sem atritos.
 
 ### Funcionalidades Suportadas Parcialmente
 Atualmente, o parser offline reconhece e descreve os seguintes dados:
