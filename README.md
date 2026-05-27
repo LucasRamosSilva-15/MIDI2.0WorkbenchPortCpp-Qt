@@ -1,4 +1,4 @@
-# MIDI 2.0 UMP Analyzer (Offline MVP 0.1)
+# MIDI 2.0 UMP Analyzer (Offline v0.2.0)
 
 Um aplicativo de interface gráfica desenvolvido em C++ e Qt6 para atuar como um analisador básico e offline de pacotes **UMP (Universal MIDI Packet)** da especificação MIDI 2.0.
 
@@ -10,6 +10,7 @@ Ele recebe pacotes UMP em formato hexadecimal puro (representando blocos de 32 b
 - Message Type (MIDI 1.0, MIDI 2.0, SysEx, Utility, Flex Data, Stream, etc.)
 - Campos aplicáveis (Group, Status e Channel)
 - Descrição da performance com suporte dinâmico a *payloads* extraídos.
+- **Novidade na v0.2.0**: Reconhecimento estrutural das mensagens não-Voice (MT 0x3, 0x5, 0xD, 0xF) com exibição de seu *payload* em formato bruto (hexadecimal).
 
 ## Como Usar
 Ao abrir a aplicação, a interface oferece as seguintes ferramentas:
@@ -20,11 +21,13 @@ Ao abrir a aplicação, a interface oferece as seguintes ferramentas:
 - **Salvar log**: Exporta os resultados da tabela UMP dissecada junto com os relatórios de integridade do painel de *log* para um arquivo de texto de fácil compartilhamento.
 - **Limpar**: Zera todo o estado (entrada, tabela e log) preparando o app para uma nova rotina.
 
-## Limitações do MVP 0.1
-Visando estrita segurança e correção, o escopo do MVP está focado apenas na robustez e não em amplitude de recursos:
+## Limitações da v0.2.0
+Visando estrita segurança e correção, o escopo atual está focado apenas na robustez e não em amplitude de recursos:
 - **Sem conexão MIDI Real**: O programa atua 100% offline. Não estabelece nenhum *socket* ou gancho em APIs como *Windows MIDI Services* ou drivers USB.
 - **Sem MIDI-CI ou Property Exchange**: Não realiza auto-descoberta, *Profile Configuration* nem *Protocol Negotiation*.
-- **Parsing Intencionalmente Limitado**: A dissecação foca primordialmente em estabilidade para *Voice Messages* (MT 0x2 e MT 0x4). As cargas complexas (Payloads) de *SysEx*, *Flex Data*, e *Endpoint/Stream Messages* ainda não têm seus interiores completamente detalhados na UI para evitar falsos positivos na ausência de validação de *flags* avançadas de *Options* ou de Atributos estendidos.
+- **Parsing Intencionalmente Limitado**: 
+  - A dissecação profunda abrange primordialmente *Voice Messages* (MT 0x2 e MT 0x4). 
+  - As cargas complexas de **SysEx (MT 0x3/0x5)**, **Flex Data (MT 0xD)** e **Endpoint/Stream Messages (MT 0xF)** são identificadas e exibem seu *payload* bruto de maneira genérica (ex: `Payload bruto: 11223344`), mas **não** são decodificadas detalhadamente. A interface não interpretará nomes de Endpoint, Function Blocks, Manufacturer IDs ou letras musicais internas para evitar falsos positivos.
 
 ## Validação e Testes
 Sempre verifique o documento de bateria de testes incluso: [TESTS.md](TESTS.md). Ele contém uma gama de amostras cruas (divididas por taxa de confiabilidade) com as quais o comportamento do parser e dos manipuladores de falhas e corrupção de memória (buffer incompleto) podem ser testados de imediato.

@@ -148,14 +148,32 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
             parsed.description = "Utility Message";
         } else if (parsed.messageType == 0x1) {
             parsed.description = "System Real Time / System Common";
-        } else if (parsed.messageType == 0x3) {
-            parsed.description = "Data Message (SysEx7)";
-        } else if (parsed.messageType == 0x5) {
-            parsed.description = "Data Message (SysEx8 / Mixed Data Set)";
-        } else if (parsed.messageType == 0xD) {
-            parsed.description = "Flex Data";
-        } else if (parsed.messageType == 0xF) {
-            parsed.description = "UMP Stream / Endpoint Message";
+        } else if (parsed.messageType == 0x3 && words.size() >= 2) {
+            QString payload = QString("%1").arg(words[1], 8, 16, QChar('0')).toUpper();
+            parsed.description = QString("Data Message (SysEx7, Payload bruto: %1)").arg(payload);
+        } else if (parsed.messageType == 0x5 && words.size() >= 4) {
+            QString payload = QString("%1 %2 %3")
+                                .arg(words[1], 8, 16, QChar('0'))
+                                .arg(words[2], 8, 16, QChar('0'))
+                                .arg(words[3], 8, 16, QChar('0')).toUpper();
+            parsed.description = QString("Data Message (SysEx8/MDS, Payload bruto: %1)").arg(payload);
+        } else if (parsed.messageType == 0xD && words.size() >= 4) {
+            QString payload = QString("%1 %2 %3")
+                                .arg(words[1], 8, 16, QChar('0'))
+                                .arg(words[2], 8, 16, QChar('0'))
+                                .arg(words[3], 8, 16, QChar('0')).toUpper();
+            parsed.description = QString("Flex Data (parcial/não detalhado, Payload bruto: %1)").arg(payload);
+        } else if (parsed.messageType == 0xF && words.size() >= 4) {
+            // Extraímos 10 bits (27 a 18 na especificação, aqui simplificamos offset 16 pra fins brutos de debug visual)
+            uint16_t statusRaw = (word0 >> 16) & 0x3FF;
+            QString payload = QString("%1 %2 %3")
+                                .arg(words[1], 8, 16, QChar('0'))
+                                .arg(words[2], 8, 16, QChar('0'))
+                                .arg(words[3], 8, 16, QChar('0')).toUpper();
+            
+            parsed.description = QString("UMP Stream Message (Status bruto: 0x%1, Payload bruto: %2, parcial/não detalhado)")
+                                    .arg(QString("%1").arg(statusRaw, 3, 16, QChar('0')).toUpper())
+                                    .arg(payload);
         } else {
             // Tipos Reservados: 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xE
             parsed.description = "Reserved / Future Use (Não interpretado)";

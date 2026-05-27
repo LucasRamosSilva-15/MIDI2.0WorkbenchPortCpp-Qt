@@ -54,27 +54,45 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 **Comportamento Esperado:**
 - Description: Per-Note Message (parcial/não detalhado)
 
-### 8. Mensagem UMP de 96 bits (Reservada / Futura)
+### 8. Mensagem UMP de 64 bits (SysEx7)
+**Entrada:** `30000000 11223344`
+**Comportamento Esperado:**
+- Type: SysEx7 (0x3)
+- Description: Data Message (SysEx7, Payload bruto: 11223344)
+
+### 9. Mensagem UMP de 128 bits (SysEx8 / MDS)
+**Entrada:** `50000000 11223344 55667788 99AABBCC`
+**Comportamento Esperado:**
+- Type: SysEx8/MDS (0x5)
+- Description: Data Message (SysEx8/MDS, Payload bruto: 11223344 55667788 99AABBCC)
+
+### 10. Mensagem UMP de 128 bits (Flex Data)
+**Entrada:** `D0000000 11223344 55667788 99AABBCC`
+**Comportamento Esperado:**
+- Type: Flex Data (0xD)
+- Description: Flex Data (parcial/não detalhado, Payload bruto: 11223344 55667788 99AABBCC)
+
+### 11. Mensagem UMP de 128 bits (Endpoint / Stream)
+**Entrada:** `F0000000 11223344 55667788 99AABBCC`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream Message (Status bruto: 0x000, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+
+### 12. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)
 - Status/Channel/Group: - (Não aplicáveis)
 - Description: Reserved / Future Use (Não interpretado)
 
-### 9. Mensagem UMP de 128 bits (Endpoint / Stream)
-**Entrada:** `F0000000 00000000 00000000 00000000`
-**Comportamento Esperado:**
-- Type: Stream/Endpoint (0xF)
-- Description: UMP Stream / Endpoint Message
-
 ---
 
 ## 🔴 Testes de Tratamento de Erros
 
-### 10. Entrada Incompleta (Buffer sob fluxo)
+### 13. Entrada Incompleta (Buffer sob fluxo)
 **Entrada:** `40904000` (Um pacote de 64 bits cortado na metade)
 **Comportamento:** O pacote é descartado para proteger o parser e o Log reporta: `Erro de empacotamento UMP: O Message Type 0x4 determina um pacote...`
 
-### 11. Entrada Inválida (Corrupção de texto)
+### 14. Entrada Inválida (Corrupção de texto)
 **Entrada:** `LIXO_AQUI_TESTE`
 **Comportamento:** O Log aborta o parse dizendo: `Erro Crítico: A string 'LIXO_AQU' contém texto ou caracteres hexadecimais inválidos.`
