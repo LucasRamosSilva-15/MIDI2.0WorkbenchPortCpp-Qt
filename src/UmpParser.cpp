@@ -242,6 +242,33 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
                                 .arg(modLsb, 2, 16, QChar('0')).arg(modMsb, 2, 16, QChar('0'))
                                 .arg(rev1, 2, 16, QChar('0')).arg(rev2, 2, 16, QChar('0'))
                                 .arg(rev3, 2, 16, QChar('0')).arg(rev4, 2, 16, QChar('0')).toUpper();
+            } else if (status == 0x03 && words.size() >= 4) {
+                // Endpoint Name Notification (0x003)
+                uint8_t form = (word0 >> 26) & 0x3;
+                
+                QString nameStr = "";
+                // Os 2 bytes inferiores da Word 0 (bits 15-0) já podem conter ASCII no Endpoint Name
+                for (int shift = 8; shift >= 0; shift -= 8) {
+                    char c = (word0 >> shift) & 0xFF;
+                    if (c >= 32 && c <= 126) nameStr += QChar(c);
+                }
+                
+                // Words 1, 2 e 3 comportam os 12 bytes restantes (4 bytes cada)
+                for (int i = 1; i <= 3; ++i) {
+                    uint32_t w = words[i];
+                    for (int shift = 24; shift >= 0; shift -= 8) {
+                        char c = (w >> shift) & 0xFF;
+                        if (c >= 32 && c <= 126) nameStr += QChar(c);
+                    }
+                }
+
+                QString formWarning = "";
+                if (form != 0) {
+                    formWarning = " (Fragmentado)";
+                }
+
+                extraInfo = QString(" [ASCII filtrado%1: '%2']")
+                                .arg(formWarning).arg(nameStr.trimmed());
             } else if ((status == 0x05 || status == 0x06) && words.size() >= 1) {
                 // Stream Configuration Request (0x005) e Notification (0x006)
                 uint8_t protocol = (word0 >> 8) & 0xFF;
