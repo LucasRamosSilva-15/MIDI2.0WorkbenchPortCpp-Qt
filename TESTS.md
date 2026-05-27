@@ -100,16 +100,16 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Description: UMP Stream: Device Identity Notification [MFR: 7F-7F-7F, FAM: 7F-7F, MOD: 7F-7F, REV: 7F-7F-7F-7F] (Form: Complete, Status bruto: 0x002, Payload bruto: 00FFFFFF FFFFFFFF FFFFFFFF, parcial/não detalhado)
 
 ### 15. Mensagem UMP de 128 bits (Stream Configuration Request)
-**Entrada:** `F0050000 11223344 55667788 99AABBCC`
+**Entrada:** `F0050203 11223344 55667788 99AABBCC`
 **Comportamento Esperado:**
 - Type: Stream/Endpoint (0xF)
-- Description: UMP Stream: Stream Configuration Request (Form: Complete, Status bruto: 0x005, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+- Description: UMP Stream: Stream Configuration Request [Protocol: 2 (MIDI 2.0), JR_RX: 1, JR_TX: 1] (Form: Complete, Status bruto: 0x005, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
 
 ### 16. Mensagem UMP de 128 bits (Stream Configuration Notification)
-**Entrada:** `FC060000 11223344 55667788 99AABBCC`
+**Entrada:** `FC060100 00000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Stream/Endpoint (0xF)
-- Description: UMP Stream: Stream Configuration Notification (Form: End, Status bruto: 0x006, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+- Description: UMP Stream: Stream Configuration Notification [Protocol: 1 (MIDI 1.0), JR_RX: 0, JR_TX: 0] (Form: End, Status bruto: 0x006, Payload bruto: 00000000 00000000 00000000, parcial/não detalhado)
 
 ### 17. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`

@@ -242,6 +242,19 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
                                 .arg(modLsb, 2, 16, QChar('0')).arg(modMsb, 2, 16, QChar('0'))
                                 .arg(rev1, 2, 16, QChar('0')).arg(rev2, 2, 16, QChar('0'))
                                 .arg(rev3, 2, 16, QChar('0')).arg(rev4, 2, 16, QChar('0')).toUpper();
+            } else if ((status == 0x05 || status == 0x06) && words.size() >= 1) {
+                // Stream Configuration Request (0x005) e Notification (0x006)
+                uint8_t protocol = (word0 >> 8) & 0xFF;
+                uint8_t jrRx = (word0 >> 1) & 0x1;
+                uint8_t jrTx = word0 & 0x1;
+
+                QString protocolStr;
+                if (protocol == 1) protocolStr = "1 (MIDI 1.0)";
+                else if (protocol == 2) protocolStr = "2 (MIDI 2.0)";
+                else protocolStr = QString("%1 (desconhecido/reservado)").arg(protocol);
+
+                extraInfo = QString(" [%1, JR_RX: %2, JR_TX: %3]")
+                                .arg("Protocol: " + protocolStr).arg(jrRx).arg(jrTx);
             }
 
             QString payload = QString("%1 %2 %3")
