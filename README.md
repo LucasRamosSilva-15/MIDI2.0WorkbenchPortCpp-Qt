@@ -1,13 +1,12 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-**Versão:** v0.8.0 - Automated Parser Test Harness
+**Versão:** v0.9.0 - GitHub Actions CI
 
-## Status da versão v0.8.0
+## Status da versão v0.9.0
 
-Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.8.0** mantém todos os avanços da v0.7.0 e injeta uma suíte C++ autônoma focada na compilação cruzada para testes lógicos (*Automated Test Harness*):
-- **Infraestrutura Desacoplada**: A lógica de validação de *string* foi isolada estaticamente da `MainWindow` direto para o `UmpParser`, permitindo testes cegos sem alocação gráfica.
-- **Console Test Executable**: Novo target `UmpParserTests` gerado nativamente pelo CMake, provando que o parser resiste sozinho sem depender do Qt Widgets.
-- **Validação Unitária Automatizada**: O script PowerShell roda a asserção binária para MIDI Voice, SysEx7/8, Flex Data e UMP Stream, cobrindo truncamentos e falhas de formatação, resultando em saída PASS/FAIL contínua.
+Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.9.0** mantém todos os avanços da v0.8.0 e integra o projeto na nuvem de **Integração Contínua (CI) do GitHub Actions**:
+- **Automated Windows Build**: Cada `push` ou `pull_request` instancia uma máquina virtual limpa Windows (MSVC 2022) com Qt6 e garante que os executáveis de binários e de testes não estejam quebrados.
+- **Fail-Safe Tests**: A nuvem obriga a execução do pacote `tests\run_tests.ps1` bloqueando *commits* que destruam as regras matemáticas já estabelecidas e atestando a robustez dos decodificadores UMP de forma pública e transparente.
 
 ### Funcionalidades Suportadas Parcialmente
 Atualmente, o parser offline reconhece e descreve os seguintes dados:

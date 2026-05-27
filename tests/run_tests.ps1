@@ -1,14 +1,22 @@
+param (
+    [switch]$SkipBuild
+)
+
 # Script de Execucao de Testes (v0.8.0)
 $ErrorActionPreference = "Stop"
 
-Write-Host "--- Parando app se estiver aberto ---"
-Stop-Process -Name MidiUmpAnalyzer -ErrorAction SilentlyContinue
+if (-Not $SkipBuild -and -Not $env:CI) {
+    Write-Host "--- Parando app se estiver aberto ---"
+    Stop-Process -Name MidiUmpAnalyzer -ErrorAction SilentlyContinue
 
-Write-Host "`n--- Compilando Projeto em Release ---"
-cmake --build build --config Release
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Falha no Build!" -ForegroundColor Red
-    exit 1
+    Write-Host "`n--- Compilando Projeto em Release ---"
+    cmake --build build --config Release
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Falha no Build!" -ForegroundColor Red
+        exit 1
+    }
+} else {
+    Write-Host "--- Modo CI / SkipBuild detectado: Pulando recompilacao local ---"
 }
 
 Write-Host "`n--- Rodando Testes Automatizados ---"
