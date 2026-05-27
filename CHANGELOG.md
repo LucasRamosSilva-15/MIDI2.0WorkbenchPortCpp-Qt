@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.1.0 - Automatic Release Packaging
+- Workflow de Lançamento (CD) introduzido. Pacotes `.zip` empacotando o executável e as bibliotecas Qt compiladas são gerados instantaneamente e indexados ao GitHub Releases sempre que uma nova tag `v*` for empurrada no repositório.
+
 ## v1.0.0 - Offline UMP Analyzer MVP
 - **Release principal**: Aplicação consolidada como Analisador Offline MVP.
 - Documentação refinada, limitação estrita declarada (não atua como MIDI Host em tempo real).

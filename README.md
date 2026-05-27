@@ -1,6 +1,6 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-**Versão:** v1.0.0 - Offline UMP Analyzer MVP
+**Versão:** v1.1.0 - Automatic Release Packaging
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
@@ -23,9 +23,11 @@ O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal 
 - **NÃO reconstrói fragmentação UMP**. Pacotes SysEx ou Flex partidos em pacotes menores (Start/Continue/End) são avaliados isoladamente pacote por pacote de forma forense, sem concatenação temporária de estado (buffer state).
 
 ## Infraestrutura Tecnológica (Testes e CI)
-A versão `v1.0.0` suporta testes nativos puramente C++, desacoplados da interface gráfica Qt:
+A versão `v1.1.0` suporta testes nativos puramente C++, desacoplados da interface gráfica Qt:
 - **Automação de Testes Local (`UmpParserTests`)**: Cobertura paramétrica contra pacotes mentirosos, sujeira alfanumérica e validação semântica de MT.
-- **GitHub Actions (CI)**: Configurado em `.github/workflows/ci.yml`. A cada commit/push na branch `main`, o Windows na nuvem reinstala o compilador MSVC 2022 e a suíte Qt6, testando toda a sanidade binária e aprovando via verde passivo (*Fail-Safe*).
+- **GitHub Actions (CI / CD)**:
+  - A cada *commit/push* normal, a nuvem Windows analisa a robustez binária usando testes automáticos.
+  - A cada *Tag* postada na branch (`v*`), a nuvem engatilha o **Release Worklflow**, empacotando o executável estático junto das DLLs requeridas via `windeployqt` e gerando automaticamente o pacote `.zip` de lançamento na aba de Releases.
 
 ## Instruções de Build Local
 
