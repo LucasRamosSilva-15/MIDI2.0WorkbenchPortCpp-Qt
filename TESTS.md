@@ -123,7 +123,13 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Type: Stream/Endpoint (0xF)
 - Description: UMP Stream: Function Block Info Notification [FB#: 3, Active: 1, Dir: 1, UI: 1, M1: 0 | Grp: 2, Len: 4, CI: 1, SysEx: 0] (Form: Complete, Status bruto: 0x011, Payload bruto: 02040100 00000000 00000000, parcial/não detalhado)
 
-### 19. Mensagem UMP de 96 bits (Reservada / Futura)
+### 19. Mensagem UMP de 128 bits (Function Block Name Notification)
+**Entrada:** `F0120100 4B6F7267 204B726F 6E6F7300`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Function Block Name Notification [FB#: 1, ASCII filtrado: 'Korg Kronos'] (Form: Complete, Status bruto: 0x012, Payload bruto: 4B6F7267 204B726F 6E6F7300, parcial/não detalhado)
+
+### 20. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)

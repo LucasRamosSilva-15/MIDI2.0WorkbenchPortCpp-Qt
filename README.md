@@ -1,51 +1,56 @@
-# MIDI 2.0 UMP Analyzer (Offline v0.2.0)
+# MIDI 2.0 Workbench Port (C++ / Qt6)
 
-Um aplicativo de interface gráfica desenvolvido em C++ e Qt6 para atuar como um analisador básico e offline de pacotes **UMP (Universal MIDI Packet)** da especificação MIDI 2.0.
+Este projeto é uma versão independente e portável do **MIDI 2.0 Workbench**.
+Ele foi projetado como um **analisador offline estático** de pacotes UMP (Universal MIDI Packet) escrito inteiramente em C++ e Qt6.
 
-Este projeto visa facilitar o desenvolvimento e os testes visuais rápidos de lógicas de *parsing* UMP antes da integração com drivers complexos de transporte do sistema operacional ou hardwares.
+## Limitações / Escopo do MVP Atual (v0.2.0)
 
-## O que o app faz
-Ele recebe pacotes UMP em formato hexadecimal puro (representando blocos de 32 bits da especificação) e decodifica as estruturas da mensagem, organizando-as em uma tabela amigável contendo:
-- Tamanho real (32, 64, 96 ou 128 bits) deduzido pelo *Message Type*.
-- Message Type (MIDI 1.0, MIDI 2.0, SysEx, Utility, Flex Data, Stream, etc.)
-- Campos aplicáveis (Group, Status e Channel)
-- Descrição da performance com suporte dinâmico a *payloads* extraídos.
-- **Novidade na v0.2.0**: Reconhecimento estrutural das mensagens não-Voice (MT 0x3, 0x5, 0xD, 0xF) com exibição de seu *payload* em formato bruto (hexadecimal).
+Este projeto opera no mais estrito sentido de análise pericial de dados (Forensic Parsing). Portanto:
 
-## Como Usar
-Ao abrir a aplicação, a interface oferece as seguintes ferramentas:
-- **Campo "Hex UMP"**: Área multi-linha onde você pode colar *dumps* hexadecimais (com espaços e quebras de linha). O parser ignora formatação e trata o bloco como uma via contínua.
-- **Interpretar**: Analisa o buffer fornecido e preenche a tabela visual e o painel de *logs* de status.
-- **Carregar exemplos**: Preenche rapidamente o campo de entrada com mensagens estruturais (Note On, CC, Program Change) para agilizar os testes.
-- **Abrir arquivo**: Carrega todo o texto de um `.txt` contendo *dumps* para dentro do analisador, o que é ideal após capturar pacotes de ferramentas de rede ou *debuggers*.
-- **Salvar log**: Exporta os resultados da tabela UMP dissecada junto com os relatórios de integridade do painel de *log* para um arquivo de texto de fácil compartilhamento.
-- **Limpar**: Zera todo o estado (entrada, tabela e log) preparando o app para uma nova rotina.
+1. **Sem Comunicação MIDI Real**: Não há implementação de comunicação USB ativa, Bluetooth MIDI ou cabos DIN.
+2. **Sem Transporte OS**: Não há interligação com Windows MIDI Services, CoreMIDI ou ALSA. O app não enxerga os hardwares da máquina.
+3. **Sem MIDI-CI ou Property Exchange**: Nenhum *Handshake* ou transação em múltiplas vias (Discoveries) é estabelecida de fato. Nenhuma mensagem do tipo *Property Exchange* é transmitida ativamente. O programa possui comportamento puramente inerte.
+4. **Respostas Automáticas Desativadas**: O aplicativo não responde à rede ao identificar eventos de Requisição (Requests). Ele simplesmente relata o que encontrou no pacote.
 
-## Limitações da v0.2.0
-Visando estrita segurança e correção, o escopo atual está focado apenas na robustez e não em amplitude de recursos:
-- **Sem conexão MIDI Real**: O programa atua 100% offline. Não estabelece nenhum *socket* ou gancho em APIs como *Windows MIDI Services* ou drivers USB.
-- **Sem MIDI-CI ou Property Exchange**: Não realiza auto-descoberta, *Profile Configuration* nem *Protocol Negotiation*.
-- **Parsing Intencionalmente Limitado**: 
-  - A dissecação profunda abrange primordialmente *Voice Messages* (MT 0x2 e MT 0x4). 
-  - As cargas complexas de **SysEx (MT 0x3/0x5)**, **Flex Data (MT 0xD)** e **Endpoint/Stream Messages (MT 0xF)** são identificadas e exibem seu *payload* bruto de maneira genérica (ex: `Payload bruto: 11223344`), mas **não** são decodificadas detalhadamente. A interface não interpretará nomes de Endpoint, Function Blocks, Manufacturer IDs ou letras musicais internas para evitar falsos positivos.
+## Funcionalidades Atuais
 
-## Validação e Testes
-Sempre verifique o documento de bateria de testes incluso: [TESTS.md](TESTS.md). Ele contém uma gama de amostras cruas (divididas por taxa de confiabilidade) com as quais o comportamento do parser e dos manipuladores de falhas e corrupção de memória (buffer incompleto) podem ser testados de imediato.
+O aplicativo aceita **entrada hexadecimal manual** (digitada) ou via importação de um **arquivo `.txt`** contendo pacotes e os processa, um a um.
 
-## Como Compilar (Windows)
-**Requisitos mínimos:**
-- CMake 3.16+
-- Visual Studio 2022 (Compilador MSVC)
-- Instalação do Qt 6.11.1 (especialmente com dependências do componente *Widgets*)
+Atualmente, o parser offline reconhece e descreve com precisão:
+- **MIDI 1.0 Channel Voice**
+- **MIDI 2.0 Channel Voice (básico)**
+- **System Exclusive 7-Bit (SysEx7)** (Extração como Payload bruto e segurança contra dados malformados).
+- **System Exclusive 8-Bit (SysEx8 / MDS)** (Extração e encapsulamento em Payload bruto).
+- **Flex Data** (Extração como parcial / Payload bruto).
 
-Via terminal (*Developer PowerShell* recomendado), rode na raiz deste diretório:
+### Suporte a UMP Stream / Endpoint Messages (MT 0xF)
+O formato 0xF possui parsing parcial robusto com foco em visibilidade estática:
+- **Endpoint Discovery (0x000)** (Mapeado)
+- **Endpoint Info Notification (0x001)** (Versão, Static FB, etc)
+- **Device Identity Notification (0x002)** (Fabricante, Modelo e Revisão extraídos com máscaras de 7-bits)
+- **Stream Configuration Request (0x005)** (Parsing do Protocolo exigido e Jitter Reduction)
+- **Stream Configuration Notification (0x006)** (Parsing do Protocolo aceito)
+- **Function Block Discovery (0x010)** (Alvos da descoberta mapeados na primeira palavra)
+- **Function Block Info Notification (0x011)** (Mapeamento cruzado da Word0 e Word1 para extração de Status Ativo, Direção, Comprimento, etc)
+- **Function Block Name Notification (0x012)** (O aplicativo exibe apenas uma visualização **ASCII filtrada** com os caracteres visíveis do pacote atual. Não utiliza buffer de fragmentação nem tenta reconstruir nomes longos divididos entre múltiplos pacotes. O Payload bruto é rigorosamente mantido na íntegra para auditoria visual e segurança).
 
+> **Nota Técnica:** Campos textuais que excedam o tamanho de um único pacote (ex: `Endpoint Name`, `Product Instance ID` e `Function Block Name`) podem aparecer como "Fragmentados", estar incompletos ou serem exibidos parcialmente baseando-se no preenchimento do cabeçalho `Format`. Campos duvidosos continuarão preservados dentro da chave estática "Payload bruto".
+
+## Como Testar
+Você pode executar uma auditoria de comportamento completa acompanhando os testes manuais catalogados em:
+[TESTS.md](./TESTS.md)
+
+## Como Compilar
+
+Este repositório requer o **CMake 3.16+**, **Qt 6.11.1** e o **Visual Studio 2022**.
+
+1. Crie os arquivos de Build apontando para o seu diretório Qt e para o compilador do VS2022:
 ```powershell
-# 1. Configurar indicando onde o módulo Qt 6 está contido
 cmake -B build -G "Visual Studio 17 2022" -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64"
-
-# 2. Iniciar a compilação de fato
-cmake --build build --config Release
 ```
 
-O aplicativo `MidiUmpAnalyzer.exe` com todos os links MOC e dlls dinâmicas necessárias (via `windeployqt`) será alocado prontamente no diretório `build/Release/`.
+2. Compile e libere o executável final em Release:
+```powershell
+cmake --build build --config Release
+```
+O arquivo de execução (`MidiUmpAnalyzer.exe`) estará na pasta `build\Release\`.

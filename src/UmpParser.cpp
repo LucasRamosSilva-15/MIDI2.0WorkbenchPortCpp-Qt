@@ -284,6 +284,29 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
                 extraInfo = QString(" [FB#: %1, Active: %2, Dir: %3, UI: %4, M1: %5 | Grp: %6, Len: %7, CI: %8, SysEx: %9]")
                                 .arg(fbNum).arg(active).arg(direction).arg(uiHint).arg(isMidi1)
                                 .arg(firstGrp).arg(grpLen).arg(midiCi).arg(maxSysex);
+            } else if (status == 0x12 && words.size() >= 4) {
+                // Function Block Name Notification (0x012)
+                uint8_t fbNum = (word0 >> 8) & 0x7F;
+                uint8_t form = (word0 >> 26) & 0x3;
+                
+                QString nameStr = "";
+                for (int i = 1; i <= 3; ++i) {
+                    uint32_t w = words[i];
+                    for (int shift = 24; shift >= 0; shift -= 8) {
+                        char c = (w >> shift) & 0xFF;
+                        if (c >= 32 && c <= 126) {
+                            nameStr += QChar(c);
+                        }
+                    }
+                }
+
+                QString formWarning = "";
+                if (form != 0) {
+                    formWarning = " (Fragmentado)";
+                }
+
+                extraInfo = QString(" [FB#: %1, ASCII filtrado%2: '%3']")
+                                .arg(fbNum).arg(formWarning).arg(nameStr.trimmed());
             }
 
             QString payload = QString("%1 %2 %3")
