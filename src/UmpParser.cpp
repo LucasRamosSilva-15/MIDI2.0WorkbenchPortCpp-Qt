@@ -213,6 +213,35 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
                                 .arg(numFb).arg(staticFb)
                                 .arg(midi2).arg(midi1)
                                 .arg(jrRx).arg(jrTx);
+            } else if (status == 0x02 && words.size() >= 4) {
+                // Device Identity Notification (Status 0x002)
+                // Os campos (Manufacturer, Family, Model e Revision) utilizam estritamente 7 bits.
+                // Eles são extraídos e exibidos puramente como valores brutos (hexadecimal),
+                // sem qualquer tentativa de resolver nomes de fabricantes através de tabelas externas.
+                uint32_t word1 = words[1];
+                uint32_t word2 = words[2];
+                uint32_t word3 = words[3];
+
+                uint8_t mfr1 = (word1 >> 16) & 0x7F;
+                uint8_t mfr2 = (word1 >> 8) & 0x7F;
+                uint8_t mfr3 = word1 & 0x7F;
+
+                uint8_t famLsb = (word2 >> 24) & 0x7F;
+                uint8_t famMsb = (word2 >> 16) & 0x7F;
+                uint8_t modLsb = (word2 >> 8) & 0x7F;
+                uint8_t modMsb = word2 & 0x7F;
+
+                uint8_t rev1 = (word3 >> 24) & 0x7F;
+                uint8_t rev2 = (word3 >> 16) & 0x7F;
+                uint8_t rev3 = (word3 >> 8) & 0x7F;
+                uint8_t rev4 = word3 & 0x7F;
+
+                extraInfo = QString(" [Mfr: %1-%2-%3, Fam: %4-%5, Mod: %6-%7, Rev: %8-%9-%10-%11]")
+                                .arg(mfr1, 2, 16, QChar('0')).arg(mfr2, 2, 16, QChar('0')).arg(mfr3, 2, 16, QChar('0'))
+                                .arg(famLsb, 2, 16, QChar('0')).arg(famMsb, 2, 16, QChar('0'))
+                                .arg(modLsb, 2, 16, QChar('0')).arg(modMsb, 2, 16, QChar('0'))
+                                .arg(rev1, 2, 16, QChar('0')).arg(rev2, 2, 16, QChar('0'))
+                                .arg(rev3, 2, 16, QChar('0')).arg(rev4, 2, 16, QChar('0')).toUpper();
             }
 
             QString payload = QString("%1 %2 %3")

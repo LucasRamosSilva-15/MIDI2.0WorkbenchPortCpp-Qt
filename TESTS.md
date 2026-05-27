@@ -85,25 +85,33 @@ Abaixo estão exemplos manuais segmentados por nível de confiabilidade. Copie e
 - Type: Stream/Endpoint (0xF)
 - Description: UMP Stream: Endpoint Info Notification [UMP v1.1, FuncBlocks: 2 (Static: 1), M2: 1, M1: 1, JRR: 1, JRT: 1] (Form: Complete, Status bruto: 0x001, Payload bruto: 82000303 00000000 00000000, parcial/não detalhado)
 
-### 13. Mensagem UMP de 128 bits (Device Identity Notification)
-**Entrada:** `F0020000 11223344 55667788 99AABBCC`
+### 13. Mensagem UMP de 128 bits (Validação Específica de Device Identity Notification)
+**Nota:** Este teste garante a visibilidade dos blocos hexadecimais brutos de Fabricante, Família, Modelo e Revisão contidos em Status 0x002.
+**Entrada:** `F0020000 00414243 44454647 48494A4B`
 **Comportamento Esperado:**
 - Type: Stream/Endpoint (0xF)
-- Description: UMP Stream: Device Identity Notification (Form: Complete, Status bruto: 0x002, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
+- Description: UMP Stream: Device Identity Notification [MFR: 41-42-43, FAM: 44-45, MOD: 46-47, REV: 48-49-4A-4B] (Form: Complete, Status bruto: 0x002, Payload bruto: 00414243 44454647 48494A4B, parcial/não detalhado)
 
-### 14. Mensagem UMP de 128 bits (Stream Configuration Request)
+### 14. Mensagem UMP de 128 bits (Validação de Máscara de 7 bits em Device Identity)
+**Nota:** Testa o filtro 0x7F. Embora a entrada possua bytes 0xFF, eles devem ser limitados a 0x7F na seção extraída, mas continuar 0xFF no Payload bruto.
+**Entrada:** `F0020000 00FFFFFF FFFFFFFF FFFFFFFF`
+**Comportamento Esperado:**
+- Type: Stream/Endpoint (0xF)
+- Description: UMP Stream: Device Identity Notification [MFR: 7F-7F-7F, FAM: 7F-7F, MOD: 7F-7F, REV: 7F-7F-7F-7F] (Form: Complete, Status bruto: 0x002, Payload bruto: 00FFFFFF FFFFFFFF FFFFFFFF, parcial/não detalhado)
+
+### 15. Mensagem UMP de 128 bits (Stream Configuration Request)
 **Entrada:** `F0050000 11223344 55667788 99AABBCC`
 **Comportamento Esperado:**
 - Type: Stream/Endpoint (0xF)
 - Description: UMP Stream: Stream Configuration Request (Form: Complete, Status bruto: 0x005, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
 
-### 15. Mensagem UMP de 128 bits (Stream Configuration Notification)
+### 16. Mensagem UMP de 128 bits (Stream Configuration Notification)
 **Entrada:** `FC060000 11223344 55667788 99AABBCC`
 **Comportamento Esperado:**
 - Type: Stream/Endpoint (0xF)
 - Description: UMP Stream: Stream Configuration Notification (Form: End, Status bruto: 0x006, Payload bruto: 11223344 55667788 99AABBCC, parcial/não detalhado)
 
-### 16. Mensagem UMP de 96 bits (Reservada / Futura)
+### 17. Mensagem UMP de 96 bits (Reservada / Futura)
 **Entrada:** `B0000000 00000000 00000000`
 **Comportamento Esperado:**
 - Type: Reserved (0xB)
