@@ -13,9 +13,16 @@ struct ParsedUmp {
     QString description;
 };
 
+struct ValidationResult {
+    bool success;
+    QString errorMessage;
+    std::vector<std::vector<uint32_t>> extractedMessages;
+};
+
 class UmpParser {
 public:
-    static int getWordCountForMessageType(int mt);
+    static int getWordCountForMessageType(int messageType);
+    static QString getMessageTypeString(int messageType);
     static ParsedUmp parseMessage(const std::vector<uint32_t>& words);
-    static QString getMessageTypeString(int mt);
+    static ValidationResult validateAndExtractWords(const QString& hexInput);
 };

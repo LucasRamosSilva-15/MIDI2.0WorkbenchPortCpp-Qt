@@ -1,15 +1,13 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-**Versão:** v0.7.0 - Robustness & Input Validation
+**Versão:** v0.8.0 - Automated Parser Test Harness
 
-## Status da versão v0.7.0
+## Status da versão v0.8.0
 
-Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.7.0** mantém todos os avanços da v0.6.0 e solidifica a arquitetura defensiva do projeto focando em Robustez e Tolerância a Falhas:
-- **Resiliência de Arquivos**: O projeto bloqueia arquivos maiores que 1 MB prevenindo travamentos ou estouro de memória no loop primário.
-- **Auditoria Léxica Hexadecimal**: Agora a interface rastreia o caractere exato e a posição de invasores de texto escondidos dentro do *payload*, recusando processar chaves sujas.
-- **Detecção de Truncamento**: Se os caracteres enviados não fecharem perfeitamente no limite matemático UMP (múltiplos de 8 caracteres/32 bits), o app alerta exatamente quantos caracteres restaram (sobras) como diagnóstico forense.
-- **Pacotes Interrompidos**: O Parser agora lida agressivamente com *Message Types* que anunciam, digamos, "4 palavras" no cabeçalho, mas cujos dados físicos enviados são menores, impedindo *crashes* de memória e acusando o truncamento incompleto.
-- **Tolerância Branca Segura**: Espaços, quebras de linha e tabs continuam sendo higienizados sem acionar os alarmes, viabilizando recortes brutos de tabelas externas sem atritos.
+Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente. A versão **v0.8.0** mantém todos os avanços da v0.7.0 e injeta uma suíte C++ autônoma focada na compilação cruzada para testes lógicos (*Automated Test Harness*):
+- **Infraestrutura Desacoplada**: A lógica de validação de *string* foi isolada estaticamente da `MainWindow` direto para o `UmpParser`, permitindo testes cegos sem alocação gráfica.
+- **Console Test Executable**: Novo target `UmpParserTests` gerado nativamente pelo CMake, provando que o parser resiste sozinho sem depender do Qt Widgets.
+- **Validação Unitária Automatizada**: O script PowerShell roda a asserção binária para MIDI Voice, SysEx7/8, Flex Data e UMP Stream, cobrindo truncamentos e falhas de formatação, resultando em saída PASS/FAIL contínua.
 
 ### Funcionalidades Suportadas Parcialmente
 Atualmente, o parser offline reconhece e descreve os seguintes dados:

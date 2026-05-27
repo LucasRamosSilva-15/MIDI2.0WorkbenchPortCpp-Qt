@@ -469,6 +469,70 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
     return parsed;
 }
 
+ValidationResult UmpParser::validateAndExtractWords(const QString& hexInput) {
+    ValidationResult result;
+    result.success = false;
+    
+    QString cleanInput = hexInput;
+    cleanInput = cleanInput.remove(" ").remove("\n").remove("\r").remove("\t");
+    
+    if (cleanInput.isEmpty()) {
+        result.errorMessage = "Aviso: A entrada resultou em um buffer vazio após a remoção de formatação.";
+        return result;
+    }
+
+    // Check invalid characters
+    for (int i = 0; i < cleanInput.length(); ++i) {
+        QChar c = cleanInput[i];
+        if (!c.isDigit() && !(c >= 'A' && c <= 'F') && !(c >= 'a' && c <= 'f')) {
+            result.errorMessage = QString("Erro de Validação: Encontrado caractere inválido '%1' (posição %2). Use apenas dígitos hexadecimais (0-9, A-F).").arg(c).arg(i);
+            return result;
+        }
+    }
+
+    // Check padding / odd lengths
+    if (cleanInput.length() % 8 != 0) {
+        int sobras = cleanInput.length() % 8;
+        result.errorMessage = QString("Erro de integridade UMP: O tamanho da entrada (%1 caracteres hexadecimais) não forma words exatas. Há uma sobra de %2 caractere(s). Faltam nibbles ou a estrutura foi truncada.").arg(cleanInput.length()).arg(sobras);
+        return result;
+    }
+
+    std::vector<uint32_t> allWords;
+    for (int i = 0; i < cleanInput.length(); i += 8) {
+        QString hexWordStr = cleanInput.mid(i, 8);
+        bool ok;
+        uint32_t word = hexWordStr.toUInt(&ok, 16);
+        if (ok) {
+            allWords.push_back(word);
+        } else {
+            result.errorMessage = QString("Erro Crítico Inesperado: A string '%1' falhou na conversão.").arg(hexWordStr);
+            return result;
+        }
+    }
+
+    int wordIndex = 0;
+    while (wordIndex < allWords.size()) {
+        uint32_t word0 = allWords[wordIndex];
+        int mt = (word0 >> 28) & 0xF;
+        int expectedWords = getWordCountForMessageType(mt);
+        
+        if (wordIndex + expectedWords > allWords.size()) {
+            result.errorMessage = QString("Erro de empacotamento UMP: Pacote Incompleto. MT 0x%1 esperava %2 palavras.").arg(mt, 1, 16).arg(expectedWords);
+            return result;
+        }
+        
+        std::vector<uint32_t> msgWords;
+        for (int i = 0; i < expectedWords; ++i) {
+            msgWords.push_back(allWords[wordIndex + i]);
+        }
+        result.extractedMessages.push_back(msgWords);
+        wordIndex += expectedWords;
+    }
+
+    result.success = true;
+    return result;
+}
+
 QString UmpParser::getMessageTypeString(int mt) {
     switch(mt) {
         case 0x0: return "Utility (0x0)";

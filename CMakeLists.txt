@@ -10,15 +10,25 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(MidiUmpAnalyzer
+# Criação do Executável Principal
+add_executable(MidiUmpAnalyzer WIN32
     src/main.cpp
-    src/MainWindow.h
     src/MainWindow.cpp
-    src/UmpParser.h
+    src/MainWindow.h
     src/UmpParser.cpp
+    src/UmpParser.h
 )
 
-target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Widgets)
+target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+
+# Criação do Executável de Testes
+add_executable(UmpParserTests
+    tests/UmpParserTests.cpp
+    src/UmpParser.cpp
+    src/UmpParser.h
+)
+
+target_link_libraries(UmpParserTests PRIVATE Qt6::Core)
 
 if(WIN32)
     get_target_property(QT_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)

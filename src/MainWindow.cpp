@@ -129,152 +129,77 @@ void MainWindow::interpretClicked() {
     return;
   }
 
-  m_tableWidget->setRowCount(
-      0); // Limpa a tabela antes de cada nova interpretação
-
-  logMessage(QString("Processando %1 bytes de texto...").arg(input.length()));
-
-  // Remove espaços, quebras de linha e tabs
-  QString cleanInput = input.remove(" ").remove("\n").remove("\r").remove("\t");
+  m_tableWidget->setRowCount(0);
 
   int totalLidos = 0;
   int totalErros = 0;
   int totalValidos = 0;
 
-  if (cleanInput.isEmpty()) {
-    logMessage("Aviso: A entrada resultou em um buffer vazio após a remoção de "
-               "formatação.");
-    return;
-  }
-
-  // Verificar caracteres inválidos antes de tentar converter
-  for (int i = 0; i < cleanInput.length(); ++i) {
-    QChar c = cleanInput[i];
-    if (!c.isDigit() && !(c >= 'A' && c <= 'F') && !(c >= 'a' && c <= 'f')) {
-      logMessage(
-          QString("Erro de Validação: Encontrado caractere inválido '%1' "
-                  "(posição %2). Use apenas dígitos hexadecimais (0-9, A-F).")
-              .arg(c)
-              .arg(i));
-      m_statsLabel->setText(
-          QString("Estatísticas: 0 lidos | 0 válidos | 1 erros"));
-      return;
-    }
-  }
-
-  if (cleanInput.length() % 8 != 0) {
-    int sobras = cleanInput.length() % 8;
-    logMessage(
-        QString("Erro de integridade UMP: O tamanho da entrada (%1 caracteres "
-                "hexadecimais) não forma words exatas. Há uma sobra de %2 "
-                "caractere(s). Faltam nibbles ou a estrutura foi truncada.")
-            .arg(cleanInput.length())
-            .arg(sobras));
-    m_statsLabel->setText(
-        QString("Estatísticas: 0 lidos | 0 válidos | 1 erros"));
-    return;
-  }
-
-  std::vector<uint32_t> allWords;
-  for (int i = 0; i < cleanInput.length(); i += 8) {
-    QString hexWordStr = cleanInput.mid(i, 8);
-    bool ok;
-    uint32_t word = hexWordStr.toUInt(&ok, 16);
-    if (ok) {
-      allWords.push_back(word);
-    } else {
-      logMessage(
-          QString("Erro Crítico Inesperado: A string '%1' falhou na conversão.")
-              .arg(hexWordStr));
-      m_statsLabel->setText(
-          QString("Estatísticas: 0 lidos | 0 válidos | 1 erros"));
-      return;
-    }
-  }
-
-  int wordIndex = 0;
-  while (wordIndex < allWords.size()) {
-    totalLidos++;
-    uint32_t word0 = allWords[wordIndex];
-    int mt = (word0 >> 28) & 0xF;
-    int expectedWords = UmpParser::getWordCountForMessageType(mt);
-
-    if (wordIndex + expectedWords > allWords.size()) {
-      logMessage(QString("Erro de empacotamento UMP: Pacote Incompleto. MT "
-                         "0x%1 esperava %2 palavras.")
-                     .arg(mt, 1, 16)
-                     .arg(expectedWords));
+  ValidationResult result = UmpParser::validateAndExtractWords(input);
+    
+  if (!result.success) {
+      logMessage(result.errorMessage);
       totalErros++;
-      break;
-    }
+      m_statsLabel->setText(QString("Estatísticas: %1 lidos | %2 válidos | %3 erros").arg(totalLidos).arg(totalValidos).arg(totalErros));
+      return;
+  }
 
-    std::vector<uint32_t> msgWords;
-    for (int i = 0; i < expectedWords; ++i) {
-      msgWords.push_back(allWords[wordIndex + i]);
-    }
-
-    ParsedUmp parsed = UmpParser::parseMessage(msgWords);
-
-    int rowCount = m_tableWidget->rowCount();
-    m_tableWidget->insertRow(rowCount);
-
-    // 0: Index
-    QTableWidgetItem *itemIndex =
-        new QTableWidgetItem(QString::number(rowCount + 1));
-    itemIndex->setToolTip(itemIndex->text());
-    m_tableWidget->setItem(rowCount, 0, itemIndex);
-
-    // 1: Words
-    QStringList wordsStrList;
-    for (uint32_t w : parsed.words) {
-      wordsStrList << QString("%1").arg(w, 8, 16, QChar('0')).toUpper();
-    }
-    QTableWidgetItem *itemWords = new QTableWidgetItem(wordsStrList.join(" "));
-    itemWords->setToolTip(itemWords->text());
-    m_tableWidget->setItem(rowCount, 1, itemWords);
-
-    // 2: Size
-    QTableWidgetItem *itemSize =
-        new QTableWidgetItem(QString("%1 bits").arg(parsed.sizeBits));
-    itemSize->setToolTip(itemSize->text());
-    m_tableWidget->setItem(rowCount, 2, itemSize);
-
-    // 3: Type
-    QTableWidgetItem *itemType = new QTableWidgetItem(
-        UmpParser::getMessageTypeString(parsed.messageType));
-    itemType->setToolTip(itemType->text());
-    m_tableWidget->setItem(rowCount, 3, itemType);
-
-    // 4: Group
-    QString groupStr = parsed.group >= 0 ? QString::number(parsed.group) : "-";
-    QTableWidgetItem *itemGroup = new QTableWidgetItem(groupStr);
-    itemGroup->setToolTip(itemGroup->text());
-    m_tableWidget->setItem(rowCount, 4, itemGroup);
-
-    // 5: Status
-    QString statusStr =
-        parsed.status >= 0 ? QString("0x%1").arg(parsed.status, 1, 16).toUpper()
-                           : "-";
-    QTableWidgetItem *itemStatus = new QTableWidgetItem(statusStr);
-    itemStatus->setToolTip(itemStatus->text());
-    m_tableWidget->setItem(rowCount, 5, itemStatus);
-
-    // 6: Channel
-    QString channelStr =
-        parsed.channel >= 0 ? QString::number(parsed.channel + 1) : "-";
-    QTableWidgetItem *itemChannel = new QTableWidgetItem(channelStr);
-    itemChannel->setToolTip(itemChannel->text());
-    m_tableWidget->setItem(rowCount, 6, itemChannel);
-
-    // 7: Description
-    QTableWidgetItem *itemDesc = new QTableWidgetItem(parsed.description);
-    itemDesc->setToolTip(itemDesc->text());
-    m_tableWidget->setItem(rowCount, 7, itemDesc);
-
-    logMessage(
-        QString("Pacote UMP de %1 bits interpretado.").arg(parsed.sizeBits));
-    totalValidos++;
-    wordIndex += expectedWords;
+  for (const auto& msgWords : result.extractedMessages) {
+      totalLidos++;
+      ParsedUmp parsed = UmpParser::parseMessage(msgWords);
+      
+      int rowCount = m_tableWidget->rowCount();
+      m_tableWidget->insertRow(rowCount);
+      
+      // 0: Index
+      QTableWidgetItem* itemIndex = new QTableWidgetItem(QString::number(rowCount + 1));
+      itemIndex->setToolTip(itemIndex->text());
+      m_tableWidget->setItem(rowCount, 0, itemIndex);
+      
+      // 1: Words
+      QStringList wordsStrList;
+      for (uint32_t w : parsed.words) {
+          wordsStrList << QString("%1").arg(w, 8, 16, QChar('0')).toUpper();
+      }
+      QTableWidgetItem* itemWords = new QTableWidgetItem(wordsStrList.join(" "));
+      itemWords->setToolTip(itemWords->text());
+      m_tableWidget->setItem(rowCount, 1, itemWords);
+      
+      // 2: Size
+      QTableWidgetItem* itemSize = new QTableWidgetItem(QString("%1 bits").arg(parsed.sizeBits));
+      itemSize->setToolTip(itemSize->text());
+      m_tableWidget->setItem(rowCount, 2, itemSize);
+      
+      // 3: Type
+      QTableWidgetItem* itemType = new QTableWidgetItem(UmpParser::getMessageTypeString(parsed.messageType));
+      itemType->setToolTip(itemType->text());
+      m_tableWidget->setItem(rowCount, 3, itemType);
+      
+      // 4: Group
+      QString groupStr = parsed.group >= 0 ? QString::number(parsed.group) : "-";
+      QTableWidgetItem* itemGroup = new QTableWidgetItem(groupStr);
+      itemGroup->setToolTip(itemGroup->text());
+      m_tableWidget->setItem(rowCount, 4, itemGroup);
+      
+      // 5: Status
+      QString statusStr = parsed.status >= 0 ? QString("0x%1").arg(parsed.status, 1, 16).toUpper() : "-";
+      QTableWidgetItem* itemStatus = new QTableWidgetItem(statusStr);
+      itemStatus->setToolTip(itemStatus->text());
+      m_tableWidget->setItem(rowCount, 5, itemStatus);
+      
+      // 6: Channel
+      QString channelStr = parsed.channel >= 0 ? QString::number(parsed.channel + 1) : "-"; 
+      QTableWidgetItem* itemChannel = new QTableWidgetItem(channelStr);
+      itemChannel->setToolTip(itemChannel->text());
+      m_tableWidget->setItem(rowCount, 6, itemChannel);
+      
+      // 7: Description
+      QTableWidgetItem* itemDesc = new QTableWidgetItem(parsed.description);
+      itemDesc->setToolTip(itemDesc->text());
+      m_tableWidget->setItem(rowCount, 7, itemDesc);
+      
+      logMessage(QString("Pacote UMP de %1 bits interpretado.").arg(parsed.sizeBits));
+      totalValidos++;
   }
 
   m_statsLabel->setText(
