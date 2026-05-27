@@ -1,58 +1,59 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-Este projeto é uma versão independente e portável do **MIDI 2.0 Workbench**.
-Ele foi projetado como um **analisador offline estático** de pacotes UMP (Universal MIDI Packet) escrito inteiramente em C++ e Qt6.
+**Versão:** v0.3.0 - Partial UMP Stream parsing
 
-## Limitações / Escopo do MVP Atual (v0.2.0)
+## Status da versão v0.3.0
 
-Este projeto opera no mais estrito sentido de análise pericial de dados (Forensic Parsing). Portanto:
+Este projeto é uma versão independente e portável, desenhada puramente como um **analisador offline estático de pacotes UMP** (Universal MIDI Packet) em C++ e Qt6. O aplicativo aceita entrada manual hexadecimal ou importa arquivos `.txt` contendo pacotes e os processa isoladamente.
 
-1. **Sem Comunicação MIDI Real**: Não há implementação de comunicação USB ativa, Bluetooth MIDI ou cabos DIN.
-2. **Sem Transporte OS**: Não há interligação com Windows MIDI Services, CoreMIDI ou ALSA. O app não enxerga os hardwares da máquina.
-3. **Sem MIDI-CI ou Property Exchange**: Nenhum *Handshake* ou transação em múltiplas vias (Discoveries) é estabelecida de fato. Nenhuma mensagem do tipo *Property Exchange* é transmitida ativamente. O programa possui comportamento puramente inerte.
-4. **Respostas Automáticas Desativadas**: O aplicativo não responde à rede ao identificar eventos de Requisição (Requests). Ele simplesmente relata o que encontrou no pacote.
-
-## Funcionalidades Atuais
-
-O aplicativo aceita **entrada hexadecimal manual** (digitada) ou via importação de um **arquivo `.txt`** contendo pacotes e os processa, um a um.
-
-Atualmente, o parser offline reconhece e descreve com precisão:
+### Funcionalidades Suportadas Parcialmente
+Atualmente, o parser offline reconhece e descreve os seguintes dados:
 - **MIDI 1.0 Channel Voice**
-- **MIDI 2.0 Channel Voice (básico)**
-- **System Exclusive 7-Bit (SysEx7)** (Extração como Payload bruto e segurança contra dados malformados).
-- **System Exclusive 8-Bit (SysEx8 / MDS)** (Extração e encapsulamento em Payload bruto).
-- **Flex Data** (Extração como parcial / Payload bruto).
+- **MIDI 2.0 Channel Voice básico**
+- **SysEx7** como payload bruto
+- **SysEx8/MDS** como payload bruto
+- **Flex Data** como parcial/payload bruto
+- **UMP Stream / Endpoint** parcialmente
 
-### Suporte a UMP Stream / Endpoint Messages (MT 0xF)
-O formato 0xF possui parsing parcial robusto com foco em visibilidade estática:
-- **Endpoint Discovery (0x000)** (Mapeado)
-- **Endpoint Info Notification (0x001)** (Versão, Static FB, etc)
-- **Device Identity Notification (0x002)** (Fabricante, Modelo e Revisão extraídos com máscaras de 7-bits)
-- **Endpoint Name Notification (0x003)** (O aplicativo exibe apenas uma visualização **ASCII filtrada** com os caracteres visíveis deste pacote. Não utiliza buffer e não reconstrói fragmentos).
-- **Product Instance ID Notification (0x004)** (Extração de strings idêntica ao Endpoint Name: segura, não fragmentada, mantendo payload).
-- **Stream Configuration Request (0x005)** (Parsing do Protocolo exigido e Jitter Reduction)
-- **Stream Configuration Notification (0x006)** (Parsing do Protocolo aceito)
-- **Function Block Discovery (0x010)** (Alvos da descoberta mapeados na primeira palavra)
-- **Function Block Info Notification (0x011)** (Mapeamento cruzado da Word0 e Word1 para extração de Status Ativo, Direção, Comprimento, etc)
-- **Function Block Name Notification (0x012)** (O aplicativo exibe apenas uma visualização **ASCII filtrada** com os caracteres visíveis do pacote atual. Não utiliza buffer de fragmentação nem tenta reconstruir nomes longos divididos entre múltiplos pacotes. O Payload bruto é rigorosamente mantido na íntegra para auditoria visual e segurança).
+### Status Parcialmente Reconhecidos em UMP Stream (MT 0xF)
+O formato 0xF possui leitura descritiva parcial para os seguintes Status de UMP Stream parcialmente reconhecidos:
+- Endpoint Discovery
+- Endpoint Info Notification
+- Device Identity Notification
+- Endpoint Name Notification
+- Product Instance ID Notification
+- Stream Configuration Request
+- Stream Configuration Notification
+- Function Block Discovery
+- Function Block Info Notification
+- Function Block Name Notification
 
-> **Nota Técnica:** Campos textuais que excedam o tamanho de um único pacote (ex: `Endpoint Name`, `Product Instance ID` e `Function Block Name`) podem aparecer como "Fragmentados", estar incompletos ou serem exibidos parcialmente baseando-se no preenchimento do cabeçalho `Format`. Campos duvidosos continuarão preservados dentro da chave estática "Payload bruto".
+### Regras de Extração de Texto e Fragmentação
+É importante detalhar que campos textuais longos (como **Endpoint Name**, **Product Instance ID** e **Function Block Name**) operam sob as seguintes limitações estritas:
+- Usam exclusivamente uma extração de texto **ASCII filtrada**, varrendo apenas aquele pacote em si.
+- **Mensagens fragmentadas não são reconstruídas**.
+- **Não existe buffer de remontagem** para ligar nomes divididos entre múltiplos pacotes.
+- O **Payload bruto é sempre preservado** na string final sem corrupções para auditoria paralela.
+- O parser opera com design estrito **stateless/offline**.
 
-## Como Testar
-Você pode executar uma auditoria de comportamento completa acompanhando os testes manuais catalogados em:
+## Limitações (Escopo MVP)
+O projeto opera como leitura isolada passiva. Desse modo, reiteramos as seguintes restrições atuais:
+- Sem entrada/saída MIDI real por hardware, driver ou cabo virtual.
+- Sem MIDI-CI real (negociações ou interrogações dinâmicas).
+- Sem Property Exchange.
+- Sem USB MIDI 2.0 (classes de protocolo).
+- Sem Windows MIDI Services associados.
+- Sem respostas automáticas ou reações algorítmicas de host.
+- Sem driver nativo embutido.
+
+## Testes Manuais
+Toda a auditoria visual deste projeto para simular a chegada dos bits, sem a necessidade de um hardware, está documentada passo a passo usando entradas hexadecimais explícitas em:
 [TESTS.md](./TESTS.md)
 
-## Como Compilar
+## Build do Projeto
+Requisitos: CMake 3.16+, Qt 6.11.1, Visual Studio 2022.
 
-Este repositório requer o **CMake 3.16+**, **Qt 6.11.1** e o **Visual Studio 2022**.
-
-1. Crie os arquivos de Build apontando para o seu diretório Qt e para o compilador do VS2022:
 ```powershell
 cmake -B build -G "Visual Studio 17 2022" -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64"
-```
-
-2. Compile e libere o executável final em Release:
-```powershell
 cmake --build build --config Release
 ```
-O arquivo de execução (`MidiUmpAnalyzer.exe`) estará na pasta `build\Release\`.
