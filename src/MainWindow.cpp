@@ -18,27 +18,11 @@
 #include <QComboBox>
 #include <QRegularExpression>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) { setupUi(); }
-
-void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (Offline v0.6.0)");
-  resize(900, 600);
-
-  QWidget *centralWidget = new QWidget(this);
-  setCentralWidget(centralWidget);
-
-  QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
-
-  // Área de Ações
-  QHBoxLayout *actionsLayout = new QHBoxLayout();
-  m_openFileBtn = new QPushButton("Abrir arquivo", this);
-  m_saveLogBtn = new QPushButton("Exportar TXT", this);
-  m_exportCsvBtn = new QPushButton("Exportar CSV", this);
-  m_copyTableBtn = new QPushButton("Copiar Tabela", this);
-  m_clearBtn = new QPushButton("Limpar", this);
-  m_adjustColsBtn = new QPushButton("Ajustar Colunas", this);
-  m_loadExamplesBtn = new QPushButton("Carregar exemplo", this);
-  m_samplesCombo = new QComboBox(this);
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), m_samplesPath("") {
+  m_currentFile = "Nenhum";
+  m_lastOperation = "Aguardando entrada...";
+  setupUi();
 
   // Localizar pasta samples
   QString appDir = QCoreApplication::applicationDirPath();
@@ -48,7 +32,6 @@ void MainWindow::setupUi() {
       appDir + "/../../samples"
   };
   
-  m_samplesPath = "";
   for (const QString& path : searchPaths) {
       if (QDir(path).exists()) {
           m_samplesPath = path;
@@ -69,6 +52,29 @@ void MainWindow::setupUi() {
       m_samplesCombo->setEnabled(false);
       m_loadExamplesBtn->setEnabled(false);
   }
+
+  updateDiagnostics();
+}
+
+void MainWindow::setupUi() {
+  setWindowTitle("MIDI 2.0 UMP Analyzer (Offline v1.9.0)");
+  resize(900, 600);
+
+  QWidget *centralWidget = new QWidget(this);
+  setCentralWidget(centralWidget);
+
+  QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+
+  // Área de Ações
+  QHBoxLayout *actionsLayout = new QHBoxLayout();
+  m_openFileBtn = new QPushButton("Abrir arquivo", this);
+  m_saveLogBtn = new QPushButton("Exportar TXT", this);
+  m_exportCsvBtn = new QPushButton("Exportar CSV", this);
+  m_copyTableBtn = new QPushButton("Copiar Tabela", this);
+  m_clearBtn = new QPushButton("Limpar", this);
+  m_adjustColsBtn = new QPushButton("Ajustar Colunas", this);
+  m_loadExamplesBtn = new QPushButton("Carregar exemplo", this);
+  m_samplesCombo = new QComboBox(this);
 
   actionsLayout->addWidget(m_openFileBtn);
   actionsLayout->addWidget(m_saveLogBtn);
@@ -110,6 +116,10 @@ void MainWindow::setupUi() {
   filterLayout->addStretch();
   filterLayout->addWidget(m_statsLabel);
   mainLayout->addLayout(filterLayout);
+
+  m_diagnosticsLabel = new QLabel(this);
+  m_diagnosticsLabel->setStyleSheet("QLabel { background-color: #f0f4f8; border: 1px solid #d9e2ec; padding: 4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
+  mainLayout->addWidget(m_diagnosticsLabel);
 
   // Área da Tabela
   m_tableWidget = new QTableWidget(this);
@@ -166,6 +176,28 @@ void MainWindow::setupUi() {
 }
 
 void MainWindow::logMessage(const QString &msg) { m_logPanel->append(msg); }
+
+void MainWindow::updateDiagnostics() {
+  int visibleRows = 0;
+  for (int r = 0; r < m_tableWidget->rowCount(); ++r) {
+    if (!m_tableWidget->isRowHidden(r)) {
+      visibleRows++;
+    }
+  }
+
+  QString filterStatus = m_filterField->text().isEmpty() ? "Desativado" : "Ativo";
+  QString samplesStatus = m_samplesPath.isEmpty() ? "Não Encontrada" : "Encontrada";
+
+  QString text = QString("Arquivo Atual: %1 | Samples: %2 | Filtro: %3 | Linhas: %4/%5 | Última Operação: %6")
+                     .arg(m_currentFile)
+                     .arg(samplesStatus)
+                     .arg(filterStatus)
+                     .arg(visibleRows)
+                     .arg(m_tableWidget->rowCount())
+                     .arg(m_lastOperation);
+
+  m_diagnosticsLabel->setText(text);
+}
 
 void MainWindow::interpretClicked() {
   QString input = m_inputField->toPlainText().trimmed();
@@ -267,8 +299,8 @@ void MainWindow::interpretClicked() {
   // Aplicar filtro ativo se houver
   filterTable(m_filterField->text());
 
-  // m_inputField->clear(); // Removido para permitir que o usuário edite e
-  // re-rode se quiser
+  m_lastOperation = totalErros > 0 ? "Interpretado com erros" : "Interpretado com sucesso";
+  updateDiagnostics();
 }
 
 void MainWindow::openFileClicked() {
@@ -292,6 +324,9 @@ void MainWindow::openFileClicked() {
         logMessage(QString("Arquivo carregado: %1 (%2 bytes)")
                        .arg(fileName)
                        .arg(content.length()));
+        m_currentFile = QFileInfo(fileName).fileName();
+        m_lastOperation = "Arquivo externo aberto";
+        updateDiagnostics();
       }
     } else {
       logMessage("Erro fatal ao tentar ler o arquivo selecionado no disco.");
@@ -326,6 +361,8 @@ void MainWindow::saveLogClicked() {
       out << "\n=== Log de Execucao ===\n" << m_logPanel->toPlainText() << "\n";
 
       logMessage(QString("Sucesso: Relatório salvo em %1").arg(fileName));
+      m_lastOperation = QString("Relatório TXT salvo em %1").arg(QFileInfo(fileName).fileName());
+      updateDiagnostics();
     } else {
       logMessage("Erro: Falha ao tentar salvar o relatório.");
     }
@@ -358,6 +395,8 @@ void MainWindow::exportCsvClicked() {
         out << rowData.join(";") << "\n";
       }
       logMessage(QString("Sucesso: CSV salvo em %1").arg(fileName));
+      m_lastOperation = QString("CSV salvo em %1").arg(QFileInfo(fileName).fileName());
+      updateDiagnostics();
     } else {
       logMessage("Erro: Falha ao tentar salvar o arquivo CSV.");
     }
@@ -371,6 +410,9 @@ void MainWindow::clearClicked() {
   m_filterField->clear();
   m_statsLabel->setText("Estatísticas: 0 lidos | 0 válidos | 0 erros");
   logMessage("Interface limpa.");
+  m_currentFile = "Nenhum";
+  m_lastOperation = "Interface limpa";
+  updateDiagnostics();
 }
 
 void MainWindow::loadExamplesClicked() {
@@ -391,6 +433,9 @@ void MainWindow::loadExamplesClicked() {
       } else {
           m_inputField->setPlainText(content);
           logMessage(QString("Exemplo carregado: %1").arg(fileName));
+          m_currentFile = "Sample: " + fileName;
+          m_lastOperation = "Exemplo carregado";
+          updateDiagnostics();
       }
   } else {
       logMessage(QString("Erro ao tentar ler o arquivo de exemplo: %1").arg(fileName));
@@ -420,4 +465,5 @@ void MainWindow::filterTable(const QString &text) {
       m_tableWidget->setRowHidden(r, !match);
     }
   }
+  updateDiagnostics();
 }
