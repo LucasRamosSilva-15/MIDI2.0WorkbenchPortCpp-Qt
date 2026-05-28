@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.0.0 - Live MIDI Backend Architecture
+- **Ponto de Inflexão Arquitetural**: Criada a fundação esquelética para receber eventos MIDI reais (live hardware input).
+- Implementada a interface `IMidiInputBackend` para isolar a UI de bibliotecas de transporte reais (RtMidi, libremidi ou Windows MIDI Services).
+- Introduzido `MidiInputController` como orquestrador, mantendo o `UmpParser` e as funcionalidades offline legadas intocáveis.
+- Nenhum comportamento visual/funcional modificado nesta versão; serve estritamente como ponte para a futura adoção de MIDI-IN real.
+
 ## v1.9.0 - UI Status and Diagnostics Panel
 - Adicionado um painel central de diagnóstico imediatamente acima da tabela de visualização.
 - O aplicativo agora fornece feedback em tempo real sobre o Estado do Ambiente ("Arquivo Atual", "Status do Filtro", "Visibilidade da Tabela" e a "Última Operação realizada").

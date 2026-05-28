@@ -17,6 +17,12 @@ add_executable(MidiUmpAnalyzer WIN32
     src/MainWindow.h
     src/UmpParser.cpp
     src/UmpParser.h
+    src/midi/MidiInputController.cpp
+    src/midi/MidiInputController.h
+    src/midi/IMidiInputBackend.h
+    src/midi/FakeMidiInputBackend.h
+    src/core/InputSourceType.h
+    src/core/MidiRawEvent.h
 )
 
 target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
