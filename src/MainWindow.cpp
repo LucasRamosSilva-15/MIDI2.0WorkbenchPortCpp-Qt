@@ -2,21 +2,21 @@
 #include "UmpParser.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QComboBox>
+#include <QCoreApplication>
 #include <QDateTime>
+#include <QDir>
 #include <QFile>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QFileInfo>
-#include <QCoreApplication>
-#include <QDir>
-#include <QComboBox>
-#include <QRegularExpression>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_samplesPath("") {
@@ -26,38 +26,35 @@ MainWindow::MainWindow(QWidget *parent)
 
   // Localizar pasta samples
   QString appDir = QCoreApplication::applicationDirPath();
-  QStringList searchPaths = {
-      appDir + "/samples",
-      appDir + "/../samples",
-      appDir + "/../../samples"
-  };
-  
-  for (const QString& path : searchPaths) {
-      if (QDir(path).exists()) {
-          m_samplesPath = path;
-          break;
-      }
+  QStringList searchPaths = {appDir + "/samples", appDir + "/../samples",
+                             appDir + "/../../samples"};
+
+  for (const QString &path : searchPaths) {
+    if (QDir(path).exists()) {
+      m_samplesPath = path;
+      break;
+    }
   }
 
   if (!m_samplesPath.isEmpty()) {
-      QDir dir(m_samplesPath);
-      QStringList filters;
-      filters << "*.txt";
-      QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
-      for (const QFileInfo& file : files) {
-          m_samplesCombo->addItem(file.fileName());
-      }
+    QDir dir(m_samplesPath);
+    QStringList filters;
+    filters << "*.txt";
+    QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
+    for (const QFileInfo &file : files) {
+      m_samplesCombo->addItem(file.fileName());
+    }
   } else {
-      m_samplesCombo->addItem("(samples não encontrados)");
-      m_samplesCombo->setEnabled(false);
-      m_loadExamplesBtn->setEnabled(false);
+    m_samplesCombo->addItem("(samples não encontrados)");
+    m_samplesCombo->setEnabled(false);
+    m_loadExamplesBtn->setEnabled(false);
   }
 
   updateDiagnostics();
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (Offline v1.9.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.0.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -118,7 +115,9 @@ void MainWindow::setupUi() {
   mainLayout->addLayout(filterLayout);
 
   m_diagnosticsLabel = new QLabel(this);
-  m_diagnosticsLabel->setStyleSheet("QLabel { background-color: #f0f4f8; border: 1px solid #d9e2ec; padding: 4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
+  m_diagnosticsLabel->setStyleSheet(
+      "QLabel { background-color: #f0f4f8; border: 1px solid #d9e2ec; padding: "
+      "4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
   mainLayout->addWidget(m_diagnosticsLabel);
 
   // Área da Tabela
@@ -185,10 +184,13 @@ void MainWindow::updateDiagnostics() {
     }
   }
 
-  QString filterStatus = m_filterField->text().isEmpty() ? "Desativado" : "Ativo";
-  QString samplesStatus = m_samplesPath.isEmpty() ? "Não Encontrada" : "Encontrada";
+  QString filterStatus =
+      m_filterField->text().isEmpty() ? "Desativado" : "Ativo";
+  QString samplesStatus =
+      m_samplesPath.isEmpty() ? "Não Encontrada" : "Encontrada";
 
-  QString text = QString("Arquivo Atual: %1 | Samples: %2 | Filtro: %3 | Linhas: %4/%5 | Última Operação: %6")
+  QString text = QString("Arquivo Atual: %1 | Samples: %2 | Filtro: %3 | "
+                         "Linhas: %4/%5 | Última Operação: %6")
                      .arg(m_currentFile)
                      .arg(samplesStatus)
                      .arg(filterStatus)
@@ -214,78 +216,90 @@ void MainWindow::interpretClicked() {
   int totalErros = 0;
   int totalValidos = 0;
 
-  QStringList blocks = input.split(QRegularExpression("(\\r?\\n){2,}"), Qt::SkipEmptyParts);
+  QStringList blocks =
+      input.split(QRegularExpression("(\\r?\\n){2,}"), Qt::SkipEmptyParts);
 
-  for (const QString& block : blocks) {
-      QString trimmedBlock = block.trimmed();
-      if (trimmedBlock.isEmpty()) continue;
+  for (const QString &block : blocks) {
+    QString trimmedBlock = block.trimmed();
+    if (trimmedBlock.isEmpty())
+      continue;
 
-      ValidationResult result = UmpParser::validateAndExtractWords(trimmedBlock);
-        
-      if (!result.success) {
-          if (result.errorType == UmpValidationError::EmptyAfterFormatting) {
-              continue; // Ignora silenciosamente blocos só com comentários
-          }
-          logMessage(result.errorMessage);
-          totalErros++;
-          continue;
+    ValidationResult result = UmpParser::validateAndExtractWords(trimmedBlock);
+
+    if (!result.success) {
+      if (result.errorType == UmpValidationError::EmptyAfterFormatting) {
+        continue; // Ignora silenciosamente blocos só com comentários
       }
+      logMessage(result.errorMessage);
+      totalErros++;
+      continue;
+    }
 
-      for (const auto& msgWords : result.extractedMessages) {
+    for (const auto &msgWords : result.extractedMessages) {
       totalLidos++;
       ParsedUmp parsed = UmpParser::parseMessage(msgWords);
-      
+
       int rowCount = m_tableWidget->rowCount();
       m_tableWidget->insertRow(rowCount);
-      
+
       // 0: Index
-      QTableWidgetItem* itemIndex = new QTableWidgetItem(QString::number(rowCount + 1));
+      QTableWidgetItem *itemIndex =
+          new QTableWidgetItem(QString::number(rowCount + 1));
       itemIndex->setToolTip(itemIndex->text());
       m_tableWidget->setItem(rowCount, 0, itemIndex);
-      
+
       // 1: Words
       QStringList wordsStrList;
       for (uint32_t w : parsed.words) {
-          wordsStrList << QString("%1").arg(w, 8, 16, QChar('0')).toUpper();
+        wordsStrList << QString("%1").arg(w, 8, 16, QChar('0')).toUpper();
       }
-      QTableWidgetItem* itemWords = new QTableWidgetItem(wordsStrList.join(" "));
+      QTableWidgetItem *itemWords =
+          new QTableWidgetItem(wordsStrList.join(" "));
       itemWords->setToolTip(itemWords->text());
       m_tableWidget->setItem(rowCount, 1, itemWords);
-      
+
       // 2: Size
-      QTableWidgetItem* itemSize = new QTableWidgetItem(QString("%1 bits").arg(parsed.sizeBits));
+      QTableWidgetItem *itemSize =
+          new QTableWidgetItem(QString("%1 bits").arg(parsed.sizeBits));
       itemSize->setToolTip(itemSize->text());
       m_tableWidget->setItem(rowCount, 2, itemSize);
-      
+
       // 3: Type
-      QTableWidgetItem* itemType = new QTableWidgetItem(UmpParser::getMessageTypeString(parsed.messageType));
+      QTableWidgetItem *itemType = new QTableWidgetItem(
+          UmpParser::getMessageTypeString(parsed.messageType));
       itemType->setToolTip(itemType->text());
       m_tableWidget->setItem(rowCount, 3, itemType);
-      
+
       // 4: Group
-      QString groupStr = parsed.group >= 0 ? QString::number(parsed.group) : "-";
-      QTableWidgetItem* itemGroup = new QTableWidgetItem(groupStr);
+      QString groupStr =
+          parsed.group >= 0 ? QString::number(parsed.group) : "-";
+      QTableWidgetItem *itemGroup = new QTableWidgetItem(groupStr);
       itemGroup->setToolTip(itemGroup->text());
       m_tableWidget->setItem(rowCount, 4, itemGroup);
-      
+
       // 5: Status
-      QString statusStr = parsed.status >= 0 ? QString("0x%1").arg(parsed.status, 1, 16).toUpper() : "-";
-      QTableWidgetItem* itemStatus = new QTableWidgetItem(statusStr);
+      QString statusStr =
+          parsed.status >= 0
+              ? QString("0x%1").arg(parsed.status, 1, 16).toUpper()
+              : "-";
+      QTableWidgetItem *itemStatus = new QTableWidgetItem(statusStr);
       itemStatus->setToolTip(itemStatus->text());
       m_tableWidget->setItem(rowCount, 5, itemStatus);
-      
+
       // 6: Channel
-      QString channelStr = parsed.channel >= 0 ? QString::number(parsed.channel + 1) : "-"; 
-      QTableWidgetItem* itemChannel = new QTableWidgetItem(channelStr);
+      QString channelStr =
+          parsed.channel >= 0 ? QString::number(parsed.channel + 1) : "-";
+      QTableWidgetItem *itemChannel = new QTableWidgetItem(channelStr);
       itemChannel->setToolTip(itemChannel->text());
       m_tableWidget->setItem(rowCount, 6, itemChannel);
-      
+
       // 7: Description
-      QTableWidgetItem* itemDesc = new QTableWidgetItem(parsed.description);
+      QTableWidgetItem *itemDesc = new QTableWidgetItem(parsed.description);
       itemDesc->setToolTip(itemDesc->text());
       m_tableWidget->setItem(rowCount, 7, itemDesc);
-      
-      logMessage(QString("Pacote UMP de %1 bits interpretado.").arg(parsed.sizeBits));
+
+      logMessage(
+          QString("Pacote UMP de %1 bits interpretado.").arg(parsed.sizeBits));
       totalValidos++;
     }
   }
@@ -299,7 +313,8 @@ void MainWindow::interpretClicked() {
   // Aplicar filtro ativo se houver
   filterTable(m_filterField->text());
 
-  m_lastOperation = totalErros > 0 ? "Interpretado com erros" : "Interpretado com sucesso";
+  m_lastOperation =
+      totalErros > 0 ? "Interpretado com erros" : "Interpretado com sucesso";
   updateDiagnostics();
 }
 
@@ -335,8 +350,9 @@ void MainWindow::openFileClicked() {
 }
 
 void MainWindow::saveLogClicked() {
-  QString fileName = QFileDialog::getSaveFileName(
-      this, "Exportar Relatório", "ump_report.txt", "Text Files (*.txt);;All Files (*)");
+  QString fileName =
+      QFileDialog::getSaveFileName(this, "Exportar Relatório", "ump_report.txt",
+                                   "Text Files (*.txt);;All Files (*)");
   if (!fileName.isEmpty()) {
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -350,7 +366,8 @@ void MainWindow::saveLogClicked() {
       out << "=== Tabela de Resultados ===\n";
       out << "#\tWords\tSize\tType\tGroup\tStatus\tChannel\tDescription\n";
       for (int r = 0; r < m_tableWidget->rowCount(); ++r) {
-        if (m_tableWidget->isRowHidden(r)) continue;
+        if (m_tableWidget->isRowHidden(r))
+          continue;
         for (int c = 0; c < m_tableWidget->columnCount(); ++c) {
           QTableWidgetItem *item = m_tableWidget->item(r, c);
           out << (item ? item->text() : "") << "\t";
@@ -361,7 +378,8 @@ void MainWindow::saveLogClicked() {
       out << "\n=== Log de Execucao ===\n" << m_logPanel->toPlainText() << "\n";
 
       logMessage(QString("Sucesso: Relatório salvo em %1").arg(fileName));
-      m_lastOperation = QString("Relatório TXT salvo em %1").arg(QFileInfo(fileName).fileName());
+      m_lastOperation = QString("Relatório TXT salvo em %1")
+                            .arg(QFileInfo(fileName).fileName());
       updateDiagnostics();
     } else {
       logMessage("Erro: Falha ao tentar salvar o relatório.");
@@ -370,21 +388,24 @@ void MainWindow::saveLogClicked() {
 }
 
 void MainWindow::exportCsvClicked() {
-  QString fileName = QFileDialog::getSaveFileName(
-      this, "Exportar CSV", "ump_export.csv", "CSV Files (*.csv);;All Files (*)");
+  QString fileName =
+      QFileDialog::getSaveFileName(this, "Exportar CSV", "ump_export.csv",
+                                   "CSV Files (*.csv);;All Files (*)");
   if (!fileName.isEmpty()) {
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
-      
+
       QStringList headers;
       for (int c = 0; c < m_tableWidget->columnCount(); ++c) {
-        headers << QString("\"%1\"").arg(m_tableWidget->horizontalHeaderItem(c)->text());
+        headers << QString("\"%1\"").arg(
+            m_tableWidget->horizontalHeaderItem(c)->text());
       }
       out << headers.join(";") << "\n";
 
       for (int r = 0; r < m_tableWidget->rowCount(); ++r) {
-        if (m_tableWidget->isRowHidden(r)) continue;
+        if (m_tableWidget->isRowHidden(r))
+          continue;
         QStringList rowData;
         for (int c = 0; c < m_tableWidget->columnCount(); ++c) {
           QTableWidgetItem *item = m_tableWidget->item(r, c);
@@ -395,7 +416,8 @@ void MainWindow::exportCsvClicked() {
         out << rowData.join(";") << "\n";
       }
       logMessage(QString("Sucesso: CSV salvo em %1").arg(fileName));
-      m_lastOperation = QString("CSV salvo em %1").arg(QFileInfo(fileName).fileName());
+      m_lastOperation =
+          QString("CSV salvo em %1").arg(QFileInfo(fileName).fileName());
       updateDiagnostics();
     } else {
       logMessage("Erro: Falha ao tentar salvar o arquivo CSV.");
@@ -417,28 +439,30 @@ void MainWindow::clearClicked() {
 
 void MainWindow::loadExamplesClicked() {
   if (m_samplesPath.isEmpty() || m_samplesCombo->currentText().isEmpty()) {
-      logMessage("Erro: Nenhum exemplo selecionado ou pasta samples não encontrada.");
-      return;
+    logMessage(
+        "Erro: Nenhum exemplo selecionado ou pasta samples não encontrada.");
+    return;
   }
 
   QString fileName = m_samplesCombo->currentText();
   QString fullPath = QDir(m_samplesPath).filePath(fileName);
   QFile file(fullPath);
-  
+
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-      QTextStream in(&file);
-      QString content = in.readAll().trimmed();
-      if (content.isEmpty()) {
-          logMessage(QString("Aviso: O exemplo %1 está vazio.").arg(fileName));
-      } else {
-          m_inputField->setPlainText(content);
-          logMessage(QString("Exemplo carregado: %1").arg(fileName));
-          m_currentFile = "Sample: " + fileName;
-          m_lastOperation = "Exemplo carregado";
-          updateDiagnostics();
-      }
+    QTextStream in(&file);
+    QString content = in.readAll().trimmed();
+    if (content.isEmpty()) {
+      logMessage(QString("Aviso: O exemplo %1 está vazio.").arg(fileName));
+    } else {
+      m_inputField->setPlainText(content);
+      logMessage(QString("Exemplo carregado: %1").arg(fileName));
+      m_currentFile = "Sample: " + fileName;
+      m_lastOperation = "Exemplo carregado";
+      updateDiagnostics();
+    }
   } else {
-      logMessage(QString("Erro ao tentar ler o arquivo de exemplo: %1").arg(fileName));
+    logMessage(
+        QString("Erro ao tentar ler o arquivo de exemplo: %1").arg(fileName));
   }
 }
 
