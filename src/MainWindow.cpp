@@ -35,6 +35,7 @@ void MainWindow::setupUi() {
   m_saveLogBtn = new QPushButton("Salvar log", this);
   m_copyTableBtn = new QPushButton("Copiar Tabela", this);
   m_clearBtn = new QPushButton("Limpar", this);
+  m_adjustColsBtn = new QPushButton("Ajustar Colunas", this);
   m_loadExamplesBtn = new QPushButton("Carregar exemplo", this);
   m_samplesCombo = new QComboBox(this);
 
@@ -71,6 +72,7 @@ void MainWindow::setupUi() {
   actionsLayout->addWidget(m_openFileBtn);
   actionsLayout->addWidget(m_saveLogBtn);
   actionsLayout->addWidget(m_copyTableBtn);
+  actionsLayout->addWidget(m_adjustColsBtn);
   actionsLayout->addWidget(m_clearBtn);
   actionsLayout->addWidget(m_samplesCombo);
   actionsLayout->addWidget(m_loadExamplesBtn);
@@ -121,13 +123,13 @@ void MainWindow::setupUi() {
       true); // Faz a descrição ocupar o resto
 
   m_tableWidget->setColumnWidth(0, 40);  // Index
-  m_tableWidget->setColumnWidth(1, 180); // Words
+  m_tableWidget->setColumnWidth(1, 260); // Words
   m_tableWidget->setColumnWidth(2, 60);  // Size
-  m_tableWidget->setColumnWidth(3, 200); // Type
+  m_tableWidget->setColumnWidth(3, 240); // Type
   m_tableWidget->setColumnWidth(4, 50);  // Group
   m_tableWidget->setColumnWidth(5, 50);  // Status
   m_tableWidget->setColumnWidth(6, 60);  // Channel
-  m_tableWidget->setColumnWidth(7, 300); // Description (irá esticar)
+  m_tableWidget->setColumnWidth(7, 400); // Description (irá esticar)
 
   mainLayout->addWidget(m_tableWidget, 2);
 
@@ -147,6 +149,8 @@ void MainWindow::setupUi() {
           &MainWindow::saveLogClicked);
   connect(m_copyTableBtn, &QPushButton::clicked, this,
           &MainWindow::copyTableClicked);
+  connect(m_adjustColsBtn, &QPushButton::clicked, m_tableWidget,
+          &QTableWidget::resizeColumnsToContents);
   connect(m_clearBtn, &QPushButton::clicked, this, &MainWindow::clearClicked);
   connect(m_loadExamplesBtn, &QPushButton::clicked, this,
           &MainWindow::loadExamplesClicked);

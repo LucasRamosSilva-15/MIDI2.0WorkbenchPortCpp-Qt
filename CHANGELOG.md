@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.6.0 - Better Table Readability
+- Aprimoramento visual e de usabilidade (UI) na tabela de resultados principal.
+- As larguras padrão das colunas foram recalibradas, diminuindo colunas de valores fixos (como #, Group, Channel) e ampliando substancialmente as de dados (Words e Type).
+- Novo botão "Ajustar Colunas" incluído no painel de ações para redimensionamento instantâneo do Grid de acordo com os dados apresentados.
+- Confirmação do uso pleno das APIs nativas de `tooltip` via QTableWidgetItem garantindo que nada fique escondido.
+
 ## v1.5.3 - Silent Comment Blocks
 - O analisador de interface agora ignora silenciosamente blocos que resultem em conteúdo vazio (como blocos puramente didáticos compostos apenas por comentários e espaços). Isso evita a poluição do log com mensagens de aviso irrelevantes sem alterar o rigor da validação da entrada.
 

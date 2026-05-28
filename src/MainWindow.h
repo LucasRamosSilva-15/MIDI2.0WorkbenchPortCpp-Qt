@@ -35,6 +35,7 @@ private:
     QPushButton* m_saveLogBtn;
     QPushButton* m_copyTableBtn;
     QPushButton* m_clearBtn;
+    QPushButton* m_adjustColsBtn;
     QPushButton* m_loadExamplesBtn;
     
     QLineEdit* m_filterField;
