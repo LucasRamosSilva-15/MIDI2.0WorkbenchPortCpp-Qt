@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.7.0 - Structured Validation Errors
+- O motor de validação (`UmpParser`) agora devolve classificações fortes de erro (`UmpValidationError` Enum), substituindo arquiteturas legadas frágeis baseadas puramente na busca de strings na mensagem de erro.
+- Maior robustez em toda a interface Qt e módulo de testes automatizados devido a verificações determinísticas como `EmptyAfterFormatting` e `IncompletePacket`.
+- Preservação intacta das mensagens didáticas em português e do detalhamento exibido na tela para o usuário.
+
 ## v1.6.0 - Better Table Readability
 - Aprimoramento visual e de usabilidade (UI) na tabela de resultados principal.
 - As larguras padrão das colunas foram recalibradas, diminuindo colunas de valores fixos (como #, Group, Channel) e ampliando substancialmente as de dados (Words e Type).

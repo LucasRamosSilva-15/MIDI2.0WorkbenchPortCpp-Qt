@@ -13,8 +13,18 @@ struct ParsedUmp {
     QString description;
 };
 
+enum class UmpValidationError {
+    None,
+    EmptyInput,
+    EmptyAfterFormatting,
+    InvalidCharacter,
+    IncompleteWord,
+    IncompletePacket
+};
+
 struct ValidationResult {
     bool success;
+    UmpValidationError errorType = UmpValidationError::None;
     QString errorMessage;
     std::vector<std::vector<uint32_t>> extractedMessages;
 };

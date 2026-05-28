@@ -486,6 +486,7 @@ ValidationResult UmpParser::validateAndExtractWords(const QString& hexInput) {
     cleanInput = cleanInput.remove(" ").remove("\r").remove("\t");
     
     if (cleanInput.isEmpty()) {
+        result.errorType = UmpValidationError::EmptyAfterFormatting;
         result.errorMessage = "Aviso: A entrada resultou em um buffer vazio após a remoção de formatação.";
         return result;
     }
@@ -494,6 +495,7 @@ ValidationResult UmpParser::validateAndExtractWords(const QString& hexInput) {
     for (int i = 0; i < cleanInput.length(); ++i) {
         QChar c = cleanInput[i];
         if (!c.isDigit() && !(c >= 'A' && c <= 'F') && !(c >= 'a' && c <= 'f')) {
+            result.errorType = UmpValidationError::InvalidCharacter;
             result.errorMessage = QString("Erro de Validação: Encontrado caractere inválido '%1' (posição %2). Use apenas dígitos hexadecimais (0-9, A-F).").arg(c).arg(i);
             return result;
         }
@@ -502,6 +504,7 @@ ValidationResult UmpParser::validateAndExtractWords(const QString& hexInput) {
     // Check padding / odd lengths
     if (cleanInput.length() % 8 != 0) {
         int sobras = cleanInput.length() % 8;
+        result.errorType = UmpValidationError::IncompleteWord;
         result.errorMessage = QString("Erro de integridade UMP: O tamanho da entrada (%1 caracteres hexadecimais) não forma words exatas. Há uma sobra de %2 caractere(s). Faltam nibbles ou a estrutura foi truncada.").arg(cleanInput.length()).arg(sobras);
         return result;
     }
@@ -526,6 +529,7 @@ ValidationResult UmpParser::validateAndExtractWords(const QString& hexInput) {
         int expectedWords = getWordCountForMessageType(mt);
         
         if (wordIndex + expectedWords > allWords.size()) {
+            result.errorType = UmpValidationError::IncompletePacket;
             result.errorMessage = QString("Erro de empacotamento UMP: Pacote Incompleto. MT 0x%1 esperava %2 palavras.").arg(mt, 1, 16).arg(expectedWords);
             return result;
         }

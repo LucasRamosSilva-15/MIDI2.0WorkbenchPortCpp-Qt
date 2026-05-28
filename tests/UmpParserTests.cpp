@@ -107,25 +107,25 @@ int main() {
     // 9. Entrada com caractere inválido
     {
         ValidationResult result = UmpParser::validateAndExtractWords("20904X00");
-        assertTest("Invalid Character rejected", !result.success && result.errorMessage.contains("inválido"));
+        assertTest("Invalid Character rejected", !result.success && result.errorType == UmpValidationError::InvalidCharacter);
     }
 
     // 10. Entrada com word incompleta (truncada impar)
     {
-        ValidationResult result = UmpParser::validateAndExtractWords("2090400");
-        assertTest("Incomplete word rejected", !result.success && result.errorMessage.contains("sobra"));
+        ValidationResult result = UmpParser::validateAndExtractWords("2090400"); // 7 chars, faltou 1 nibble
+        assertTest("Incomplete word rejected", !result.success && result.errorType == UmpValidationError::IncompleteWord);
     }
 
     // 11. Entrada com pacote UMP incompleto (MT mentiroso)
     {
-        ValidationResult result = UmpParser::validateAndExtractWords("40904000"); // MT 4 needs 64 bits (2 words)
-        assertTest("Incomplete packet rejected", !result.success && result.errorMessage.contains("Pacote Incompleto"));
+        ValidationResult result = UmpParser::validateAndExtractWords("40904000"); // MT 0x4 exige 2 palavras, mas fornecemos apenas 1
+        assertTest("Incomplete packet rejected", !result.success && result.errorType == UmpValidationError::IncompletePacket);
     }
 
     // 12. Entrada vazia
     {
         ValidationResult result = UmpParser::validateAndExtractWords("");
-        assertTest("Empty input rejected safely", !result.success && result.errorMessage.contains("vazio"));
+        assertTest("Empty input rejected safely", !result.success && result.errorType == UmpValidationError::EmptyAfterFormatting);
     }
 
     // 13. Linha de comentario no comeco e meio
@@ -142,8 +142,8 @@ int main() {
 
     // 15. Caractere invalido real fora de comentario continua sendo pego
     {
-        ValidationResult result = UmpParser::validateAndExtractWords("2090400Z # This should fail before comment");
-        assertTest("Invalid character outside comment fails", !result.success && result.errorMessage.contains("inválido"));
+        ValidationResult result = UmpParser::validateAndExtractWords("2090400Z # Comentario com Z");
+        assertTest("Invalid character outside comment fails", !result.success && result.errorType == UmpValidationError::InvalidCharacter);
     }
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
