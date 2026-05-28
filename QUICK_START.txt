@@ -8,7 +8,13 @@ Siga os passos abaixo para utilizar o aplicativo imediatamente:
 4. Clique no botão "Interpret" para processar a tabela em tempo real.
 5. (Opcional) Utilize a barra suspensa de Exemplos no topo da janela para selecionar um dos logs didáticos (SysEx, Flex, Voice, etc).
 6. Clique no botão "Carregar exemplo" e em seguida "Interpret" para ver o resultado prático.
-7. Use o botão "Copiar Tabela" (Copy Table) para extrair os resultados e jogar diretamente em um Excel ou Bloco de Notas.
+7. Use o botão "Copiar Tabela" (Copy Table) para extrair os resultados- Exportar Resultados:
+  A barra superior contém ferramentas ricas de exportação que respeitam o que está aparecendo no momento na tabela (filtro visual).
+  -> Exportar TXT: Cria um relatório amplo em texto simples (Data/Hora, Estatísticas e Tabela Completa para leitura fácil).
+  -> Exportar CSV: Salva a tabela formatada (separada por ponto-e-vírgula) para abrir diretamente no Excel/Google Sheets.
+  -> Copiar Tabela: Joga o grid para a área de transferência do Windows para colar onde quiser.
+
+Se o arquivo não abrir, certifique-se de que a pasta foi devidamente extraída.
 
 * Dica Pro: Você pode adicionar comentários livres nos arquivos de exemplo usando o caractere '#' no início da linha ou no fim de um pacote.
 * Dica Pro 2: Você pode enviar múltiplos testes de uma vez separando-os por linhas em branco. O app processará cada bloco individualmente e exibirá todos os resultados/erros de uma vez só no log.

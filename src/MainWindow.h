@@ -20,6 +20,7 @@ private slots:
     void interpretClicked();
     void openFileClicked();
     void saveLogClicked();
+    void exportCsvClicked();
     void copyTableClicked();
     void clearClicked();
     void loadExamplesClicked();
@@ -33,6 +34,7 @@ private:
     QPushButton* m_interpretBtn;
     QPushButton* m_openFileBtn;
     QPushButton* m_saveLogBtn;
+    QPushButton* m_exportCsvBtn;
     QPushButton* m_copyTableBtn;
     QPushButton* m_clearBtn;
     QPushButton* m_adjustColsBtn;

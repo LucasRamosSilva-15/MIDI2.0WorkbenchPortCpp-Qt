@@ -32,7 +32,8 @@ void MainWindow::setupUi() {
   // Área de Ações
   QHBoxLayout *actionsLayout = new QHBoxLayout();
   m_openFileBtn = new QPushButton("Abrir arquivo", this);
-  m_saveLogBtn = new QPushButton("Salvar log", this);
+  m_saveLogBtn = new QPushButton("Exportar TXT", this);
+  m_exportCsvBtn = new QPushButton("Exportar CSV", this);
   m_copyTableBtn = new QPushButton("Copiar Tabela", this);
   m_clearBtn = new QPushButton("Limpar", this);
   m_adjustColsBtn = new QPushButton("Ajustar Colunas", this);
@@ -71,6 +72,7 @@ void MainWindow::setupUi() {
 
   actionsLayout->addWidget(m_openFileBtn);
   actionsLayout->addWidget(m_saveLogBtn);
+  actionsLayout->addWidget(m_exportCsvBtn);
   actionsLayout->addWidget(m_copyTableBtn);
   actionsLayout->addWidget(m_adjustColsBtn);
   actionsLayout->addWidget(m_clearBtn);
@@ -147,6 +149,8 @@ void MainWindow::setupUi() {
           &MainWindow::openFileClicked);
   connect(m_saveLogBtn, &QPushButton::clicked, this,
           &MainWindow::saveLogClicked);
+  connect(m_exportCsvBtn, &QPushButton::clicked, this,
+          &MainWindow::exportCsvClicked);
   connect(m_copyTableBtn, &QPushButton::clicked, this,
           &MainWindow::copyTableClicked);
   connect(m_adjustColsBtn, &QPushButton::clicked, m_tableWidget,
@@ -297,20 +301,21 @@ void MainWindow::openFileClicked() {
 
 void MainWindow::saveLogClicked() {
   QString fileName = QFileDialog::getSaveFileName(
-      this, "Salvar Log", "ump_log.txt", "Text Files (*.txt);;All Files (*)");
+      this, "Exportar Relatório", "ump_report.txt", "Text Files (*.txt);;All Files (*)");
   if (!fileName.isEmpty()) {
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
-      out << "=== Log do Analisador UMP ===\n";
+      out << "=== Relatório do Analisador UMP ===\n";
       out << "Data/Hora: "
           << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
-          << "\n\n";
-      out << "Entrada Original:\n" << m_inputField->toPlainText() << "\n\n";
+          << "\n";
+      out << m_statsLabel->text() << "\n\n";
 
       out << "=== Tabela de Resultados ===\n";
       out << "#\tWords\tSize\tType\tGroup\tStatus\tChannel\tDescription\n";
       for (int r = 0; r < m_tableWidget->rowCount(); ++r) {
+        if (m_tableWidget->isRowHidden(r)) continue;
         for (int c = 0; c < m_tableWidget->columnCount(); ++c) {
           QTableWidgetItem *item = m_tableWidget->item(r, c);
           out << (item ? item->text() : "") << "\t";
@@ -320,9 +325,41 @@ void MainWindow::saveLogClicked() {
 
       out << "\n=== Log de Execucao ===\n" << m_logPanel->toPlainText() << "\n";
 
-      logMessage(QString("Log salvo com sucesso em: %1").arg(fileName));
+      logMessage(QString("Sucesso: Relatório salvo em %1").arg(fileName));
     } else {
-      logMessage("Erro ao salvar o log.");
+      logMessage("Erro: Falha ao tentar salvar o relatório.");
+    }
+  }
+}
+
+void MainWindow::exportCsvClicked() {
+  QString fileName = QFileDialog::getSaveFileName(
+      this, "Exportar CSV", "ump_export.csv", "CSV Files (*.csv);;All Files (*)");
+  if (!fileName.isEmpty()) {
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      QTextStream out(&file);
+      
+      QStringList headers;
+      for (int c = 0; c < m_tableWidget->columnCount(); ++c) {
+        headers << QString("\"%1\"").arg(m_tableWidget->horizontalHeaderItem(c)->text());
+      }
+      out << headers.join(";") << "\n";
+
+      for (int r = 0; r < m_tableWidget->rowCount(); ++r) {
+        if (m_tableWidget->isRowHidden(r)) continue;
+        QStringList rowData;
+        for (int c = 0; c < m_tableWidget->columnCount(); ++c) {
+          QTableWidgetItem *item = m_tableWidget->item(r, c);
+          QString text = item ? item->text() : "";
+          text.replace("\"", "\"\"");
+          rowData << QString("\"%1\"").arg(text);
+        }
+        out << rowData.join(";") << "\n";
+      }
+      logMessage(QString("Sucesso: CSV salvo em %1").arg(fileName));
+    } else {
+      logMessage("Erro: Falha ao tentar salvar o arquivo CSV.");
     }
   }
 }

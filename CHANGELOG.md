@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.8.0 - Parser Result Export Improvements
+- Novo recurso "Exportar CSV" adicionado para salvar os resultados da tabela interpretada com colunas em formato separado por vírgulas (ponto-e-vírgula e aspas, padrão seguro do Excel/Sheets).
+- O botão "Salvar log" foi recriado como "Exportar TXT", gerando um relatório massivo que agora integra Data/Hora, Estatísticas de leitura, a Tabela de Resultados (formatada) e os erros em Log.
+- Todas as exportações (CSV, TXT e Copiar Tabela) agora respeitam de maneira estrita o filtro ativo da UI. Linhas ocultas na tela ficam ocultas no arquivo, garantindo o princípio WYSIWYG ("What You See Is What You Get").
+
 ## v1.7.0 - Structured Validation Errors
 - O motor de validação (`UmpParser`) agora devolve classificações fortes de erro (`UmpValidationError` Enum), substituindo arquiteturas legadas frágeis baseadas puramente na busca de strings na mensagem de erro.
 - Maior robustez em toda a interface Qt e módulo de testes automatizados devido a verificações determinísticas como `EmptyAfterFormatting` e `IncompletePacket`.
