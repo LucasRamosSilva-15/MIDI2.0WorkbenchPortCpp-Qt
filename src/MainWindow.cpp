@@ -25,6 +25,10 @@ MainWindow::MainWindow(QWidget *parent)
   m_currentFile = "Nenhum";
   m_lastOperation = "Aguardando entrada...";
   m_midiBackend = std::make_unique<RtMidiInputBackend>();
+
+  m_liveMidiTimer = new QTimer(this);
+  connect(m_liveMidiTimer, &QTimer::timeout, this, &MainWindow::pollLiveMidi);
+
   setupUi();
 
   // Localizar pasta samples
@@ -57,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.6.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.6.1)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -89,7 +93,9 @@ void MainWindow::setupUi() {
 
   // Área Live MIDI Experimental
   QGroupBox *liveMidiGroup = new QGroupBox("Live MIDI (Experimental)", this);
-  QHBoxLayout *liveMidiLayout = new QHBoxLayout(liveMidiGroup);
+  QVBoxLayout *liveMidiMainLayout = new QVBoxLayout(liveMidiGroup);
+  QHBoxLayout *liveMidiBtnLayout = new QHBoxLayout();
+
   m_refreshMidiPortsBtn = new QPushButton("Atualizar portas", this);
   m_liveMidiPortsCombo = new QComboBox(this);
   m_liveMidiPortsCombo->setMinimumWidth(250);
@@ -97,11 +103,21 @@ void MainWindow::setupUi() {
   m_closeMidiPortBtn = new QPushButton("Fechar porta", this);
   m_closeMidiPortBtn->setEnabled(false);
 
-  liveMidiLayout->addWidget(m_refreshMidiPortsBtn);
-  liveMidiLayout->addWidget(m_liveMidiPortsCombo);
-  liveMidiLayout->addWidget(m_openMidiPortBtn);
-  liveMidiLayout->addWidget(m_closeMidiPortBtn);
-  liveMidiLayout->addStretch();
+  liveMidiBtnLayout->addWidget(m_refreshMidiPortsBtn);
+  liveMidiBtnLayout->addWidget(m_liveMidiPortsCombo);
+  liveMidiBtnLayout->addWidget(m_openMidiPortBtn);
+  liveMidiBtnLayout->addWidget(m_closeMidiPortBtn);
+  liveMidiBtnLayout->addStretch();
+
+  m_liveMidiLog = new QTextEdit(this);
+  m_liveMidiLog->setReadOnly(true);
+  m_liveMidiLog->setMaximumHeight(100);
+  m_liveMidiLog->setPlaceholderText(
+      "Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
+
+  liveMidiMainLayout->addLayout(liveMidiBtnLayout);
+  liveMidiMainLayout->addWidget(m_liveMidiLog);
+
   mainLayout->addWidget(liveMidiGroup);
 
   // Área de Input
@@ -555,6 +571,8 @@ void MainWindow::openMidiPortClicked() {
   }
 
   if (m_midiBackend->openInputPort(index)) {
+    if (m_liveMidiTimer)
+      m_liveMidiTimer->start(50);
     logMessage(QString("Porta MIDI aberta com sucesso: %1")
                    .arg(m_liveMidiPortsCombo->currentText()));
     m_openMidiPortBtn->setEnabled(false);
@@ -574,6 +592,8 @@ void MainWindow::openMidiPortClicked() {
 void MainWindow::closeMidiPortClicked() {
 #ifdef USE_RTMIDI
   if (m_midiBackend->isOpen()) {
+    if (m_liveMidiTimer)
+      m_liveMidiTimer->stop();
     m_midiBackend->closeInputPort();
     logMessage("Porta MIDI fechada com sucesso.");
     m_openMidiPortBtn->setEnabled(true);
@@ -585,5 +605,36 @@ void MainWindow::closeMidiPortClicked() {
   }
 #else
   logMessage("Aviso: Tentativa de fechar porta, mas RtMidi está desativado.");
+#endif
+}
+
+void MainWindow::pollLiveMidi() {
+#ifdef USE_RTMIDI
+  if (!m_midiBackend || !m_midiBackend->isOpen())
+    return;
+
+  std::vector<MidiRawEvent> events = m_midiBackend->pollEvents();
+  if (events.empty())
+    return;
+
+  for (const auto &ev : events) {
+    if (ev.sourceType == InputSourceType::LiveMidi1Bytes) {
+      QString hexStr;
+      for (uint8_t byte : ev.midi1Bytes) {
+        hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
+      }
+      QString msg = QString("[%1s] Live MIDI 1.0: %2")
+                        .arg(ev.timestamp, 0, 'f', 3)
+                        .arg(hexStr.trimmed());
+      if (m_liveMidiLog) {
+        m_liveMidiLog->append(msg);
+      }
+    }
+  }
+#else
+  // Stub seguro para quando RtMidi está desativado
+  if (m_liveMidiTimer && m_liveMidiTimer->isActive()) {
+    m_liveMidiTimer->stop();
+  }
 #endif
 }
