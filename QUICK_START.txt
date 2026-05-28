@@ -10,5 +10,7 @@ Siga os passos abaixo para utilizar o aplicativo imediatamente:
 6. Clique no botão "Carregar exemplo" e em seguida "Interpret" para ver o resultado prático.
 7. Use o botão "Copiar Tabela" (Copy Table) para extrair os resultados e jogar diretamente em um Excel ou Bloco de Notas.
 
+* Dica Pro: Você pode adicionar comentários livres nos arquivos de exemplo usando o caractere '#' no início da linha ou no fim de um pacote. O aplicativo os ignorará perfeitamente!
+
 * Lembrete Técnico:
 Este aplicativo trabalha offline em modo de diagnóstico puro. Ele não lê sinais elétricos MIDI ou emite áudio via Windows/USB. Ele serve exclusivamente para auditar strings de rede ou desenvolvedores depurando o próprio fluxo MIDI UMP.

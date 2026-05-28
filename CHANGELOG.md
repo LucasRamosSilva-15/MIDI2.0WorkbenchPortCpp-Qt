@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.5.1 - Comments Parsing Support
+- O motor `UmpParser::validateAndExtractWords()` foi aprimorado para suportar ignorar seções de texto marcadas com `#` em entradas manuais e via arquivos `.txt`. Comentários inteiros e anotações *inline* agora são descartados pacificamente antes da sanitização hexadecimal, evitando travamentos e falsos positivos de caracteres inválidos.
+
 ## v1.5.0 - UI Sample Loader
 - A interface de usuário (UI) recebeu um `QComboBox` dinâmico na barra de ações. O aplicativo agora varre o disco buscando a pasta `samples/` nativamente e permite que o usuário carregue os fragmentos didáticos com um clique dentro do próprio programa, sem precisar colar manualmente.
 

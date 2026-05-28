@@ -469,12 +469,21 @@ ParsedUmp UmpParser::parseMessage(const std::vector<uint32_t>& words) {
     return parsed;
 }
 
+#include <QStringList>
+
 ValidationResult UmpParser::validateAndExtractWords(const QString& hexInput) {
     ValidationResult result;
     result.success = false;
     
-    QString cleanInput = hexInput;
-    cleanInput = cleanInput.remove(" ").remove("\n").remove("\r").remove("\t");
+    QString cleanInput = "";
+    QStringList lines = hexInput.split('\n');
+    for (const QString& line : lines) {
+        int hashIdx = line.indexOf('#');
+        QString codePart = (hashIdx != -1) ? line.left(hashIdx) : line;
+        cleanInput += codePart;
+    }
+    
+    cleanInput = cleanInput.remove(" ").remove("\r").remove("\t");
     
     if (cleanInput.isEmpty()) {
         result.errorMessage = "Aviso: A entrada resultou em um buffer vazio após a remoção de formatação.";

@@ -128,6 +128,24 @@ int main() {
         assertTest("Empty input rejected safely", !result.success && result.errorMessage.contains("vazio"));
     }
 
+    // 13. Linha de comentario no comeco e meio
+    {
+        ValidationResult result = UmpParser::validateAndExtractWords("# Comment\n20904000\n# Another");
+        assertTest("Comment lines ignored", result.success && result.extractedMessages.size() == 1);
+    }
+
+    // 14. Comentario inline
+    {
+        ValidationResult result = UmpParser::validateAndExtractWords("20904000 # Inline comment with X");
+        assertTest("Inline comment ignored", result.success && result.extractedMessages.size() == 1);
+    }
+
+    // 15. Caractere invalido real fora de comentario continua sendo pego
+    {
+        ValidationResult result = UmpParser::validateAndExtractWords("2090400Z # This should fail before comment");
+        assertTest("Invalid character outside comment fails", !result.success && result.errorMessage.contains("inválido"));
+    }
+
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 
     if (testsPassed == testsRun) {
