@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.0.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.2.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);

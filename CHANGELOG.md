@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.2.0 - List MIDI input ports with RtMidi
+- Implementada com sucesso a varredura e listagem de portas ativas de hardware MIDI via `RtMidiIn::getPortCount()` e `getPortName()`.
+- A integração foi confirmada em ambos os perfis CMake: retornando portas reais do SO quando `ENABLE_RTMIDI=ON` e silenciando com segurança (`QStringList` vazio) quando `OFF`.
+- Mantida rigorosamente a promessa de não abrir a porta (não alocar buffer de recebimento) nem injetar callbacks.
+- A UI permanece puramente inalterada, mantendo o `UmpParser` intacto.
+
 ## v2.1.0 - RtMidi Dependency Integration
 - Integrada a estrutura inicial para gerenciar a dependência do `RtMidi` via `FetchContent` do CMake de maneira 100% opcional.
 - A flag `ENABLE_RTMIDI=ON/OFF` agora controla de forma fluida se a aplicação compila como um sistema estrito sem hardware (`OFF`) ou traz a robustez de portas em tempo real (`ON`).
