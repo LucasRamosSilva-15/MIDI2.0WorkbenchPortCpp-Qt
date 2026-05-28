@@ -1,6 +1,11 @@
 # MIDI 2.0 Workbench Port (C++ / Qt6)
 
-**Versão:** v1.1.0 - Automatic Release Packaging
+![CI](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/ci.yml/badge.svg)
+![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
+![Platform](https://img.shields.io/badge/Platform-Windows-blue)
+![Qt](https://img.shields.io/badge/Framework-Qt6-green)
+
+**Versão:** v1.2.0 - README polish & Presentation
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
@@ -21,6 +26,25 @@ O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal 
 - **NÃO suporta Windows MIDI Services ou Drivers USB.**
 - **NÃO implementa MIDI-CI** (Property Exchange, Profile Configuration, Protocol Negotiation). As interpretações de payload são brutas ou estáticas.
 - **NÃO reconstrói fragmentação UMP**. Pacotes SysEx ou Flex partidos em pacotes menores (Start/Continue/End) são avaliados isoladamente pacote por pacote de forma forense, sem concatenação temporária de estado (buffer state).
+
+## Download
+Para testar a aplicação sem precisar compilar o código fonte, acesse a aba lateral [**Releases**](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/releases) aqui no GitHub.
+Lá você poderá baixar o pacote `.zip` compactado (ex: `MidiUmpAnalyzer-v1.1.0-windows-x64.zip`) gerado e empacotado automaticamente pelos servidores da Microsoft, contendo o executável livre de vírus e todas as DLLs necessárias para rodar no seu Windows.
+
+## Screenshots
+
+- ![Interface Principal](docs/screenshots/Screenshot1.png)
+- ![Filtragem SysEx](docs/screenshots/Screenshot2.png)
+
+## Como Usar
+
+O analisador é projetado para aceitar registros hexadecimais brutos e dissecá-los de forma imediata:
+1. **Entrada Manual**: Cole seus pacotes UMP hexadecimais diretamente na caixa de texto superior. Letras e espaços perdidos serão higienizados de forma inteligente.
+2. **Entrada de Arquivos**: Se preferir, clique no botão `Load .txt` e carregue um arquivo de log da sua máquina contendo pacotes brutos.
+3. **Analisar**: Pressione o botão `Interpret` para que a tabela preencha as traduções descritivas instantaneamente.
+4. **Filtrar**: Utilize a barra de **Filter** para pesquisar pacotes específicos (ex: digite "SysEx" e a tabela mostrará apenas mensagens SysEx).
+5. **Copiar Dados**: Clique no botão `Copy Table` para transportar toda a grade decodificada para o seu Excel/Bloco de notas em um formato perfeitamente tabulado.
+6. **Extrair o Log**: Pressione `Save Log` para guardar os relatórios e logs de erro (truncamentos, arquivos inválidos) em um arquivo `.txt` na sua máquina.
 
 ## Infraestrutura Tecnológica (Testes e CI)
 A versão `v1.1.0` suporta testes nativos puramente C++, desacoplados da interface gráfica Qt:

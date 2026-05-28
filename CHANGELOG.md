@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.2.0 - Presentation & Polish
+- Atualização visual e comercial do GitHub: adição de *badges* de status, criação da pasta remota de *screenshots* e inclusão de minitutoriais para usuários finais na página inicial (Download e Uso).
+
 ## v1.1.0 - Automatic Release Packaging
 - Workflow de Lançamento (CD) introduzido. Pacotes `.zip` empacotando o executável e as bibliotecas Qt compiladas são gerados instantaneamente e indexados ao GitHub Releases sempre que uma nova tag `v*` for empurrada no repositório.
 
