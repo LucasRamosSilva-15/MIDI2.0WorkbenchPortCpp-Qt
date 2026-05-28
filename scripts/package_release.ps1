@@ -38,10 +38,12 @@ foreach ($folder in $qtFolders) {
     }
 }
 
-Write-Host "`n--- Copiando Documentacao ---"
+Write-Host "`n--- Copiando Documentacao e Lancador ---"
 Copy-Item "README.md" -Destination $distPath
 Copy-Item "TESTS.md" -Destination $distPath
 Copy-Item "CHANGELOG.md" -Destination $distPath
+Copy-Item "QUICK_START.txt" -Destination $distPath
+Copy-Item "Start-MidiUmpAnalyzer.bat" -Destination $distPath
 
 Write-Host "`n--- Zipando Pacote Final ---"
 Compress-Archive -Path "$distPath\*" -DestinationPath $zipName -Force

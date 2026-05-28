@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.3.0 - Portable Windows launcher polish
+- Adição de script de lançamento inteligente (`Start-MidiUmpAnalyzer.bat`) e guia de primeiros passos em texto puro (`QUICK_START.txt`) inclusos nativamente dentro do ZIP oficial da release.
+
 ## v1.2.0 - Presentation & Polish
 - Atualização visual e comercial do GitHub: adição de *badges* de status, criação da pasta remota de *screenshots* e inclusão de minitutoriais para usuários finais na página inicial (Download e Uso).
 
