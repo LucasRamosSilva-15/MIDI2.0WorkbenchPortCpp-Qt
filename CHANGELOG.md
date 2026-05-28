@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.9.0 - UI Status and Diagnostics Panel
+- Adicionado um painel central de diagnóstico imediatamente acima da tabela de visualização.
+- O aplicativo agora fornece feedback em tempo real sobre o Estado do Ambiente ("Arquivo Atual", "Status do Filtro", "Visibilidade da Tabela" e a "Última Operação realizada").
+- Melhoria contínua da usabilidade (UX) mantendo o motor UMP puro intacto.
+
 ## v1.8.0 - Parser Result Export Improvements
 - Novo recurso "Exportar CSV" adicionado para salvar os resultados da tabela interpretada com colunas em formato separado por vírgulas (ponto-e-vírgula e aspas, padrão seguro do Excel/Sheets).
 - O botão "Salvar log" foi recriado como "Exportar TXT", gerando um relatório massivo que agora integra Data/Hora, Estatísticas de leitura, a Tabela de Resultados (formatada) e os erros em Log.

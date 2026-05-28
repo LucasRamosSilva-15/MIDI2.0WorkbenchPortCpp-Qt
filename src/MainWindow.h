@@ -29,6 +29,10 @@ private slots:
 private:
     void setupUi();
     void logMessage(const QString& msg);
+    void updateDiagnostics();
+    
+    QString m_currentFile;
+    QString m_lastOperation;
     
     QPlainTextEdit* m_inputField;
     QPushButton* m_interpretBtn;
@@ -42,6 +46,7 @@ private:
     
     QLineEdit* m_filterField;
     QLabel* m_statsLabel;
+    QLabel* m_diagnosticsLabel;
     
     QTableWidget* m_tableWidget;
     QTextEdit* m_logPanel;
