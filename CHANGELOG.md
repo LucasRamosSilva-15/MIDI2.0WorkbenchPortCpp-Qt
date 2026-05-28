@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.4.0 - RtMidi-enabled release build option
+- O script de empacotamento (`package_release.ps1`) agora suporta a flag `-EnableRtMidi` para forçar o build em pasta paralela e envelopar as bibliotecas geradas no FetchContent.
+- A pipeline de Integração Contínua (CI) via GitHub Actions (`release.yml`) foi atualizada para expor duplamente os artefatos de compilação a cada tag `vX.Y.Z` gerada.
+- Garante separação rigorosa de modo que os usuários do pacote padrão offline continuem 100% isolados de instâncias ou bibliotecas do RtMidi.
+
 ## v2.3.0 - Experimental MIDI input port UI
 - Introduzida uma área visual de laboratório ("Live MIDI Experimental") diretamente na interface principal.
 - Agora é possível pressionar "Atualizar portas MIDI" para povoar um `QComboBox` com as portas reais detectadas no S.O.

@@ -34,12 +34,17 @@ jobs:
     - name: Run Automated Tests
       run: powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1 -SkipBuild
 
-    - name: Package Release
+    - name: Package Release (Standard)
       run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }}
+
+    - name: Package Release (RtMidi)
+      run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }} -EnableRtMidi
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64.zip
+        files: |
+          dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64.zip
+          dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64-rtmidi.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

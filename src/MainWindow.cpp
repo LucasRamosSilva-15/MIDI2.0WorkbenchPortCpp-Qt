@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "UmpParser.h"
+#include "midi/RtMidiInputBackend.h"
 #include <QApplication>
 #include <QClipboard>
 #include <QComboBox>
@@ -9,6 +10,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -17,8 +19,6 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QGroupBox>
-#include "midi/RtMidiInputBackend.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_samplesPath("") {
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.3.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.4.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);

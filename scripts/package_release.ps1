@@ -1,10 +1,28 @@
 param (
-    [string]$Version = "v1.0.0"
+    [string]$Version = "v1.0.0",
+    [switch]$EnableRtMidi
 )
 
 $ErrorActionPreference = "Stop"
 
-$distName = "MidiUmpAnalyzer-$Version-windows-x64"
+if ($EnableRtMidi) {
+    $buildDir = "build-rtmidi"
+    $distName = "MidiUmpAnalyzer-$Version-windows-x64-rtmidi"
+    
+    # Se a pasta não existe, configura
+    if (-not (Test-Path $buildDir)) {
+        Write-Host "`n--- Garantindo configuracao com RtMidi ---"
+        $cmakeArgs = @("-G", "Visual Studio 17 2022", "-A", "x64", "-B", $buildDir, "-DENABLE_RTMIDI=ON")
+        if ($env:Qt6_DIR) {
+            $cmakeArgs += "-DCMAKE_PREFIX_PATH=$env:Qt6_DIR"
+        }
+        & cmake $cmakeArgs
+    }
+} else {
+    $buildDir = "build"
+    $distName = "MidiUmpAnalyzer-$Version-windows-x64"
+}
+
 $distPath = "dist\$distName"
 $zipName = "dist\$distName.zip"
 
@@ -12,7 +30,7 @@ Write-Host "--- Parando aplicativo caso esteja aberto ---"
 Stop-Process -Name MidiUmpAnalyzer -ErrorAction SilentlyContinue
 
 Write-Host "`n--- Garantindo compilacao em modo Release ---"
-cmake --build build --config Release
+cmake --build $buildDir --config Release
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Falha na compilacao CMake." -ForegroundColor Red
     exit 1
@@ -24,17 +42,24 @@ if (Test-Path $zipName) { Remove-Item -Force $zipName }
 New-Item -ItemType Directory -Force -Path $distPath | Out-Null
 
 Write-Host "`n--- Copiando Executavel Principal ---"
-Copy-Item "build\Release\MidiUmpAnalyzer.exe" -Destination $distPath
+Copy-Item "$buildDir\Release\MidiUmpAnalyzer.exe" -Destination $distPath
+
+if ($EnableRtMidi) {
+    Write-Host "`n--- Copiando DLL do RtMidi (se existir) ---"
+    if (Test-Path "$buildDir\_deps\rtmidi-build\Release\rtmidi.dll") {
+        Copy-Item "$buildDir\_deps\rtmidi-build\Release\rtmidi.dll" -Destination $distPath
+    }
+}
 
 Write-Host "`n--- Copiando Dependencias Qt (windeployqt ja foi rodado pelo CMake) ---"
 # Copia todas as DLLs geradas
-Get-ChildItem "build\Release\*.dll" | Copy-Item -Destination $distPath
+Get-ChildItem "$buildDir\Release\*.dll" | Copy-Item -Destination $distPath
 
 # Copia subpastas de plugins criadas pelo windeployqt
 $qtFolders = @("platforms", "styles", "iconengines", "imageformats", "networkinformation", "tls")
 foreach ($folder in $qtFolders) {
-    if (Test-Path "build\Release\$folder") {
-        Copy-Item -Recurse "build\Release\$folder" -Destination $distPath
+    if (Test-Path "$buildDir\Release\$folder") {
+        Copy-Item -Recurse "$buildDir\Release\$folder" -Destination $distPath
     }
 }
 

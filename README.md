@@ -5,10 +5,16 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
 
-**Versão:** v2.3.0 - Experimental MIDI input port UI
+**Versão:** v2.4.0 - RtMidi-enabled release build option
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
+Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por MCUs embarcados (como Raspberry Pi Pico) antes do transporte USB final.
+
+## Downloads e Pacotes
+Temos duas versões disponíveis na [página de Releases](../../releases):
+1. **Pacote Padrão** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64.zip`): Offline puro, seguro e com dependências mínimas.
+2. **Pacote Experimental RtMidi** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64-rtmidi.zip`): Permite testar a listagem real de portas MIDI detectadas através do S.O. Ainda não abre as portas nem recebe pacotes em tempo real (apenas UI de detecção).
 
 **O que este projeto FAZ:**
 - Ingestão passiva de registros textuais UMP brutos (aceita blocos hexadecimais colados na interface ou leitura de arquivos `.txt`).
