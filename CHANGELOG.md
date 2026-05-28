@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.5.2 - Block-by-block parsing and Error Handling
+- Adicionado suporte a análise de múltiplos blocos independentes. O aplicativo agora divide a entrada por linhas em branco duplas (`\n\n`), permitindo processar múltiplos casos e apresentar múltiplos erros sem abortar no primeiro erro encontrado.
+- Limpeza automática do Log de interface para impedir o acúmulo infinito de mensagens de erro duplicadas.
+- Limpeza de dados inválidos em `all_examples.txt` e melhoria do layout didático do `invalid_inputs.txt`.
+
 ## v1.5.1 - Comments Parsing Support
 - O motor `UmpParser::validateAndExtractWords()` foi aprimorado para suportar ignorar seções de texto marcadas com `#` em entradas manuais e via arquivos `.txt`. Comentários inteiros e anotações *inline* agora são descartados pacificamente antes da sanitização hexadecimal, evitando travamentos e falsos positivos de caracteres inválidos.
 

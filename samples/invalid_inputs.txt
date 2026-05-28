@@ -1,18 +1,19 @@
 # --- TESTE DE ENTRADAS INVÁLIDAS E LIXO ---
-# Estes registros não devem travar o aplicativo. O parser descartará silenciosamente partes que não combinem.
+# O aplicativo agora suporta interpretação em bloco. 
+# Cada parágrafo separado por linha em branco é analisado individualmente.
+# Isto permite ver todos os erros de uma vez no Log.
 
-# Lixo puro misturado com espacos
-XXYYZZ XXYYZZ  
-
-# Caractere não hexadecimal invisivel
+# Invalid 1 - caractere X
 20904X00
 
-# Pacote com sobras que nao formam 1 word (truncado)
+# Invalid 2 - caractere @
+2090@000
+
+# Invalid 3 - word incompleta (falta 1 caractere)
 2090400
 
-# MT 0x4 exigindo 2 words, porem so recebemos 1 word (truncado logico)
+# Invalid 4 - pacote incompleto (MT 4 exige 2 words)
 40904000
 
-# Vários espacos e tabs (Este DEVE funcionar se os blocos de caracteres forem validos)
-	20904000    
-
+# Valido no meio do lixo (Tabs e espacos)
+	20904000

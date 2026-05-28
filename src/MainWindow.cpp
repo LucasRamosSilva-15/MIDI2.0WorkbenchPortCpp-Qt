@@ -16,6 +16,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QComboBox>
+#include <QRegularExpression>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) { setupUi(); }
 
@@ -166,21 +167,28 @@ void MainWindow::interpretClicked() {
   }
 
   m_tableWidget->setRowCount(0);
+  m_logPanel->clear();
+  logMessage("=== Nova Interpretação ===");
 
   int totalLidos = 0;
   int totalErros = 0;
   int totalValidos = 0;
 
-  ValidationResult result = UmpParser::validateAndExtractWords(input);
-    
-  if (!result.success) {
-      logMessage(result.errorMessage);
-      totalErros++;
-      m_statsLabel->setText(QString("Estatísticas: %1 lidos | %2 válidos | %3 erros").arg(totalLidos).arg(totalValidos).arg(totalErros));
-      return;
-  }
+  QStringList blocks = input.split(QRegularExpression("(\\r?\\n){2,}"), Qt::SkipEmptyParts);
 
-  for (const auto& msgWords : result.extractedMessages) {
+  for (const QString& block : blocks) {
+      QString trimmedBlock = block.trimmed();
+      if (trimmedBlock.isEmpty()) continue;
+
+      ValidationResult result = UmpParser::validateAndExtractWords(trimmedBlock);
+        
+      if (!result.success) {
+          logMessage(result.errorMessage);
+          totalErros++;
+          continue;
+      }
+
+      for (const auto& msgWords : result.extractedMessages) {
       totalLidos++;
       ParsedUmp parsed = UmpParser::parseMessage(msgWords);
       
@@ -236,6 +244,7 @@ void MainWindow::interpretClicked() {
       
       logMessage(QString("Pacote UMP de %1 bits interpretado.").arg(parsed.sizeBits));
       totalValidos++;
+    }
   }
 
   m_statsLabel->setText(
