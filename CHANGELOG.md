@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.3.0 - Experimental MIDI input port UI
+- Introduzida uma área visual de laboratório ("Live MIDI Experimental") diretamente na interface principal.
+- Agora é possível pressionar "Atualizar portas MIDI" para povoar um `QComboBox` com as portas reais detectadas no S.O.
+- Tratamento explícito quando compilado com `ENABLE_RTMIDI=OFF` informando o estado da build desativada.
+- Sem aberturas de porta ou envio de pacotes implementados; puro mapeamento seguro.
+
 ## v2.2.0 - List MIDI input ports with RtMidi
 - Implementada com sucesso a varredura e listagem de portas ativas de hardware MIDI via `RtMidiIn::getPortCount()` e `getPortName()`.
 - A integração foi confirmada em ambos os perfis CMake: retornando portas reais do SO quando `ENABLE_RTMIDI=ON` e silenciando com segurança (`QStringList` vazio) quando `OFF`.

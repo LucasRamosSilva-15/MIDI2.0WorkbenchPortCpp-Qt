@@ -25,6 +25,7 @@ private slots:
     void clearClicked();
     void loadExamplesClicked();
     void filterTable(const QString& text);
+    void refreshMidiPortsClicked();
 
 private:
     void setupUi();
@@ -52,4 +53,7 @@ private:
     QTextEdit* m_logPanel;
     QComboBox* m_samplesCombo;
     QString m_samplesPath;
+
+    QPushButton* m_refreshMidiPortsBtn;
+    QComboBox* m_liveMidiPortsCombo;
 };

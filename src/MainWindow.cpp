@@ -17,6 +17,8 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QGroupBox>
+#include "midi/RtMidiInputBackend.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_samplesPath("") {
@@ -54,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.2.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.3.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -83,6 +85,17 @@ void MainWindow::setupUi() {
   actionsLayout->addWidget(m_loadExamplesBtn);
   actionsLayout->addStretch();
   mainLayout->addLayout(actionsLayout);
+
+  // Área Live MIDI Experimental
+  QGroupBox *liveMidiGroup = new QGroupBox("Live MIDI (Experimental)", this);
+  QHBoxLayout *liveMidiLayout = new QHBoxLayout(liveMidiGroup);
+  m_refreshMidiPortsBtn = new QPushButton("Atualizar portas MIDI", this);
+  m_liveMidiPortsCombo = new QComboBox(this);
+  m_liveMidiPortsCombo->setMinimumWidth(250);
+  liveMidiLayout->addWidget(m_refreshMidiPortsBtn);
+  liveMidiLayout->addWidget(m_liveMidiPortsCombo);
+  liveMidiLayout->addStretch();
+  mainLayout->addWidget(liveMidiGroup);
 
   // Área de Input
   QHBoxLayout *inputLayout = new QHBoxLayout();
@@ -169,6 +182,8 @@ void MainWindow::setupUi() {
           &MainWindow::loadExamplesClicked);
   connect(m_filterField, &QLineEdit::textChanged, this,
           &MainWindow::filterTable);
+  connect(m_refreshMidiPortsBtn, &QPushButton::clicked, this,
+          &MainWindow::refreshMidiPortsClicked);
 
   logMessage(
       "Sistema inicializado. Aguardando pacotes UMP em formato hexadecimal.");
@@ -490,4 +505,21 @@ void MainWindow::filterTable(const QString &text) {
     }
   }
   updateDiagnostics();
+}
+
+void MainWindow::refreshMidiPortsClicked() {
+  m_liveMidiPortsCombo->clear();
+#ifdef USE_RTMIDI
+  RtMidiInputBackend backend;
+  QStringList ports = backend.listInputPorts();
+  if (ports.isEmpty()) {
+    m_liveMidiPortsCombo->addItem("Nenhuma porta MIDI encontrada.");
+  } else {
+    m_liveMidiPortsCombo->addItems(ports);
+  }
+  logMessage("Portas de entrada MIDI atualizadas com sucesso.");
+#else
+  m_liveMidiPortsCombo->addItem("RtMidi desativado nesta build.");
+  logMessage("Aviso: Tentativa de listar portas, mas RtMidi está desativado.");
+#endif
 }

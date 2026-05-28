@@ -5,7 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
 
-**Versão:** v2.2.0 - List MIDI input ports with RtMidi
+**Versão:** v2.3.0 - Experimental MIDI input port UI
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
