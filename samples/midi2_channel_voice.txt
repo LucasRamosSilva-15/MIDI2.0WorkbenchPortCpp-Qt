@@ -1,0 +1,10 @@
+# --- MIDI 2.0 CHANNEL VOICE SAMPLES (MT 0x4) ---
+# O pacote é formado por exatos 64 bits (2 words).
+# Note On, Channel 0, Note 0x40 (64), Velocity 0x7FFF, Attribute 0x0000
+40904000 7FFF0000
+
+# Note Off, Channel 0, Note 0x40 (64), Velocity 0x0000, Attribute 0x0000
+40804000 00000000
+
+# Control Change, Channel 1, Index 0x07 (Volume), Data 0xFFFFFFFF
+40B10700 FFFFFFFF

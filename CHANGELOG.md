@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.4.0 - Sample library and example files
+- Inclusão da pasta `samples/` oficial no pacote da release contendo registros didáticos fragmentados em `.txt` para MT 0x2, 0x4, SysEx, Flex e Stream. Excelente para end-users que querem ver o programa funcionar imediatamente.
+
 ## v1.3.0 - Portable Windows launcher polish
 - Adição de script de lançamento inteligente (`Start-MidiUmpAnalyzer.bat`) e guia de primeiros passos em texto puro (`QUICK_START.txt`) inclusos nativamente dentro do ZIP oficial da release.
 

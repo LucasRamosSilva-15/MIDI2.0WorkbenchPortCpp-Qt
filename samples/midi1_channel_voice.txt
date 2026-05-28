@@ -1,0 +1,13 @@
+# --- MIDI 1.0 CHANNEL VOICE SAMPLES (MT 0x2) ---
+# O pacote é formado por exatos 32 bits (1 word).
+# Note On, Channel 0, Note 0x40 (64), Velocity 0x64 (100)
+20904064
+
+# Note Off, Channel 0, Note 0x40 (64), Velocity 0x00
+20804000
+
+# Control Change, Channel 1, Controller 0x07 (Volume), Value 0x7F (127)
+20B1077F
+
+# Pitch Bend, Channel 2, LSB 0x00, MSB 0x40 (Center)
+20E20040

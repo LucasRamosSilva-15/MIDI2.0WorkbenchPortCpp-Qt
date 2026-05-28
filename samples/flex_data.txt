@@ -1,0 +1,8 @@
+# --- FLEX DATA SAMPLES (MT 0xD) ---
+# O pacote é formado por 128 bits (4 words).
+
+# Flex Data Completo, Endereco de Canal, Bank 0x01, Status 0x01
+D0000101 41000000 00000000 00000000
+
+# Flex Data Incompleto (Fragmentado - Start)
+D0400102 FFFFFFFF AAAAAAAA BBBBBBBB

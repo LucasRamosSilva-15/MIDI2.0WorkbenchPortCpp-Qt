@@ -1,0 +1,18 @@
+# --- TESTE DE ENTRADAS INVÁLIDAS E LIXO ---
+# Estes registros não devem travar o aplicativo. O parser descartará silenciosamente partes que não combinem.
+
+# Lixo puro misturado com espacos
+XXYYZZ XXYYZZ  
+
+# Caractere não hexadecimal invisivel
+20904X00
+
+# Pacote com sobras que nao formam 1 word (truncado)
+2090400
+
+# MT 0x4 exigindo 2 words, porem so recebemos 1 word (truncado logico)
+40904000
+
+# Vários espacos e tabs (Este DEVE funcionar se os blocos de caracteres forem validos)
+	20904000    
+

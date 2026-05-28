@@ -1,0 +1,11 @@
+# --- SysEx8 / MDS SAMPLES (MT 0x5) ---
+# O pacote é formado por 128 bits (4 words). 
+
+# SysEx8 Completo com StreamID (0x1D) e 13 bytes válidos
+500D1D41 42434445 46474849 4A4B4C4D
+
+# MDS Header Payload (Mixed Data Set Header)
+508E0000 00000000 00000000 00000000
+
+# MDS Payload Payload (Mixed Data Set Payload - sem Stream ID)
+509E4142 43444546 4748494A 4B4C4D4E

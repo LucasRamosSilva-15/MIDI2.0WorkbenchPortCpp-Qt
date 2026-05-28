@@ -44,6 +44,7 @@ Copy-Item "TESTS.md" -Destination $distPath
 Copy-Item "CHANGELOG.md" -Destination $distPath
 Copy-Item "QUICK_START.txt" -Destination $distPath
 Copy-Item "Start-MidiUmpAnalyzer.bat" -Destination $distPath
+Copy-Item -Recurse "samples" -Destination $distPath
 
 Write-Host "`n--- Zipando Pacote Final ---"
 Compress-Archive -Path "$distPath\*" -DestinationPath $zipName -Force

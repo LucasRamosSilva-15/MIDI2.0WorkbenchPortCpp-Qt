@@ -6,8 +6,9 @@ Siga os passos abaixo para utilizar o aplicativo imediatamente:
 2. Abra o arquivo 'Start-MidiUmpAnalyzer.bat' ou o executável 'MidiUmpAnalyzer.exe'.
 3. Cole as suas mensagens hexadecimais de Universal MIDI Packets na caixa superior.
 4. Clique no botão "Interpret" para processar a tabela em tempo real.
-5. (Opcional) Clique em "Carregar Exemplos" (Load Examples) para gerar pacotes aleatórios se você não possuir nenhum log agora.
-6. Use o botão "Copiar Tabela" (Copy Table) para extrair os resultados e jogar diretamente em um Excel ou Bloco de Notas.
+5. (Opcional) Clique em "Carregar Exemplos" (Load Examples) para gerar pacotes aleatórios.
+6. (DICA) Acesse a pasta 'samples' que veio junto com este arquivo para encontrar arquivos '.txt' focados em categorias específicas (SysEx, Flex, UMP Stream, etc) e teste a vontade.
+7. Use o botão "Copiar Tabela" (Copy Table) para extrair os resultados e jogar diretamente em um Excel ou Bloco de Notas.
 
 * Lembrete Técnico:
 Este aplicativo trabalha offline em modo de diagnóstico puro. Ele não lê sinais elétricos MIDI ou emite áudio via Windows/USB. Ele serve exclusivamente para auditar strings de rede ou desenvolvedores depurando o próprio fluxo MIDI UMP.

@@ -1,0 +1,13 @@
+# --- SysEx7 SAMPLES (MT 0x3) ---
+# O pacote é formado por 64 bits (2 words). Máximo 6 bytes de payload.
+# SysEx7 Completo com 4 bytes válidos (04)
+30044142 43440000
+
+# SysEx7 Fragmentado: START (com 6 bytes válidos)
+30164142 43444546
+
+# SysEx7 Fragmentado: CONTINUE (com 6 bytes válidos)
+30264748 494A4B4C
+
+# SysEx7 Fragmentado: END (com 2 bytes válidos)
+30324D4E 00000000

@@ -1,0 +1,14 @@
+# --- UMP STREAM ENDPOINT SAMPLES (MT 0xF) ---
+# O pacote é formado por 128 bits (4 words).
+
+# Endpoint Discovery (Status 0x00)
+F0000000 00000000 00000000 00000000
+
+# Endpoint Info Notification (Status 0x01)
+F0010100 00000000 00000000 00000000
+
+# Product Instance ID Notification (Status 0x04)
+F0040000 41424300 00000000 00000000
+
+# Function Block Discovery (Status 0x10)
+F0100000 00000000 00000000 00000000
