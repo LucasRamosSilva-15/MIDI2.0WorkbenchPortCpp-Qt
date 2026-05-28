@@ -6,6 +6,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
+option(ENABLE_RTMIDI "Habilitar dependência opcional do RtMidi" OFF)
+
+if(ENABLE_RTMIDI)
+    include(FetchContent)
+    FetchContent_Declare(
+        rtmidi
+        GIT_REPOSITORY https://github.com/thestk/rtmidi.git
+        GIT_TAG 6.0.0
+    )
+    FetchContent_MakeAvailable(rtmidi)
+endif()
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -21,11 +33,18 @@ add_executable(MidiUmpAnalyzer WIN32
     src/midi/MidiInputController.h
     src/midi/IMidiInputBackend.h
     src/midi/FakeMidiInputBackend.h
+    src/midi/RtMidiInputBackend.cpp
+    src/midi/RtMidiInputBackend.h
     src/core/InputSourceType.h
     src/core/MidiRawEvent.h
 )
 
 target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+
+if(ENABLE_RTMIDI)
+    target_compile_definitions(MidiUmpAnalyzer PRIVATE USE_RTMIDI)
+    target_link_libraries(MidiUmpAnalyzer PRIVATE rtmidi)
+endif()
 
 # Criação do Executável de Testes
 add_executable(UmpParserTests

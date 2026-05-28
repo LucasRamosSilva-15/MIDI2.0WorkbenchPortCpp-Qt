@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.1.0 - RtMidi Dependency Integration
+- Integrada a estrutura inicial para gerenciar a dependência do `RtMidi` via `FetchContent` do CMake de maneira 100% opcional.
+- A flag `ENABLE_RTMIDI=ON/OFF` agora controla de forma fluida se a aplicação compila como um sistema estrito sem hardware (`OFF`) ou traz a robustez de portas em tempo real (`ON`).
+- Adicionado o backend `RtMidiInputBackend` implementando stubs perfeitamente seguros (sem vazamentos de memória ou concorrência exposta). A UI segue livre de amarras.
+
 ## v2.0.0 - Live MIDI Backend Architecture
 - **Ponto de Inflexão Arquitetural**: Criada a fundação esquelética para receber eventos MIDI reais (live hardware input).
 - Implementada a interface `IMidiInputBackend` para isolar a UI de bibliotecas de transporte reais (RtMidi, libremidi ou Windows MIDI Services).
