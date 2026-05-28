@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.5.0 - UI Sample Loader
+- A interface de usuário (UI) recebeu um `QComboBox` dinâmico na barra de ações. O aplicativo agora varre o disco buscando a pasta `samples/` nativamente e permite que o usuário carregue os fragmentos didáticos com um clique dentro do próprio programa, sem precisar colar manualmente.
+
 ## v1.4.0 - Sample library and example files
 - Inclusão da pasta `samples/` oficial no pacote da release contendo registros didáticos fragmentados em `.txt` para MT 0x2, 0x4, SysEx, Flex e Stream. Excelente para end-users que querem ver o programa funcionar imediatamente.
 

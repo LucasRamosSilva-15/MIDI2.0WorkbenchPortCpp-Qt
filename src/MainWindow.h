@@ -5,6 +5,8 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QComboBox>
+#include <QDir>
 #include <QLabel>
 
 class MainWindow : public QMainWindow {
@@ -40,4 +42,6 @@ private:
     
     QTableWidget* m_tableWidget;
     QTextEdit* m_logPanel;
+    QComboBox* m_samplesCombo;
+    QString m_samplesPath;
 };

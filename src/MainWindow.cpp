@@ -12,6 +12,10 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QDir>
+#include <QComboBox>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) { setupUi(); }
 
@@ -30,12 +34,44 @@ void MainWindow::setupUi() {
   m_saveLogBtn = new QPushButton("Salvar log", this);
   m_copyTableBtn = new QPushButton("Copiar Tabela", this);
   m_clearBtn = new QPushButton("Limpar", this);
-  m_loadExamplesBtn = new QPushButton("Carregar exemplos", this);
+  m_loadExamplesBtn = new QPushButton("Carregar exemplo", this);
+  m_samplesCombo = new QComboBox(this);
+
+  // Localizar pasta samples
+  QString appDir = QCoreApplication::applicationDirPath();
+  QStringList searchPaths = {
+      appDir + "/samples",
+      appDir + "/../samples",
+      appDir + "/../../samples"
+  };
+  
+  m_samplesPath = "";
+  for (const QString& path : searchPaths) {
+      if (QDir(path).exists()) {
+          m_samplesPath = path;
+          break;
+      }
+  }
+
+  if (!m_samplesPath.isEmpty()) {
+      QDir dir(m_samplesPath);
+      QStringList filters;
+      filters << "*.txt";
+      QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
+      for (const QFileInfo& file : files) {
+          m_samplesCombo->addItem(file.fileName());
+      }
+  } else {
+      m_samplesCombo->addItem("(samples não encontrados)");
+      m_samplesCombo->setEnabled(false);
+      m_loadExamplesBtn->setEnabled(false);
+  }
 
   actionsLayout->addWidget(m_openFileBtn);
   actionsLayout->addWidget(m_saveLogBtn);
   actionsLayout->addWidget(m_copyTableBtn);
   actionsLayout->addWidget(m_clearBtn);
+  actionsLayout->addWidget(m_samplesCombo);
   actionsLayout->addWidget(m_loadExamplesBtn);
   actionsLayout->addStretch();
   mainLayout->addLayout(actionsLayout);
@@ -285,12 +321,27 @@ void MainWindow::clearClicked() {
 }
 
 void MainWindow::loadExamplesClicked() {
-  m_inputField->setPlainText(
-      "20904000\n40904000 40000000\n30040000 00000000\n501D0000 00000000 "
-      "00000000 00000000\nD0000101 41000000 00000000 00000000\nF0030000 "
-      "41424300 00000000 00000000");
-  logMessage(
-      "Exemplos completos carregados (Voice, SysEx7, SysEx8, Flex, Stream).");
+  if (m_samplesPath.isEmpty() || m_samplesCombo->currentText().isEmpty()) {
+      logMessage("Erro: Nenhum exemplo selecionado ou pasta samples não encontrada.");
+      return;
+  }
+
+  QString fileName = m_samplesCombo->currentText();
+  QString fullPath = QDir(m_samplesPath).filePath(fileName);
+  QFile file(fullPath);
+  
+  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      QTextStream in(&file);
+      QString content = in.readAll().trimmed();
+      if (content.isEmpty()) {
+          logMessage(QString("Aviso: O exemplo %1 está vazio.").arg(fileName));
+      } else {
+          m_inputField->setPlainText(content);
+          logMessage(QString("Exemplo carregado: %1").arg(fileName));
+      }
+  } else {
+      logMessage(QString("Erro ao tentar ler o arquivo de exemplo: %1").arg(fileName));
+  }
 }
 
 void MainWindow::copyTableClicked() {
