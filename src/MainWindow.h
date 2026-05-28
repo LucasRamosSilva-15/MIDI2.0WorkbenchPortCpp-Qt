@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <QMainWindow>
 #include <QTableWidget>
 #include <QTextEdit>
@@ -8,6 +9,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QLabel>
+#include "midi/IMidiInputBackend.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -26,6 +28,8 @@ private slots:
     void loadExamplesClicked();
     void filterTable(const QString& text);
     void refreshMidiPortsClicked();
+    void openMidiPortClicked();
+    void closeMidiPortClicked();
 
 private:
     void setupUi();
@@ -56,4 +60,8 @@ private:
 
     QPushButton* m_refreshMidiPortsBtn;
     QComboBox* m_liveMidiPortsCombo;
+    QPushButton* m_openMidiPortBtn;
+    QPushButton* m_closeMidiPortBtn;
+
+    std::unique_ptr<IMidiInputBackend> m_midiBackend;
 };

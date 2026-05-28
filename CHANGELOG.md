@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v2.5.0 - Open and close MIDI input port
+- Introduzido suporte real de abertura e liberação de portas de hardware MIDI nativas no sistema via RtMidi (`openPort()` e `closePort()`).
+- Adicionados controles visuais dinâmicos ("Abrir porta", "Fechar porta") na seção experimental, bloqueando edição durante conexão.
+- O painel de Diagnóstico/Status agora monitora e reporta explicitamente o status da conexão (`Desativado`, `Pronto`, ou `Aberta`).
+- Apenas afeta a `MainWindow` sob a compilação com tag RtMidi; compilação padrão (Offline) segue isolada.
+- Recepção de dados em tempo real ainda não ativada (fase futura).
+
 ## v2.4.0 - RtMidi-enabled release build option
 - O script de empacotamento (`package_release.ps1`) agora suporta a flag `-EnableRtMidi` para forçar o build em pasta paralela e envelopar as bibliotecas geradas no FetchContent.
 - A pipeline de Integração Contínua (CI) via GitHub Actions (`release.yml`) foi atualizada para expor duplamente os artefatos de compilação a cada tag `vX.Y.Z` gerada.
