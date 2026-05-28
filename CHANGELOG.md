@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.5.3 - Silent Comment Blocks
+- O analisador de interface agora ignora silenciosamente blocos que resultem em conteúdo vazio (como blocos puramente didáticos compostos apenas por comentários e espaços). Isso evita a poluição do log com mensagens de aviso irrelevantes sem alterar o rigor da validação da entrada.
+
 ## v1.5.2 - Block-by-block parsing and Error Handling
 - Adicionado suporte a análise de múltiplos blocos independentes. O aplicativo agora divide a entrada por linhas em branco duplas (`\n\n`), permitindo processar múltiplos casos e apresentar múltiplos erros sem abortar no primeiro erro encontrado.
 - Limpeza automática do Log de interface para impedir o acúmulo infinito de mensagens de erro duplicadas.

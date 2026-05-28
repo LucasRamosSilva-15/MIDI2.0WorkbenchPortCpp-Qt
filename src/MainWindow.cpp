@@ -183,6 +183,9 @@ void MainWindow::interpretClicked() {
       ValidationResult result = UmpParser::validateAndExtractWords(trimmedBlock);
         
       if (!result.success) {
+          if (result.errorMessage.contains("vazio")) {
+              continue; // Ignora silenciosamente blocos só com comentários
+          }
           logMessage(result.errorMessage);
           totalErros++;
           continue;
