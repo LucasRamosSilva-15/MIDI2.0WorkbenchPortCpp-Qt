@@ -3,6 +3,7 @@
 #include <string>
 #include <QString>
 #include "../src/UmpParser.h"
+#include "../src/midi/Midi1LiveDecoder.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -145,6 +146,39 @@ int main() {
         ValidationResult result = UmpParser::validateAndExtractWords("2090400Z # Comentario com Z");
         assertTest("Invalid character outside comment fails", !result.success && result.errorType == UmpValidationError::InvalidCharacter);
     }
+
+    std::cout << "\nStarting Midi1LiveDecoder Tests\n" << std::endl;
+
+    // Decoder 1. Note Off
+    {
+        QString res = Midi1LiveDecoder::decode({0x80, 0x3C, 0x40}); // Ch 1, Note 60, Vel 64
+        assertTest("Decoder Note Off", res == "Note Off [Ch 1] Note: 60, Vel: 64");
+    }
+
+    // Decoder 2. Note On
+    {
+        QString res = Midi1LiveDecoder::decode({0x91, 0x3D, 0x7F}); // Ch 2, Note 61, Vel 127
+        assertTest("Decoder Note On", res == "Note On [Ch 2] Note: 61, Vel: 127");
+    }
+
+    // Decoder 3. Note On with vel 0 -> Note Off
+    {
+        QString res = Midi1LiveDecoder::decode({0x92, 0x3E, 0x00}); // Ch 3, Note 62, Vel 0
+        assertTest("Decoder Note On Vel 0", res == "Note On (vel 0 / Note Off) [Ch 3] Note: 62");
+    }
+
+    // Decoder 4. Control Change
+    {
+        QString res = Midi1LiveDecoder::decode({0xB0, 0x07, 0x7F}); // Ch 1, Vol(7), Val 127
+        assertTest("Decoder CC", res == "Control Change [Ch 1] CC: 7, Val: 127");
+    }
+
+    // Decoder 5. System/RealTime message
+    {
+        QString res = Midi1LiveDecoder::decode({0xF8}); // Timing Clock
+        assertTest("Decoder System Real-Time", res == "System/Common/Real-Time (parcial/bruto)");
+    }
+
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 

@@ -6,10 +6,10 @@ Preparar a fundação de código para receber mensagens MIDI ao vivo vindas de h
 ## Por que não ligar RtMidi diretamente na UI?
 Se a interface gráfica ou o parser offline começarem a fazer instâncias diretas de objetos RtMidi, ficaremos trancados nela para sempre. A arquitetura de plug-ins (através de `IMidiInputBackend`) garante que a UI consuma apenas um `MidiInputController` agnóstico.
 
-## O Papel do RtMidi (Status na v2.6.0)
+## O Papel do RtMidi (Status na v2.7.0)
 RtMidi é fenomenal e multi-plataforma, sendo excelente para ler e escrever mensagens *MIDI 1.0 reais byte-a-byte*. No entanto, o RtMidi não tem suporte nativo sólido a Universal MIDI Packets (UMP de 32 bits). É por isso que ele será considerado como uma fonte estrita de *Bytes 1.0*. Eventualmente, construiremos um tradutor UMP para empacotar esses bytes em UMP MIDI 1.0 Channel Voice (MT=2).
 
-Na compilação `v2.6.0`, concluímos o funil de comunicação inicial implementando a captura realística das chamadas nativas de som (*audio callback*) em uma fila *thread-safe* para a interface gráfica (*QTimer* com repasse sincronizado). Graças a esse funil duplo, pacotes *MIDI 1.0 brutos* podem ser lidos diretamente de dispositivos físicos ou DAWs virtuais e ser logados no app. Nossa tabela gráfica principal e o core `UmpParser` offline permanecem intactos; aguardam a futura camada de construção *UMP 32-bit Words* para assumir esses bytes recebidos.
+Na compilação `v2.7.0`, avançamos a ponte do funil logístico no frontend isolado adicionando decodificação literal das mensagens clássicas *MIDI 1.0 Channel Voice*. Dispositivos e DAWs virtuais agora refletem decodificações corretas (`Note On [Ch 1] Note: 60...`) em paralelo ao modo offline. A tabela gráfica principal, onde o UMP dita as regras, continua completamente offline aguardando os conversores.
 
 ## Limitações e Evolução
 *   **Limitação do RtMidi**: Ele extrai bytes. O MIDI 2.0 exige transporte robusto UMP (que envolve endpoints, function blocks, formatação de 32 a 128 bits). 

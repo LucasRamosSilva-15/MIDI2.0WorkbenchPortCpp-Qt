@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.7.0 - Decode live MIDI 1.0 messages
+- Novo componente estático `Midi1LiveDecoder` no backend do sistema isolado.
+- Adicionada capacidade de analisar os bytes hexadecimais brutos de dispositivos MIDI de hardware mapeando canais e o significado dos eventos MIDI 1.0 principais (Channel Voice).
+- Eventos `Note On`, `Note Off`, `Control Change`, `Pitch Bend`, e os Aftertouches e Program Changes são decodificados nativamente no painel de log Live MIDI sem misturar com o fluxo UMP original.
+- Pacotes de System/Common/Real-Time (ex: *Timing Clock* ou System Exclusive longos) são intencionalmente filtrados como "(parcial/bruto)" nesta versão temporária.
+
 ## v2.6.0 - Receive raw MIDI 1.0 bytes
 - Implementada rotina thread-safe (lock/queue + QTimer) no pacote experimental para processamento contínuo do RtMidi sem travar ou dessincronizar a interface gráfica.
 - Mensagens MIDI 1.0 recebidas do *hardware* de áudio são agora renderizadas (estampa temporal e *bytes hexadecimais*) em tempo real em uma nova mini-janela dedicada (modo Lab).

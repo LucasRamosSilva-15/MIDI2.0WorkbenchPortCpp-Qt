@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "UmpParser.h"
+#include "midi/Midi1LiveDecoder.h"
 #include "midi/RtMidiInputBackend.h"
 #include <QApplication>
 #include <QClipboard>
@@ -61,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.6.1)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.7.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -623,9 +624,11 @@ void MainWindow::pollLiveMidi() {
       for (uint8_t byte : ev.midi1Bytes) {
         hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
       }
-      QString msg = QString("[%1s] Live MIDI 1.0: %2")
+      QString decoded = Midi1LiveDecoder::decode(ev.midi1Bytes);
+      QString msg = QString("[%1s] %2 | %3")
                         .arg(ev.timestamp, 0, 'f', 3)
-                        .arg(hexStr.trimmed());
+                        .arg(hexStr.trimmed(), -8)
+                        .arg(decoded);
       if (m_liveMidiLog) {
         m_liveMidiLog->append(msg);
       }
