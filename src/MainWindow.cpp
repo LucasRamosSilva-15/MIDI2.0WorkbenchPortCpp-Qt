@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.5.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.6.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -218,9 +218,9 @@ void MainWindow::updateDiagnostics() {
   QString rtMidiStatus = "Desativado";
 #ifdef USE_RTMIDI
   if (m_midiBackend && m_midiBackend->isOpen()) {
-      rtMidiStatus = "Aberta (" + m_liveMidiPortsCombo->currentText() + ")";
+    rtMidiStatus = "Aberta (" + m_liveMidiPortsCombo->currentText() + ")";
   } else {
-      rtMidiStatus = "Pronto";
+    rtMidiStatus = "Pronto";
   }
 #endif
 
@@ -546,42 +546,44 @@ void MainWindow::refreshMidiPortsClicked() {
 
 void MainWindow::openMidiPortClicked() {
 #ifdef USE_RTMIDI
-    int index = m_liveMidiPortsCombo->currentIndex();
-    if (index < 0) return;
-    
-    if (m_midiBackend->isOpen()) {
-        m_midiBackend->closeInputPort();
-    }
-    
-    if (m_midiBackend->openInputPort(index)) {
-        logMessage(QString("Porta MIDI aberta com sucesso: %1").arg(m_liveMidiPortsCombo->currentText()));
-        m_openMidiPortBtn->setEnabled(false);
-        m_closeMidiPortBtn->setEnabled(true);
-        m_refreshMidiPortsBtn->setEnabled(false);
-        m_liveMidiPortsCombo->setEnabled(false);
-        m_lastOperation = "Porta MIDI Aberta";
-    } else {
-        logMessage("Erro ao tentar abrir porta MIDI.");
-    }
-    updateDiagnostics();
+  int index = m_liveMidiPortsCombo->currentIndex();
+  if (index < 0)
+    return;
+
+  if (m_midiBackend->isOpen()) {
+    m_midiBackend->closeInputPort();
+  }
+
+  if (m_midiBackend->openInputPort(index)) {
+    logMessage(QString("Porta MIDI aberta com sucesso: %1")
+                   .arg(m_liveMidiPortsCombo->currentText()));
+    m_openMidiPortBtn->setEnabled(false);
+    m_closeMidiPortBtn->setEnabled(true);
+    m_refreshMidiPortsBtn->setEnabled(false);
+    m_liveMidiPortsCombo->setEnabled(false);
+    m_lastOperation = "Porta MIDI Aberta";
+  } else {
+    logMessage("Erro ao tentar abrir porta MIDI.");
+  }
+  updateDiagnostics();
 #else
-    logMessage("Aviso: Tentativa de abrir porta, mas RtMidi está desativado.");
+  logMessage("Aviso: Tentativa de abrir porta, mas RtMidi está desativado.");
 #endif
 }
 
 void MainWindow::closeMidiPortClicked() {
 #ifdef USE_RTMIDI
-    if (m_midiBackend->isOpen()) {
-        m_midiBackend->closeInputPort();
-        logMessage("Porta MIDI fechada com sucesso.");
-        m_openMidiPortBtn->setEnabled(true);
-        m_closeMidiPortBtn->setEnabled(false);
-        m_refreshMidiPortsBtn->setEnabled(true);
-        m_liveMidiPortsCombo->setEnabled(true);
-        m_lastOperation = "Porta MIDI Fechada";
-        updateDiagnostics();
-    }
+  if (m_midiBackend->isOpen()) {
+    m_midiBackend->closeInputPort();
+    logMessage("Porta MIDI fechada com sucesso.");
+    m_openMidiPortBtn->setEnabled(true);
+    m_closeMidiPortBtn->setEnabled(false);
+    m_refreshMidiPortsBtn->setEnabled(true);
+    m_liveMidiPortsCombo->setEnabled(true);
+    m_lastOperation = "Porta MIDI Fechada";
+    updateDiagnostics();
+  }
 #else
-    logMessage("Aviso: Tentativa de fechar porta, mas RtMidi está desativado.");
+  logMessage("Aviso: Tentativa de fechar porta, mas RtMidi está desativado.");
 #endif
 }

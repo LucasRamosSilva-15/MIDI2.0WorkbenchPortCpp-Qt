@@ -9,6 +9,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QLabel>
+#include <QTimer>
 #include "midi/IMidiInputBackend.h"
 
 class MainWindow : public QMainWindow {
@@ -30,6 +31,7 @@ private slots:
     void refreshMidiPortsClicked();
     void openMidiPortClicked();
     void closeMidiPortClicked();
+    void pollLiveMidi();
 
 private:
     void setupUi();
@@ -62,6 +64,8 @@ private:
     QComboBox* m_liveMidiPortsCombo;
     QPushButton* m_openMidiPortBtn;
     QPushButton* m_closeMidiPortBtn;
+    QTextEdit* m_liveMidiLog;
+    QTimer* m_liveMidiTimer;
 
     std::unique_ptr<IMidiInputBackend> m_midiBackend;
 };

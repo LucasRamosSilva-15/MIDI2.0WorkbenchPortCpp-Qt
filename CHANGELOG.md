@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.6.0 - Receive raw MIDI 1.0 bytes
+- Implementada rotina thread-safe (lock/queue + QTimer) no pacote experimental para processamento contínuo do RtMidi sem travar ou dessincronizar a interface gráfica.
+- Mensagens MIDI 1.0 recebidas do *hardware* de áudio são agora renderizadas (estampa temporal e *bytes hexadecimais*) em tempo real em uma nova mini-janela dedicada (modo Lab).
+- A tabela principal e o motor UMP (`UmpParser`) permanecem protegidos, sem receber interferência das mensagens 1.0 enquanto a tradução nativa para *UMP 32-bit Words* não está finalizada.
+- A compilação *offline* padrão (sem a flag *RtMidi*) segue em isolamento máximo.
+
 ## v2.5.0 - Open and close MIDI input port
 - Introduzido suporte real de abertura e liberação de portas de hardware MIDI nativas no sistema via RtMidi (`openPort()` e `closePort()`).
 - Adicionados controles visuais dinâmicos ("Abrir porta", "Fechar porta") na seção experimental, bloqueando edição durante conexão.

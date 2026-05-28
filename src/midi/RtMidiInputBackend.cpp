@@ -14,6 +14,22 @@ RtMidiInputBackend::RtMidiInputBackend() : m_midiIn(nullptr), m_isOpen(false) {
 #endif
 }
 
+#ifdef USE_RTMIDI
+void RtMidiInputBackend::midiCallback(double timeStamp, std::vector<unsigned char> *message, void *userData) {
+    if (!message || message->empty() || !userData) return;
+    
+    RtMidiInputBackend* backend = static_cast<RtMidiInputBackend*>(userData);
+    
+    MidiRawEvent ev;
+    ev.sourceType = InputSourceType::LiveMidi1Bytes;
+    ev.timestamp = timeStamp; 
+    ev.midi1Bytes = *message;
+    
+    std::lock_guard<std::mutex> lock(backend->m_queueMutex);
+    backend->m_eventQueue.push_back(ev);
+}
+#endif
+
 RtMidiInputBackend::~RtMidiInputBackend() {
     closeInputPort();
 #ifdef USE_RTMIDI
@@ -55,6 +71,8 @@ bool RtMidiInputBackend::openInputPort(int portIndex) {
     RtMidiIn* midi = static_cast<RtMidiIn*>(m_midiIn);
     try {
         midi->openPort(portIndex);
+        midi->ignoreTypes(false, false, false);
+        midi->setCallback(&RtMidiInputBackend::midiCallback, this);
         m_isOpen = true;
         return true;
     } catch (...) {
@@ -69,8 +87,13 @@ bool RtMidiInputBackend::openInputPort(int portIndex) {
 void RtMidiInputBackend::closeInputPort() {
 #ifdef USE_RTMIDI
     if (m_midiIn && m_isOpen) {
-        static_cast<RtMidiIn*>(m_midiIn)->closePort();
+        RtMidiIn* midi = static_cast<RtMidiIn*>(m_midiIn);
+        midi->cancelCallback();
+        midi->closePort();
         m_isOpen = false;
+        
+        std::lock_guard<std::mutex> lock(m_queueMutex);
+        m_eventQueue.clear();
     }
 #endif
 }
@@ -80,6 +103,8 @@ bool RtMidiInputBackend::isOpen() const {
 }
 
 std::vector<MidiRawEvent> RtMidiInputBackend::pollEvents() {
-    // Stub. A implementação de recebimento/fila via callback será feita na próxima versão funcional.
-    return {};
+    std::vector<MidiRawEvent> events;
+    std::lock_guard<std::mutex> lock(m_queueMutex);
+    std::swap(events, m_eventQueue);
+    return events;
 }
