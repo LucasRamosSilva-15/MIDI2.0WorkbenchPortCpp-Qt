@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.8.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.8.1)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -202,7 +202,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.8.0</p>"
+      "<p><b>Versão:</b> v2.8.1</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) de 32 a 128 bits e monitor experimental de portas de hardware MIDI 1.0.</p>"
       "<h3>Limitações Conhecidas</h3>"
       "<ul>"
@@ -249,7 +249,10 @@ void MainWindow::setupUi() {
       "Sistema inicializado. Aguardando pacotes UMP em formato hexadecimal.");
 }
 
-void MainWindow::logMessage(const QString &msg) { m_logPanel->append(msg); }
+void MainWindow::logMessage(const QString &msg) {
+  QString timestamp = QDateTime::currentDateTime().toString("HH:mm:ss");
+  m_logPanel->append(QString("[%1] %2").arg(timestamp).arg(msg));
+}
 
 void MainWindow::updateDiagnostics() {
   int visibleRows = 0;
@@ -294,7 +297,6 @@ void MainWindow::interpretClicked() {
   }
 
   m_tableWidget->setRowCount(0);
-  m_logPanel->clear();
   logMessage("=== Nova Interpretação ===");
 
   int totalLidos = 0;
