@@ -1,6 +1,6 @@
 # Live MIDI Backend Architecture Plan
 
-**Versão Atual:** v2.11.0 (Live MIDI Filters)
+**Versão Atual:** v2.12.0 (Live MIDI Statistics)
 
 ## Objetivo
 Preparar a fundação de código para receber mensagens MIDI ao vivo vindas de hardwares, sem acoplar a UI diretamente a nenhuma biblioteca específica de áudio/MIDI.

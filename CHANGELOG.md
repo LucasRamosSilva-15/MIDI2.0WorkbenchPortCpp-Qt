@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v2.12.0 - Live MIDI statistics
+- Adicionada seção de estatísticas do monitor Live MIDI, agrupando metadados de pacotes processados.
+- Implementado cálculo de rate (mensagens por segundo) com base no tempo de sessão da porta.
+- Adicionada contagem de mensagens filtradas (`Recebidas - Exibidas`).
+- Adicionadas contagens granulares de pacotes recebidos por tipo (Note On, CC, etc.) e por canal.
+- Adicionados rastreadores de "Último valor recebido" detalhando Notas, Velocities, Control Changes, Pitch Bend e Channels.
+
 ## v2.11.0 - Live MIDI filters
 - Adicionada barra de "Filtros Live MIDI" no monitor em tempo real.
 - Permite filtrar visivelmente pacotes por "Tipo de Mensagem" e "Canal", inclusive suportando opções globais de hardware como System Real-Time.

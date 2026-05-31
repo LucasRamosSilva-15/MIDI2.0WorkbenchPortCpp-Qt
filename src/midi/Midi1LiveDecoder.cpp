@@ -39,11 +39,15 @@ Midi1DecodedMessage Midi1LiveDecoder::decodeDetailed(const std::vector<uint8_t>&
             if (bytes.size() >= 3) {
                 typeStr = "Note Off";
                 msg.messageType = "Note Off";
+                msg.note = bytes[1];
+                msg.velocity = bytes[2];
                 dataStr = QString("Note: %1, Vel: %2").arg(bytes[1]).arg(bytes[2]);
             }
             break;
         case 0x90: // Note On
             if (bytes.size() >= 3) {
+                msg.note = bytes[1];
+                msg.velocity = bytes[2];
                 if (bytes[2] == 0) {
                     if (treatNoteOnZeroVelAsOff) {
                         typeStr = "Note Off";
@@ -65,6 +69,8 @@ Midi1DecodedMessage Midi1LiveDecoder::decodeDetailed(const std::vector<uint8_t>&
             if (bytes.size() >= 3) {
                 typeStr = "Poly Aftertouch";
                 msg.messageType = "Poly Aftertouch";
+                msg.note = bytes[1];
+                msg.value = bytes[2]; // Pressure is in value
                 dataStr = QString("Note: %1, Pressure: %2").arg(bytes[1]).arg(bytes[2]);
             }
             break;
@@ -72,6 +78,8 @@ Midi1DecodedMessage Midi1LiveDecoder::decodeDetailed(const std::vector<uint8_t>&
             if (bytes.size() >= 3) {
                 typeStr = "Control Change";
                 msg.messageType = "Control Change";
+                msg.controller = bytes[1];
+                msg.value = bytes[2];
                 dataStr = QString("CC: %1, Val: %2").arg(bytes[1]).arg(bytes[2]);
             }
             break;
@@ -79,6 +87,7 @@ Midi1DecodedMessage Midi1LiveDecoder::decodeDetailed(const std::vector<uint8_t>&
             if (bytes.size() >= 2) {
                 typeStr = "Program Change";
                 msg.messageType = "Program Change";
+                msg.program = bytes[1];
                 dataStr = QString("Prog: %1").arg(bytes[1]);
             }
             break;
@@ -86,6 +95,7 @@ Midi1DecodedMessage Midi1LiveDecoder::decodeDetailed(const std::vector<uint8_t>&
             if (bytes.size() >= 2) {
                 typeStr = "Channel Aftertouch";
                 msg.messageType = "Channel Aftertouch";
+                msg.value = bytes[1]; // Pressure is in value
                 dataStr = QString("Pressure: %1").arg(bytes[1]);
             }
             break;
@@ -94,6 +104,7 @@ Midi1DecodedMessage Midi1LiveDecoder::decodeDetailed(const std::vector<uint8_t>&
                 typeStr = "Pitch Bend";
                 msg.messageType = "Pitch Bend";
                 int value = (bytes[2] << 7) | bytes[1]; // MSB << 7 + LSB
+                msg.pitchBend = value;
                 dataStr = QString("Val: %1").arg(value);
             }
             break;

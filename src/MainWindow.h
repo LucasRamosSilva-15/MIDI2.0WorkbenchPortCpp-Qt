@@ -19,6 +19,31 @@ struct LiveMidiLogEntry {
     QString description;
 };
 
+struct LiveMidiStats {
+    quint64 received = 0;
+    quint64 displayed = 0;
+    quint64 byTypeNoteOn = 0;
+    quint64 byTypeNoteOff = 0;
+    quint64 byTypeControlChange = 0;
+    quint64 byTypeProgramChange = 0;
+    quint64 byTypePitchBend = 0;
+    quint64 byTypePolyAftertouch = 0;
+    quint64 byTypeChannelAftertouch = 0;
+    quint64 byTypeSystem = 0;
+    quint64 byTypeUnknown = 0;
+    quint64 byChannel[16] = {0};
+    quint64 noChannel = 0;
+
+    QString lastMessageType;
+    int lastChannel = -1;
+    int lastNote = -1;
+    int lastVelocity = -1;
+    int lastCc = -1;
+    int lastCcValue = -1;
+    int lastProgram = -1;
+    int lastPitchBend = -1;
+};
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -49,6 +74,10 @@ private:
     void logMessage(const QString& msg);
     void updateDiagnostics();
     void updateLiveMidiStatus();
+    
+    void updateLiveMidiStats(const struct Midi1DecodedMessage& decoded, bool displayed);
+    void refreshLiveMidiStatsUi();
+    void resetLiveMidiStats();
     
     QString m_currentFile;
     QString m_lastOperation;
@@ -87,13 +116,15 @@ private:
     
     QLabel* m_liveMidiStatusLabel;
     QLabel* m_liveMidiCountersLabel;
+    QLabel* m_liveMidiStatsLabel;
     QTextEdit* m_liveMidiLog;
     QTimer* m_liveMidiTimer;
 
     std::unique_ptr<IMidiInputBackend> m_midiBackend;
 
     bool m_isLiveMidiPaused = false;
-    uint64_t m_liveMidiReceivedCount = 0;
-    uint64_t m_liveMidiDisplayedCount = 0;
     QVector<LiveMidiLogEntry> m_liveMidiEvents;
+    
+    LiveMidiStats m_liveMidiStats;
+    qint64 m_liveMidiSessionStartTimeMs = 0;
 };

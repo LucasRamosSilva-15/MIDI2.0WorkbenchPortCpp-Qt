@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.11.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.12.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -230,6 +230,16 @@ void MainWindow::setupUi() {
   liveMidiMainLayout->addLayout(liveMidiBtnLayout);
   liveMidiMainLayout->addLayout(liveMidiFiltersLayout);
   liveMidiMainLayout->addLayout(liveMidiControlsLayout);
+
+  QGroupBox *statsGroup = new QGroupBox("Live MIDI Statistics", this);
+  QVBoxLayout *statsLayout = new QVBoxLayout(statsGroup);
+  m_liveMidiStatsLabel = new QLabel("Aguardando porta abrir...", this);
+  m_liveMidiStatsLabel->setWordWrap(true);
+  m_liveMidiStatsLabel->setStyleSheet(
+      "font-family: monospace; font-size: 12px;");
+  statsLayout->addWidget(m_liveMidiStatsLabel);
+  liveMidiMainLayout->addWidget(statsGroup);
+
   liveMidiMainLayout->addWidget(m_liveMidiLog, 1);
 
 #ifndef USE_RTMIDI
@@ -270,7 +280,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.11.0</p>"
+      "<p><b>Versão:</b> v2.12.0</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
       "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
       "1.0.</p>"
@@ -704,6 +714,8 @@ void MainWindow::openMidiPortClicked() {
   if (m_midiBackend->openInputPort(index)) {
     if (m_liveMidiTimer)
       m_liveMidiTimer->start(50);
+    resetLiveMidiStats();
+    m_liveMidiSessionStartTimeMs = QDateTime::currentMSecsSinceEpoch();
     logMessage(QString("Porta MIDI aberta com sucesso: %1")
                    .arg(m_liveMidiPortsCombo->currentText()));
     m_openMidiPortBtn->setEnabled(false);
@@ -752,7 +764,7 @@ void MainWindow::pollLiveMidi() {
 
   for (const auto &ev : events) {
     if (ev.sourceType == InputSourceType::LiveMidi1Bytes) {
-      m_liveMidiReceivedCount++;
+      m_liveMidiStats.received++;
 
       if (!m_isLiveMidiPaused) {
         QString hexStr;
@@ -777,7 +789,7 @@ void MainWindow::pollLiveMidi() {
         }
 
         if (typePasses && channelPasses) {
-          m_liveMidiDisplayedCount++;
+          m_liveMidiStats.displayed++;
 
           QString msg = QString("[%1s] %2 | %3")
                             .arg(ev.timestamp, 0, 'f', 3)
@@ -797,9 +809,18 @@ void MainWindow::pollLiveMidi() {
             m_liveMidiEvents.removeFirst();
           }
         }
+
+        updateLiveMidiStats(decodedMsg, (typePasses && channelPasses));
+      } else {
+        // Even paused, we count received types (but display won't update)
+        bool treatZeroVel = m_treatNoteOnZeroAsOffCb->isChecked();
+        Midi1DecodedMessage decodedMsg =
+            Midi1LiveDecoder::decodeDetailed(ev.midi1Bytes, treatZeroVel);
+        updateLiveMidiStats(decodedMsg, false);
       }
     }
   }
+  refreshLiveMidiStatsUi();
   updateLiveMidiStatus();
 #else
   // Stub seguro para quando RtMidi está desativado
@@ -822,8 +843,9 @@ void MainWindow::pauseLiveMidiClicked() {
 void MainWindow::clearLiveMidiLogClicked() {
   m_liveMidiLog->clear();
   m_liveMidiEvents.clear();
-  m_liveMidiDisplayedCount = 0;
-  m_liveMidiReceivedCount = 0;
+  resetLiveMidiStats();
+  m_liveMidiSessionStartTimeMs = QDateTime::currentMSecsSinceEpoch();
+  refreshLiveMidiStatsUi();
   updateLiveMidiStatus();
 }
 
@@ -846,8 +868,8 @@ void MainWindow::updateLiveMidiStatus() {
 #endif
 
   m_liveMidiCountersLabel->setText(QString("Recebidas: %1 | Exibidas: %2")
-                                       .arg(m_liveMidiReceivedCount)
-                                       .arg(m_liveMidiDisplayedCount));
+                                       .arg(m_liveMidiStats.received)
+                                       .arg(m_liveMidiStats.displayed));
 }
 
 void MainWindow::exportLiveTxtClicked() {
@@ -882,8 +904,8 @@ void MainWindow::exportLiveTxtClicked() {
   out << "Exported at: "
       << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
   out << m_liveMidiStatusLabel->text() << "\n";
-  out << "Received: " << m_liveMidiReceivedCount << "\n";
-  out << "Displayed: " << m_liveMidiDisplayedCount << "\n";
+  out << "Received: " << m_liveMidiStats.received << "\n";
+  out << "Displayed: " << m_liveMidiStats.displayed << "\n";
   out << "Max live log lines: 1000\n\n";
   out << "Live MIDI Log:\n";
 
@@ -935,3 +957,120 @@ void MainWindow::exportLiveCsvClicked() {
   file.close();
   logMessage("Live MIDI CSV exportado com sucesso para: " + fileName);
 }
+
+void MainWindow::updateLiveMidiStats(const Midi1DecodedMessage &decoded,
+                                     bool displayed) {
+  if (decoded.messageType == "Note On")
+    m_liveMidiStats.byTypeNoteOn++;
+  else if (decoded.messageType == "Note Off")
+    m_liveMidiStats.byTypeNoteOff++;
+  else if (decoded.messageType == "Control Change")
+    m_liveMidiStats.byTypeControlChange++;
+  else if (decoded.messageType == "Program Change")
+    m_liveMidiStats.byTypeProgramChange++;
+  else if (decoded.messageType == "Pitch Bend")
+    m_liveMidiStats.byTypePitchBend++;
+  else if (decoded.messageType == "Poly Aftertouch")
+    m_liveMidiStats.byTypePolyAftertouch++;
+  else if (decoded.messageType == "Channel Aftertouch")
+    m_liveMidiStats.byTypeChannelAftertouch++;
+  else if (decoded.messageType == "System/Common/Real-Time")
+    m_liveMidiStats.byTypeSystem++;
+  else
+    m_liveMidiStats.byTypeUnknown++;
+
+  if (decoded.channel >= 1 && decoded.channel <= 16) {
+    m_liveMidiStats.byChannel[decoded.channel - 1]++;
+  } else {
+    m_liveMidiStats.noChannel++;
+  }
+
+  m_liveMidiStats.lastMessageType = decoded.messageType;
+  m_liveMidiStats.lastChannel = decoded.channel;
+
+  if (decoded.note != -1)
+    m_liveMidiStats.lastNote = decoded.note;
+  if (decoded.velocity != -1)
+    m_liveMidiStats.lastVelocity = decoded.velocity;
+  if (decoded.controller != -1)
+    m_liveMidiStats.lastCc = decoded.controller;
+  if (decoded.value != -1)
+    m_liveMidiStats.lastCcValue = decoded.value;
+  if (decoded.program != -1)
+    m_liveMidiStats.lastProgram = decoded.program;
+  if (decoded.pitchBend != -1)
+    m_liveMidiStats.lastPitchBend = decoded.pitchBend;
+}
+
+void MainWindow::refreshLiveMidiStatsUi() {
+  if (!m_midiBackend ||
+      (!m_midiBackend->isOpen() && m_liveMidiStats.received == 0)) {
+    m_liveMidiStatsLabel->setText("Aguardando porta abrir...");
+    return;
+  }
+
+  qint64 elapsedMs =
+      QDateTime::currentMSecsSinceEpoch() - m_liveMidiSessionStartTimeMs;
+  double seconds = elapsedMs > 0 ? elapsedMs / 1000.0 : 0.001;
+  double rate = m_liveMidiStats.received / seconds;
+
+  quint64 filtered = m_liveMidiStats.received > m_liveMidiStats.displayed
+                         ? m_liveMidiStats.received - m_liveMidiStats.displayed
+                         : 0;
+
+  QString text =
+      QString(
+          "<b>Received:</b> %1 &nbsp;&nbsp; <b>Displayed:</b> %2 &nbsp;&nbsp; "
+          "<b>Filtered:</b> %3 &nbsp;&nbsp; <b>Rate:</b> %4 msg/s<br>")
+          .arg(m_liveMidiStats.received)
+          .arg(m_liveMidiStats.displayed)
+          .arg(filtered)
+          .arg(rate, 0, 'f', 1);
+
+  text +=
+      QString("<b>Last message:</b> %1 ").arg(m_liveMidiStats.lastMessageType);
+  if (m_liveMidiStats.lastChannel != -1)
+    text += QString("[Ch %1] ").arg(m_liveMidiStats.lastChannel);
+
+  if (m_liveMidiStats.lastNote != -1)
+    text += QString("&nbsp;&nbsp; <b>Last Note:</b> %1 Vel: %2")
+                .arg(m_liveMidiStats.lastNote)
+                .arg(m_liveMidiStats.lastVelocity);
+  if (m_liveMidiStats.lastCc != -1)
+    text += QString("&nbsp;&nbsp; <b>Last CC:</b> %1 Val: %2")
+                .arg(m_liveMidiStats.lastCc)
+                .arg(m_liveMidiStats.lastCcValue);
+  if (m_liveMidiStats.lastProgram != -1)
+    text += QString("&nbsp;&nbsp; <b>Last Program:</b> %1")
+                .arg(m_liveMidiStats.lastProgram);
+  if (m_liveMidiStats.lastPitchBend != -1)
+    text += QString("&nbsp;&nbsp; <b>Last Pitch Bend:</b> %1")
+                .arg(m_liveMidiStats.lastPitchBend);
+
+  text += "<br><b>By type:</b> Note On: " +
+          QString::number(m_liveMidiStats.byTypeNoteOn) +
+          " | Note Off: " + QString::number(m_liveMidiStats.byTypeNoteOff) +
+          " | CC: " + QString::number(m_liveMidiStats.byTypeControlChange) +
+          " | Pitch Bend: " + QString::number(m_liveMidiStats.byTypePitchBend) +
+          " | Sys: " + QString::number(m_liveMidiStats.byTypeSystem);
+
+  QString channelStr;
+  for (int i = 0; i < 16; ++i) {
+    if (m_liveMidiStats.byChannel[i] > 0) {
+      channelStr +=
+          QString("Ch %1: %2 | ").arg(i + 1).arg(m_liveMidiStats.byChannel[i]);
+    }
+  }
+  if (m_liveMidiStats.noChannel > 0)
+    channelStr += QString("Sys/None: %1").arg(m_liveMidiStats.noChannel);
+  else if (!channelStr.isEmpty())
+    channelStr.chop(3); // Remove last " | "
+
+  if (!channelStr.isEmpty()) {
+    text += "<br><b>By channel:</b> " + channelStr;
+  }
+
+  m_liveMidiStatsLabel->setText(text);
+}
+
+void MainWindow::resetLiveMidiStats() { m_liveMidiStats = LiveMidiStats(); }
