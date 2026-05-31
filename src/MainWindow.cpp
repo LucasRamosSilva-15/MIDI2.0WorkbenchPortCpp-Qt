@@ -162,11 +162,26 @@ void MainWindow::setupUi() {
   liveMidiBtnLayout->addWidget(m_closeMidiPortBtn);
   liveMidiBtnLayout->addStretch();
 
+  QHBoxLayout *liveMidiControlsLayout = new QHBoxLayout();
+  m_pauseLiveMidiBtn = new QPushButton("Pausar Monitor", this);
+  m_pauseLiveMidiBtn->setEnabled(false);
+  m_clearLiveMidiLogBtn = new QPushButton("Limpar Live Log", this);
+  m_liveMidiStatusLabel = new QLabel("Status: Porta fechada", this);
+  m_liveMidiCountersLabel = new QLabel("Recebidas: 0 | Exibidas: 0", this);
+
+  liveMidiControlsLayout->addWidget(m_pauseLiveMidiBtn);
+  liveMidiControlsLayout->addWidget(m_clearLiveMidiLogBtn);
+  liveMidiControlsLayout->addStretch();
+  liveMidiControlsLayout->addWidget(m_liveMidiStatusLabel);
+  liveMidiControlsLayout->addWidget(m_liveMidiCountersLabel);
+
   m_liveMidiLog = new QTextEdit(this);
   m_liveMidiLog->setReadOnly(true);
+  m_liveMidiLog->document()->setMaximumBlockCount(1000);
   m_liveMidiLog->setPlaceholderText("Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
 
   liveMidiMainLayout->addLayout(liveMidiBtnLayout);
+  liveMidiMainLayout->addLayout(liveMidiControlsLayout);
   liveMidiMainLayout->addWidget(m_liveMidiLog, 1);
 
 #ifndef USE_RTMIDI
@@ -244,9 +259,14 @@ void MainWindow::setupUi() {
           &MainWindow::openMidiPortClicked);
   connect(m_closeMidiPortBtn, &QPushButton::clicked, this,
           &MainWindow::closeMidiPortClicked);
+  connect(m_pauseLiveMidiBtn, &QPushButton::clicked, this,
+          &MainWindow::pauseLiveMidiClicked);
+  connect(m_clearLiveMidiLogBtn, &QPushButton::clicked, this,
+          &MainWindow::clearLiveMidiLogClicked);
 
   logMessage(
       "Sistema inicializado. Aguardando pacotes UMP em formato hexadecimal.");
+  updateLiveMidiStatus();
 }
 
 void MainWindow::logMessage(const QString &msg) {
@@ -615,6 +635,7 @@ void MainWindow::openMidiPortClicked() {
     m_refreshMidiPortsBtn->setEnabled(false);
     m_liveMidiPortsCombo->setEnabled(false);
     m_lastOperation = "Porta MIDI Aberta";
+    updateLiveMidiStatus();
   } else {
     logMessage("Erro ao tentar abrir porta MIDI.");
   }
@@ -636,6 +657,7 @@ void MainWindow::closeMidiPortClicked() {
     m_refreshMidiPortsBtn->setEnabled(true);
     m_liveMidiPortsCombo->setEnabled(true);
     m_lastOperation = "Porta MIDI Fechada";
+    updateLiveMidiStatus();
     updateDiagnostics();
   }
 #else
@@ -654,20 +676,26 @@ void MainWindow::pollLiveMidi() {
 
   for (const auto &ev : events) {
     if (ev.sourceType == InputSourceType::LiveMidi1Bytes) {
-      QString hexStr;
-      for (uint8_t byte : ev.midi1Bytes) {
-        hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
-      }
-      QString decoded = Midi1LiveDecoder::decode(ev.midi1Bytes);
-      QString msg = QString("[%1s] %2 | %3")
-                        .arg(ev.timestamp, 0, 'f', 3)
-                        .arg(hexStr.trimmed(), -8)
-                        .arg(decoded);
-      if (m_liveMidiLog) {
-        m_liveMidiLog->append(msg);
+      m_liveMidiReceivedCount++;
+
+      if (!m_isLiveMidiPaused) {
+        m_liveMidiDisplayedCount++;
+        QString hexStr;
+        for (uint8_t byte : ev.midi1Bytes) {
+          hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
+        }
+        QString decoded = Midi1LiveDecoder::decode(ev.midi1Bytes);
+        QString msg = QString("[%1s] %2 | %3")
+                          .arg(ev.timestamp, 0, 'f', 3)
+                          .arg(hexStr.trimmed(), -8)
+                          .arg(decoded);
+        if (m_liveMidiLog) {
+          m_liveMidiLog->append(msg);
+        }
       }
     }
   }
+  updateLiveMidiStatus();
 #else
   // Stub seguro para quando RtMidi está desativado
   if (m_liveMidiTimer && m_liveMidiTimer->isActive()) {
@@ -675,3 +703,44 @@ void MainWindow::pollLiveMidi() {
   }
 #endif
 }
+
+void MainWindow::pauseLiveMidiClicked() {
+  m_isLiveMidiPaused = !m_isLiveMidiPaused;
+  if (m_isLiveMidiPaused) {
+    m_pauseLiveMidiBtn->setText("Retomar Monitor");
+  } else {
+    m_pauseLiveMidiBtn->setText("Pausar Monitor");
+  }
+  updateLiveMidiStatus();
+}
+
+void MainWindow::clearLiveMidiLogClicked() {
+  m_liveMidiLog->clear();
+  m_liveMidiDisplayedCount = 0;
+  m_liveMidiReceivedCount = 0;
+  updateLiveMidiStatus();
+}
+
+void MainWindow::updateLiveMidiStatus() {
+#ifdef USE_RTMIDI
+  if (!m_midiBackend || !m_midiBackend->isOpen()) {
+    m_liveMidiStatusLabel->setText("Status: Porta fechada");
+    m_pauseLiveMidiBtn->setEnabled(false);
+  } else {
+    m_pauseLiveMidiBtn->setEnabled(true);
+    if (m_isLiveMidiPaused) {
+      m_liveMidiStatusLabel->setText("Status: Pausado");
+    } else {
+      m_liveMidiStatusLabel->setText("Status: Monitorando");
+    }
+  }
+#else
+  m_liveMidiStatusLabel->setText("Status: RtMidi desativado nesta build");
+  m_pauseLiveMidiBtn->setEnabled(false);
+#endif
+  
+  m_liveMidiCountersLabel->setText(QString("Recebidas: %1 | Exibidas: %2")
+                                    .arg(m_liveMidiReceivedCount)
+                                    .arg(m_liveMidiDisplayedCount));
+}
+

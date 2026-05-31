@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v2.9.0 - Live MIDI monitor controls
+- Adicionados controles avançados na aba do Live MIDI Monitor.
+- Botão "Pausar/Retomar Monitor" adicionado, permitindo que a porta permaneça aberta e drenada sem sobrecarregar a renderização da GUI.
+- Novo sistema de contagem que diferencia mensagens "Recebidas" na porta e mensagens "Exibidas" no log.
+- Botão dedicado para "Limpar Live Log".
+- Implementado limite de bloco na GUI do log live (1000 linhas) para evitar perdas de desempenho e congelamentos na thread principal.
+
 ## v2.8.0 - UI layout reorganization
 - Reorganização completa da interface de usuário da `MainWindow` em abas (`QTabWidget`).
 - Criadas abas dedicadas para: `Offline UMP Analyzer`, `Live MIDI Monitor`, `Logs / Diagnostics` e `About / Help`.

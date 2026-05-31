@@ -32,11 +32,14 @@ private slots:
     void openMidiPortClicked();
     void closeMidiPortClicked();
     void pollLiveMidi();
+    void pauseLiveMidiClicked();
+    void clearLiveMidiLogClicked();
 
 private:
     void setupUi();
     void logMessage(const QString& msg);
     void updateDiagnostics();
+    void updateLiveMidiStatus();
     
     QString m_currentFile;
     QString m_lastOperation;
@@ -64,8 +67,16 @@ private:
     QComboBox* m_liveMidiPortsCombo;
     QPushButton* m_openMidiPortBtn;
     QPushButton* m_closeMidiPortBtn;
+    QPushButton* m_pauseLiveMidiBtn;
+    QPushButton* m_clearLiveMidiLogBtn;
+    QLabel* m_liveMidiStatusLabel;
+    QLabel* m_liveMidiCountersLabel;
     QTextEdit* m_liveMidiLog;
     QTimer* m_liveMidiTimer;
 
     std::unique_ptr<IMidiInputBackend> m_midiBackend;
+
+    bool m_isLiveMidiPaused = false;
+    uint64_t m_liveMidiReceivedCount = 0;
+    uint64_t m_liveMidiDisplayedCount = 0;
 };
