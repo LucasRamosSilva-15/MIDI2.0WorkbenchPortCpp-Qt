@@ -37,6 +37,8 @@ add_executable(MidiUmpAnalyzer WIN32
     src/midi/RtMidiInputBackend.h
     src/midi/Midi1LiveDecoder.cpp
     src/midi/Midi1LiveDecoder.h
+    src/midi/Midi1ToUmpPreviewConverter.cpp
+    src/midi/Midi1ToUmpPreviewConverter.h
     src/core/InputSourceType.h
     src/core/MidiRawEvent.h
 )
@@ -55,6 +57,8 @@ add_executable(UmpParserTests
     src/UmpParser.h
     src/midi/Midi1LiveDecoder.cpp
     src/midi/Midi1LiveDecoder.h
+    src/midi/Midi1ToUmpPreviewConverter.cpp
+    src/midi/Midi1ToUmpPreviewConverter.h
 )
 
 target_link_libraries(UmpParserTests PRIVATE Qt6::Core)

@@ -17,6 +17,7 @@ struct LiveMidiLogEntry {
     QString timestamp;
     QString bytesHex;
     QString description;
+    QString umpPreview;
 };
 
 struct LiveMidiStats {
@@ -117,6 +118,10 @@ private:
     QLabel* m_liveMidiStatusLabel;
     QLabel* m_liveMidiCountersLabel;
     QLabel* m_liveMidiStatsLabel;
+    
+    class QCheckBox* m_umpPreviewCb;
+    QLabel* m_umpPreviewLabel;
+    
     QTextEdit* m_liveMidiLog;
     QTimer* m_liveMidiTimer;
 

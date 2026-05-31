@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "UmpParser.h"
 #include "midi/Midi1LiveDecoder.h"
+#include "midi/Midi1ToUmpPreviewConverter.h"
 #include "midi/RtMidiInputBackend.h"
 #include <QApplication>
 #include <QCheckBox>
@@ -65,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.12.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.13.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -240,6 +241,17 @@ void MainWindow::setupUi() {
   statsLayout->addWidget(m_liveMidiStatsLabel);
   liveMidiMainLayout->addWidget(statsGroup);
 
+  QGroupBox *umpPreviewGroup = new QGroupBox("UMP Preview", this);
+  QHBoxLayout *umpPreviewLayout = new QHBoxLayout(umpPreviewGroup);
+  m_umpPreviewCb = new QCheckBox("Mostrar UMP Preview", this);
+  m_umpPreviewCb->setChecked(true);
+  m_umpPreviewLabel = new QLabel("Último UMP Gerado: Nenhum", this);
+  m_umpPreviewLabel->setStyleSheet("font-family: monospace;");
+  umpPreviewLayout->addWidget(m_umpPreviewCb);
+  umpPreviewLayout->addSpacing(20);
+  umpPreviewLayout->addWidget(m_umpPreviewLabel, 1);
+  liveMidiMainLayout->addWidget(umpPreviewGroup);
+
   liveMidiMainLayout->addWidget(m_liveMidiLog, 1);
 
 #ifndef USE_RTMIDI
@@ -280,7 +292,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.12.0</p>"
+      "<p><b>Versão:</b> v2.13.0</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
       "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
       "1.0.</p>"
@@ -790,19 +802,33 @@ void MainWindow::pollLiveMidi() {
 
         if (typePasses && channelPasses) {
           m_liveMidiStats.displayed++;
-
+          
           QString msg = QString("[%1s] %2 | %3")
                             .arg(ev.timestamp, 0, 'f', 3)
                             .arg(hexStr.trimmed(), -8)
                             .arg(decodedMsg.description);
-          if (m_liveMidiLog) {
-            m_liveMidiLog->append(msg);
-          }
 
           LiveMidiLogEntry entry;
           entry.timestamp = QString("%1").arg(ev.timestamp, 0, 'f', 3);
           entry.bytesHex = hexStr.trimmed();
           entry.description = decodedMsg.description;
+
+          Midi1ToUmpPreviewResult previewResult = Midi1ToUmpPreviewConverter::convert(ev.midi1Bytes);
+          if (previewResult.supported) {
+              entry.umpPreview = previewResult.umpHex;
+              m_umpPreviewLabel->setText(QString("Último UMP Gerado: %1").arg(previewResult.umpHex));
+              if (m_umpPreviewCb->isChecked()) {
+                  msg += " | UMP: " + previewResult.umpHex;
+              }
+          } else {
+              entry.umpPreview = "";
+              m_umpPreviewLabel->setText("Último UMP Gerado: " + previewResult.reason);
+          }
+
+          if (m_liveMidiLog) {
+            m_liveMidiLog->append(msg);
+          }
+
           m_liveMidiEvents.append(entry);
 
           if (m_liveMidiEvents.size() > 1000) {
@@ -910,8 +936,11 @@ void MainWindow::exportLiveTxtClicked() {
   out << "Live MIDI Log:\n";
 
   for (const auto &ev : m_liveMidiEvents) {
-    out << "[" << ev.timestamp << "s] " << ev.bytesHex << " | "
-        << ev.description << "\n";
+    QString line = QString("[%1s] %2 | %3").arg(ev.timestamp).arg(ev.bytesHex).arg(ev.description);
+    if (m_umpPreviewCb->isChecked() && !ev.umpPreview.isEmpty()) {
+        line += " | UMP: " + ev.umpPreview;
+    }
+    out << line << "\n";
   }
 
   file.close();
@@ -946,12 +975,12 @@ void MainWindow::exportLiveCsvClicked() {
 
   QTextStream out(&file);
   out.setEncoding(QStringConverter::Utf8);
-  out << "timestamp;bytes_hex;description\n";
+  out << "timestamp;bytes_hex;description;ump_preview\n";
 
   for (const auto &ev : m_liveMidiEvents) {
     QString desc = ev.description;
     desc.replace("\"", "\"\"");
-    out << ev.timestamp << ";" << ev.bytesHex << ";\"" << desc << "\"\n";
+    out << ev.timestamp << ";" << ev.bytesHex << ";\"" << desc << "\";" << ev.umpPreview << "\n";
   }
 
   file.close();

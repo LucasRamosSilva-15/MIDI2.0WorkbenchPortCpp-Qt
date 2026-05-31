@@ -4,6 +4,7 @@
 #include <QString>
 #include "../src/UmpParser.h"
 #include "../src/midi/Midi1LiveDecoder.h"
+#include "../src/midi/Midi1ToUmpPreviewConverter.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -177,6 +178,44 @@ int main() {
     {
         QString res = Midi1LiveDecoder::decode({0xF8}); // Timing Clock
         assertTest("Decoder System Real-Time", res == "System/Common/Real-Time (parcial/bruto)");
+    }
+
+    std::cout << "\nStarting Midi1ToUmpPreviewConverter Tests\n" << std::endl;
+
+    // Converter 1. Note On 90 3C 7F -> 20903C7F
+    {
+        Midi1ToUmpPreviewResult res = Midi1ToUmpPreviewConverter::convert({0x90, 0x3C, 0x7F});
+        assertTest("Converter Note On", res.supported && res.umpHex == "20903C7F");
+    }
+
+    // Converter 2. Note Off 80 3C 40 -> 20803C40
+    {
+        Midi1ToUmpPreviewResult res = Midi1ToUmpPreviewConverter::convert({0x80, 0x3C, 0x40});
+        assertTest("Converter Note Off", res.supported && res.umpHex == "20803C40");
+    }
+
+    // Converter 3. Control Change B0 07 64 -> 20B00764
+    {
+        Midi1ToUmpPreviewResult res = Midi1ToUmpPreviewConverter::convert({0xB0, 0x07, 0x64});
+        assertTest("Converter CC", res.supported && res.umpHex == "20B00764");
+    }
+
+    // Converter 4. Program Change C0 05 -> 20C00500
+    {
+        Midi1ToUmpPreviewResult res = Midi1ToUmpPreviewConverter::convert({0xC0, 0x05});
+        assertTest("Converter Program Change", res.supported && res.umpHex == "20C00500");
+    }
+
+    // Converter 5. Pitch Bend E0 00 40 -> 20E00040
+    {
+        Midi1ToUmpPreviewResult res = Midi1ToUmpPreviewConverter::convert({0xE0, 0x00, 0x40});
+        assertTest("Converter Pitch Bend", res.supported && res.umpHex == "20E00040");
+    }
+
+    // Converter 6. System Real-Time F8 -> unsupported
+    {
+        Midi1ToUmpPreviewResult res = Midi1ToUmpPreviewConverter::convert({0xF8});
+        assertTest("Converter System RT Unsupported", !res.supported);
     }
 
 

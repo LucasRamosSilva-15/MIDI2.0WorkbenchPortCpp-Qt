@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.13.0 - Live MIDI 1.0 to UMP preview
+- Adicionada prévia experimental de conversão de mensagens Live MIDI 1.0 para UMP (MIDI 1.0 Channel Voice, MT 0x2).
+- Checkbox na aba Live MIDI Monitor permite ligar/desligar a exibição da UMP word (32 bits) no log da interface.
+- Nova coluna `ump_preview` incluída na exportação Live CSV.
+- Arquivo Live TXT agora exporta o sufixo `| UMP: XXXXXXXX` junto às linhas, se habilitado.
+
 ## v2.12.0 - Live MIDI statistics
 - Adicionada seção de estatísticas do monitor Live MIDI, agrupando metadados de pacotes processados.
 - Implementado cálculo de rate (mensagens por segundo) com base no tempo de sessão da porta.
