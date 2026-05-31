@@ -80,6 +80,11 @@ private:
     QPushButton* m_clearLiveMidiLogBtn;
     QPushButton* m_exportLiveTxtBtn;
     QPushButton* m_exportLiveCsvBtn;
+    
+    QComboBox* m_liveMidiTypeFilterCombo;
+    QComboBox* m_liveMidiChannelFilterCombo;
+    class QCheckBox* m_treatNoteOnZeroAsOffCb;
+    
     QLabel* m_liveMidiStatusLabel;
     QLabel* m_liveMidiCountersLabel;
     QTextEdit* m_liveMidiLog;

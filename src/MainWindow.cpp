@@ -3,6 +3,7 @@
 #include "midi/Midi1LiveDecoder.h"
 #include "midi/RtMidiInputBackend.h"
 #include <QApplication>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QComboBox>
 #include <QCoreApplication>
@@ -12,10 +13,10 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QGroupBox>
-#include <QMessageBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QTabWidget>
@@ -64,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.10.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.11.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -193,7 +194,41 @@ void MainWindow::setupUi() {
   m_liveMidiLog->setPlaceholderText(
       "Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
 
+  QHBoxLayout *liveMidiFiltersLayout = new QHBoxLayout();
+  QLabel *typeLabel = new QLabel("Tipo:", this);
+  m_liveMidiTypeFilterCombo = new QComboBox(this);
+  m_liveMidiTypeFilterCombo->addItems(
+      {"Todos", "Note On", "Note Off", "Control Change", "Program Change",
+       "Pitch Bend", "Poly Aftertouch", "Channel Aftertouch",
+       "System/Common/Real-Time"});
+
+  QLabel *channelLabel = new QLabel("Canal:", this);
+  m_liveMidiChannelFilterCombo = new QComboBox(this);
+  m_liveMidiChannelFilterCombo->addItem("Todos os canais");
+  for (int i = 1; i <= 16; ++i) {
+    m_liveMidiChannelFilterCombo->addItem(QString("Ch %1").arg(i));
+  }
+
+  m_treatNoteOnZeroAsOffCb =
+      new QCheckBox("Mostrar Note On vel 0 como Note Off", this);
+  m_treatNoteOnZeroAsOffCb->setChecked(false);
+
+  liveMidiFiltersLayout->addWidget(typeLabel);
+  liveMidiFiltersLayout->addWidget(m_liveMidiTypeFilterCombo);
+  liveMidiFiltersLayout->addSpacing(15);
+  liveMidiFiltersLayout->addWidget(channelLabel);
+  liveMidiFiltersLayout->addWidget(m_liveMidiChannelFilterCombo);
+  liveMidiFiltersLayout->addSpacing(15);
+  liveMidiFiltersLayout->addWidget(m_treatNoteOnZeroAsOffCb);
+  liveMidiFiltersLayout->addStretch();
+
+  QLabel *filterHintLabel = new QLabel(
+      "<i>(Os filtros se aplicam a novas mensagens recebidas)</i>", this);
+  filterHintLabel->setStyleSheet("color: #666;");
+  liveMidiFiltersLayout->addWidget(filterHintLabel);
+
   liveMidiMainLayout->addLayout(liveMidiBtnLayout);
+  liveMidiMainLayout->addLayout(liveMidiFiltersLayout);
   liveMidiMainLayout->addLayout(liveMidiControlsLayout);
   liveMidiMainLayout->addWidget(m_liveMidiLog, 1);
 
@@ -235,7 +270,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.8.1</p>"
+      "<p><b>Versão:</b> v2.11.0</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
       "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
       "1.0.</p>"
@@ -257,7 +292,8 @@ void MainWindow::setupUi() {
       "<h3>Instruções - Live MIDI Monitor</h3>"
       "<p>Na versão compilada com RtMidi (experimental), selecione sua "
       "interface MIDI 1.0 de entrada, abra a porta e acompanhe os bytes Note "
-      "On/Off e CCs entrarem na tela em tempo real.</p>");
+      "On/Off e CCs entrarem na tela em tempo real. Você pode aplicar filtros "
+      "para exibir somente os eventos desejados.</p>");
   aboutLayout->addWidget(aboutText);
   tabWidget->addTab(tabAbout, "About / Help");
 
@@ -293,6 +329,16 @@ void MainWindow::setupUi() {
           &MainWindow::exportLiveTxtClicked);
   connect(m_exportLiveCsvBtn, &QPushButton::clicked, this,
           &MainWindow::exportLiveCsvClicked);
+
+  auto filterChangedLog = [this]() {
+    logMessage("Filtros do Live MIDI atualizados.");
+  };
+  connect(m_liveMidiTypeFilterCombo, &QComboBox::currentIndexChanged, this,
+          filterChangedLog);
+  connect(m_liveMidiChannelFilterCombo, &QComboBox::currentIndexChanged, this,
+          filterChangedLog);
+  connect(m_treatNoteOnZeroAsOffCb, &QCheckBox::stateChanged, this,
+          filterChangedLog);
 
   logMessage(
       "Sistema inicializado. Aguardando pacotes UMP em formato hexadecimal.");
@@ -709,28 +755,47 @@ void MainWindow::pollLiveMidi() {
       m_liveMidiReceivedCount++;
 
       if (!m_isLiveMidiPaused) {
-        m_liveMidiDisplayedCount++;
         QString hexStr;
         for (uint8_t byte : ev.midi1Bytes) {
           hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
         }
-        QString decoded = Midi1LiveDecoder::decode(ev.midi1Bytes);
-        QString msg = QString("[%1s] %2 | %3")
-                          .arg(ev.timestamp, 0, 'f', 3)
-                          .arg(hexStr.trimmed(), -8)
-                          .arg(decoded);
-        if (m_liveMidiLog) {
-          m_liveMidiLog->append(msg);
+
+        bool treatZeroVel = m_treatNoteOnZeroAsOffCb->isChecked();
+        Midi1DecodedMessage decodedMsg =
+            Midi1LiveDecoder::decodeDetailed(ev.midi1Bytes, treatZeroVel);
+
+        QString selectedType = m_liveMidiTypeFilterCombo->currentText();
+        bool typePasses =
+            (selectedType == "Todos" || selectedType == decodedMsg.messageType);
+
+        int selectedChannelIdx = m_liveMidiChannelFilterCombo->currentIndex();
+        bool channelPasses = false;
+        if (selectedChannelIdx == 0) {
+          channelPasses = true; // "Todos os canais"
+        } else {
+          channelPasses = (decodedMsg.channel == selectedChannelIdx);
         }
 
-        LiveMidiLogEntry entry;
-        entry.timestamp = QString("%1").arg(ev.timestamp, 0, 'f', 3);
-        entry.bytesHex = hexStr.trimmed();
-        entry.description = decoded;
-        m_liveMidiEvents.append(entry);
+        if (typePasses && channelPasses) {
+          m_liveMidiDisplayedCount++;
 
-        if (m_liveMidiEvents.size() > 1000) {
-          m_liveMidiEvents.removeFirst();
+          QString msg = QString("[%1s] %2 | %3")
+                            .arg(ev.timestamp, 0, 'f', 3)
+                            .arg(hexStr.trimmed(), -8)
+                            .arg(decodedMsg.description);
+          if (m_liveMidiLog) {
+            m_liveMidiLog->append(msg);
+          }
+
+          LiveMidiLogEntry entry;
+          entry.timestamp = QString("%1").arg(ev.timestamp, 0, 'f', 3);
+          entry.bytesHex = hexStr.trimmed();
+          entry.description = decodedMsg.description;
+          m_liveMidiEvents.append(entry);
+
+          if (m_liveMidiEvents.size() > 1000) {
+            m_liveMidiEvents.removeFirst();
+          }
         }
       }
     }
@@ -787,12 +852,17 @@ void MainWindow::updateLiveMidiStatus() {
 
 void MainWindow::exportLiveTxtClicked() {
   if (m_liveMidiEvents.isEmpty()) {
-    QMessageBox::information(this, "Aviso", "Não há eventos Live MIDI para exportar.");
+    QMessageBox::information(this, "Aviso",
+                             "Não há eventos Live MIDI para exportar.");
     return;
   }
 
-  QString defaultFileName = QString("LiveMidiExport_%1.txt").arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
-  QString fileName = QFileDialog::getSaveFileName(this, "Salvar Exportação Live MIDI (TXT)", defaultFileName, "Arquivos de Texto (*.txt);;Todos os Arquivos (*)");
+  QString defaultFileName =
+      QString("LiveMidiExport_%1.txt")
+          .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
+  QString fileName = QFileDialog::getSaveFileName(
+      this, "Salvar Exportação Live MIDI (TXT)", defaultFileName,
+      "Arquivos de Texto (*.txt);;Todos os Arquivos (*)");
 
   if (fileName.isEmpty()) {
     logMessage("Exportação cancelada.");
@@ -801,22 +871,25 @@ void MainWindow::exportLiveTxtClicked() {
 
   QFile file(fileName);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    logMessage("Erro ao salvar exportação: Não foi possível abrir o arquivo para escrita.");
+    logMessage("Erro ao salvar exportação: Não foi possível abrir o arquivo "
+               "para escrita.");
     return;
   }
 
   QTextStream out(&file);
   out << "MidiUmpAnalyzer - Live MIDI Monitor Export\n";
-  out << "Version: v2.10.0\n";
-  out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+  out << "Version: v2.11.0\n";
+  out << "Exported at: "
+      << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
   out << m_liveMidiStatusLabel->text() << "\n";
   out << "Received: " << m_liveMidiReceivedCount << "\n";
   out << "Displayed: " << m_liveMidiDisplayedCount << "\n";
   out << "Max live log lines: 1000\n\n";
   out << "Live MIDI Log:\n";
 
-  for (const auto& ev : m_liveMidiEvents) {
-    out << "[" << ev.timestamp << "s] " << ev.bytesHex << " | " << ev.description << "\n";
+  for (const auto &ev : m_liveMidiEvents) {
+    out << "[" << ev.timestamp << "s] " << ev.bytesHex << " | "
+        << ev.description << "\n";
   }
 
   file.close();
@@ -825,12 +898,17 @@ void MainWindow::exportLiveTxtClicked() {
 
 void MainWindow::exportLiveCsvClicked() {
   if (m_liveMidiEvents.isEmpty()) {
-    QMessageBox::information(this, "Aviso", "Não há eventos Live MIDI para exportar.");
+    QMessageBox::information(this, "Aviso",
+                             "Não há eventos Live MIDI para exportar.");
     return;
   }
 
-  QString defaultFileName = QString("LiveMidiExport_%1.csv").arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
-  QString fileName = QFileDialog::getSaveFileName(this, "Salvar Exportação Live MIDI (CSV)", defaultFileName, "Arquivos CSV (*.csv);;Todos os Arquivos (*)");
+  QString defaultFileName =
+      QString("LiveMidiExport_%1.csv")
+          .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
+  QString fileName = QFileDialog::getSaveFileName(
+      this, "Salvar Exportação Live MIDI (CSV)", defaultFileName,
+      "Arquivos CSV (*.csv);;Todos os Arquivos (*)");
 
   if (fileName.isEmpty()) {
     logMessage("Exportação cancelada.");
@@ -839,7 +917,8 @@ void MainWindow::exportLiveCsvClicked() {
 
   QFile file(fileName);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    logMessage("Erro ao salvar exportação: Não foi possível abrir o arquivo para escrita.");
+    logMessage("Erro ao salvar exportação: Não foi possível abrir o arquivo "
+               "para escrita.");
     return;
   }
 
@@ -847,7 +926,7 @@ void MainWindow::exportLiveCsvClicked() {
   out.setEncoding(QStringConverter::Utf8);
   out << "timestamp;bytes_hex;description\n";
 
-  for (const auto& ev : m_liveMidiEvents) {
+  for (const auto &ev : m_liveMidiEvents) {
     QString desc = ev.description;
     desc.replace("\"", "\"\"");
     out << ev.timestamp << ";" << ev.bytesHex << ";\"" << desc << "\"\n";

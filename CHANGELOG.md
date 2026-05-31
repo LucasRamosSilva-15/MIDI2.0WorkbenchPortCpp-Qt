@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.11.0 - Live MIDI filters
+- Adicionada barra de "Filtros Live MIDI" no monitor em tempo real.
+- Permite filtrar visivelmente pacotes por "Tipo de Mensagem" e "Canal", inclusive suportando opções globais de hardware como System Real-Time.
+- Inclui checkbox para tratar pacotes de Note On com Velocity 0 como Note Off nativamente.
+- O filtro é aplicado na tela sem causar paradas/drops no hardware de origem (os pacotes continuam sendo esvaziados).
+
 ## v2.10.0 - Live MIDI export
 - Adicionados botões dedicados de exportação no Live MIDI Monitor ("Exportar Live TXT" e "Exportar Live CSV").
 - As exportações refletem a lista real e estruturada das mensagens visualizadas, contornando parsing ineficiente da GUI.
