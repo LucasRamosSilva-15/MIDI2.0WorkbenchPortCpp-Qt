@@ -20,6 +20,7 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QTabWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_samplesPath("") {
@@ -62,13 +63,19 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.7.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.8.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
   setCentralWidget(centralWidget);
-
   QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+
+  QTabWidget *tabWidget = new QTabWidget(this);
+  mainLayout->addWidget(tabWidget);
+
+  // --- Tab 1: Offline UMP Analyzer ---
+  QWidget *tabOffline = new QWidget();
+  QVBoxLayout *offlineLayout = new QVBoxLayout(tabOffline);
 
   // Área de Ações
   QHBoxLayout *actionsLayout = new QHBoxLayout();
@@ -90,9 +97,54 @@ void MainWindow::setupUi() {
   actionsLayout->addWidget(m_samplesCombo);
   actionsLayout->addWidget(m_loadExamplesBtn);
   actionsLayout->addStretch();
-  mainLayout->addLayout(actionsLayout);
+  offlineLayout->addLayout(actionsLayout);
 
-  // Área Live MIDI Experimental
+  // Área de Input
+  QHBoxLayout *inputLayout = new QHBoxLayout();
+  QLabel *inputLabel = new QLabel("Hex UMP (ex: 20904000 4090400040000000):", this);
+  m_inputField = new QPlainTextEdit(this);
+  m_inputField->setPlaceholderText("Cole pacotes UMPs em Hexadecimal (ex: SysEx7, SysEx8, Flex, Voice)...");
+  m_inputField->setFixedHeight(80);
+  m_interpretBtn = new QPushButton("Interpretar", this);
+  inputLayout->addWidget(inputLabel);
+  inputLayout->addWidget(m_inputField);
+  inputLayout->addWidget(m_interpretBtn);
+  offlineLayout->addLayout(inputLayout);
+
+  // Área de Filtro e Estatísticas
+  QHBoxLayout *filterLayout = new QHBoxLayout();
+  QLabel *filterLabel = new QLabel("Filtrar por Type:", this);
+  m_filterField = new QLineEdit(this);
+  m_filterField->setPlaceholderText("Digite para filtrar... (ex: SysEx, Flex, Voice)");
+  m_statsLabel = new QLabel("Estatísticas: 0 lidos | 0 válidos | 0 erros", this);
+  filterLayout->addWidget(filterLabel);
+  filterLayout->addWidget(m_filterField);
+  filterLayout->addStretch();
+  filterLayout->addWidget(m_statsLabel);
+  offlineLayout->addLayout(filterLayout);
+
+  // Área da Tabela
+  m_tableWidget = new QTableWidget(this);
+  m_tableWidget->setColumnCount(8);
+  m_tableWidget->setHorizontalHeaderLabels({"#", "Words (Hex)", "Size", "Type", "Group", "Status", "Channel", "Description"});
+  m_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+  m_tableWidget->horizontalHeader()->setStretchLastSection(true);
+  m_tableWidget->setColumnWidth(0, 40);
+  m_tableWidget->setColumnWidth(1, 260);
+  m_tableWidget->setColumnWidth(2, 60);
+  m_tableWidget->setColumnWidth(3, 240);
+  m_tableWidget->setColumnWidth(4, 50);
+  m_tableWidget->setColumnWidth(5, 50);
+  m_tableWidget->setColumnWidth(6, 60);
+  m_tableWidget->setColumnWidth(7, 400);
+  offlineLayout->addWidget(m_tableWidget, 1);
+
+  tabWidget->addTab(tabOffline, "Offline UMP Analyzer");
+
+  // --- Tab 2: Live MIDI Monitor ---
+  QWidget *tabLive = new QWidget();
+  QVBoxLayout *liveLayout = new QVBoxLayout(tabLive);
+
   QGroupBox *liveMidiGroup = new QGroupBox("Live MIDI (Experimental)", this);
   QVBoxLayout *liveMidiMainLayout = new QVBoxLayout(liveMidiGroup);
   QHBoxLayout *liveMidiBtnLayout = new QHBoxLayout();
@@ -112,81 +164,61 @@ void MainWindow::setupUi() {
 
   m_liveMidiLog = new QTextEdit(this);
   m_liveMidiLog->setReadOnly(true);
-  m_liveMidiLog->setMaximumHeight(100);
-  m_liveMidiLog->setPlaceholderText(
-      "Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
+  m_liveMidiLog->setPlaceholderText("Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
 
   liveMidiMainLayout->addLayout(liveMidiBtnLayout);
-  liveMidiMainLayout->addWidget(m_liveMidiLog);
+  liveMidiMainLayout->addWidget(m_liveMidiLog, 1);
 
-  mainLayout->addWidget(liveMidiGroup);
+#ifndef USE_RTMIDI
+  QLabel *rtMidiWarning = new QLabel("<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). Compile com RtMidi=ON para usar o Live MIDI.", this);
+  rtMidiWarning->setStyleSheet("color: #d32f2f; font-weight: bold; padding: 5px;");
+  liveMidiMainLayout->addWidget(rtMidiWarning);
+#endif
 
-  // Área de Input
-  QHBoxLayout *inputLayout = new QHBoxLayout();
-  QLabel *inputLabel =
-      new QLabel("Hex UMP (ex: 20904000 4090400040000000):", this);
-  m_inputField = new QPlainTextEdit(this);
-  m_inputField->setPlaceholderText(
-      "Cole pacotes UMPs em Hexadecimal (ex: SysEx7, SysEx8, Flex, Voice)...");
-  m_inputField->setFixedHeight(80);
-  m_interpretBtn = new QPushButton("Interpretar", this);
-  inputLayout->addWidget(inputLabel);
-  inputLayout->addWidget(m_inputField);
-  inputLayout->addWidget(m_interpretBtn);
-  mainLayout->addLayout(inputLayout);
+  liveLayout->addWidget(liveMidiGroup, 1);
+  tabWidget->addTab(tabLive, "Live MIDI Monitor");
 
-  // Área de Filtro e Estatísticas
-  QHBoxLayout *filterLayout = new QHBoxLayout();
-  QLabel *filterLabel = new QLabel("Filtrar por Type:", this);
-  m_filterField = new QLineEdit(this);
-  m_filterField->setPlaceholderText(
-      "Digite para filtrar... (ex: SysEx, Flex, Voice)");
-
-  m_statsLabel =
-      new QLabel("Estatísticas: 0 lidos | 0 válidos | 0 erros", this);
-
-  filterLayout->addWidget(filterLabel);
-  filterLayout->addWidget(m_filterField);
-  filterLayout->addStretch();
-  filterLayout->addWidget(m_statsLabel);
-  mainLayout->addLayout(filterLayout);
+  // --- Tab 3: Logs / Diagnostics ---
+  QWidget *tabLogs = new QWidget();
+  QVBoxLayout *logsLayout = new QVBoxLayout(tabLogs);
 
   m_diagnosticsLabel = new QLabel(this);
   m_diagnosticsLabel->setStyleSheet(
-      "QLabel { background-color: #f0f4f8; border: 1px solid #d9e2ec; padding: "
-      "4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
-  mainLayout->addWidget(m_diagnosticsLabel);
+      "QLabel { background-color: #f0f4f8; border: 1px solid #d9e2ec; padding: 4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
+  logsLayout->addWidget(m_diagnosticsLabel);
 
-  // Área da Tabela
-  m_tableWidget = new QTableWidget(this);
-  m_tableWidget->setColumnCount(8);
-  m_tableWidget->setHorizontalHeaderLabels({"#", "Words (Hex)", "Size", "Type",
-                                            "Group", "Status", "Channel",
-                                            "Description"});
-
-  // Configura redimensionamento manual pelo usuário e larguras iniciais
-  m_tableWidget->horizontalHeader()->setSectionResizeMode(
-      QHeaderView::Interactive);
-  m_tableWidget->horizontalHeader()->setStretchLastSection(
-      true); // Faz a descrição ocupar o resto
-
-  m_tableWidget->setColumnWidth(0, 40);  // Index
-  m_tableWidget->setColumnWidth(1, 260); // Words
-  m_tableWidget->setColumnWidth(2, 60);  // Size
-  m_tableWidget->setColumnWidth(3, 240); // Type
-  m_tableWidget->setColumnWidth(4, 50);  // Group
-  m_tableWidget->setColumnWidth(5, 50);  // Status
-  m_tableWidget->setColumnWidth(6, 60);  // Channel
-  m_tableWidget->setColumnWidth(7, 400); // Description (irá esticar)
-
-  mainLayout->addWidget(m_tableWidget, 2);
-
-  // Área de Log
-  QLabel *logLabel = new QLabel("Log:", this);
+  QLabel *logLabel = new QLabel("Log Geral da Aplicação:", this);
   m_logPanel = new QTextEdit(this);
   m_logPanel->setReadOnly(true);
-  mainLayout->addWidget(logLabel);
-  mainLayout->addWidget(m_logPanel, 1);
+  logsLayout->addWidget(logLabel);
+  logsLayout->addWidget(m_logPanel, 1);
+
+  tabWidget->addTab(tabLogs, "Logs / Diagnostics");
+
+  // --- Tab 4: About / Help ---
+  QWidget *tabAbout = new QWidget();
+  QVBoxLayout *aboutLayout = new QVBoxLayout(tabAbout);
+  QTextEdit *aboutText = new QTextEdit(this);
+  aboutText->setReadOnly(true);
+  aboutText->setHtml(
+      "<h2>MIDI 2.0 Workbench Port</h2>"
+      "<p><b>Versão:</b> v2.8.0</p>"
+      "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) de 32 a 128 bits e monitor experimental de portas de hardware MIDI 1.0.</p>"
+      "<h3>Limitações Conhecidas</h3>"
+      "<ul>"
+      "<li>Não é um Host MIDI completo ou Sequencer.</li>"
+      "<li>Não implementa MIDI-CI (Capability Inquiry).</li>"
+      "<li>Não implementa UMP Property Exchange.</li>"
+      "<li>Não recebe nem transmite UMP real via endpoints USB MIDI 2.0 nativos ainda.</li>"
+      "<li>O módulo RtMidi é experimental e focado em ler e decodificar passivamente Bytes Crus do MIDI 1.0.</li>"
+      "</ul>"
+      "<h3>Instruções - Offline UMP Analyzer</h3>"
+      "<p>Cole os blocos hexadecimais de pacotes UMP na aba Offline (ou abra um arquivo TXT de log de console). Clique em 'Interpretar' para visualizar o detalhamento completo dos campos MIDI 2.0/MIDI 1.0 empacotados na tabela estática.</p>"
+      "<h3>Instruções - Live MIDI Monitor</h3>"
+      "<p>Na versão compilada com RtMidi (experimental), selecione sua interface MIDI 1.0 de entrada, abra a porta e acompanhe os bytes Note On/Off e CCs entrarem na tela em tempo real.</p>"
+  );
+  aboutLayout->addWidget(aboutText);
+  tabWidget->addTab(tabAbout, "About / Help");
 
   connect(m_interpretBtn, &QPushButton::clicked, this,
           &MainWindow::interpretClicked);

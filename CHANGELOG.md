@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.8.0 - UI layout reorganization
+- Reorganização completa da interface de usuário da `MainWindow` em abas (`QTabWidget`).
+- Criadas abas dedicadas para: `Offline UMP Analyzer`, `Live MIDI Monitor`, `Logs / Diagnostics` e `About / Help`.
+- Resolução do problema de espaço e poluição visual, mantendo as funcionalidades de backend e integração intocadas.
+- Adicionada aba estática `About / Help` contendo instruções de uso curtas e destacando claramente as limitações do app.
+
 ## v2.7.0 - Decode live MIDI 1.0 messages
 - Novo componente estático `Midi1LiveDecoder` no backend do sistema isolado.
 - Adicionada capacidade de analisar os bytes hexadecimais brutos de dispositivos MIDI de hardware mapeando canais e o significado dos eventos MIDI 1.0 principais (Channel Voice).
