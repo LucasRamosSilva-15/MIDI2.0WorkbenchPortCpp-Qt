@@ -12,15 +12,16 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QGroupBox>
+#include <QMessageBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QRegularExpression>
 #include <QStringList>
+#include <QTabWidget>
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QTabWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_samplesPath("") {
@@ -63,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.8.1)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.10.0)");
   resize(900, 600);
 
   QWidget *centralWidget = new QWidget(this);
@@ -101,9 +102,11 @@ void MainWindow::setupUi() {
 
   // Área de Input
   QHBoxLayout *inputLayout = new QHBoxLayout();
-  QLabel *inputLabel = new QLabel("Hex UMP (ex: 20904000 4090400040000000):", this);
+  QLabel *inputLabel =
+      new QLabel("Hex UMP (ex: 20904000 4090400040000000):", this);
   m_inputField = new QPlainTextEdit(this);
-  m_inputField->setPlaceholderText("Cole pacotes UMPs em Hexadecimal (ex: SysEx7, SysEx8, Flex, Voice)...");
+  m_inputField->setPlaceholderText(
+      "Cole pacotes UMPs em Hexadecimal (ex: SysEx7, SysEx8, Flex, Voice)...");
   m_inputField->setFixedHeight(80);
   m_interpretBtn = new QPushButton("Interpretar", this);
   inputLayout->addWidget(inputLabel);
@@ -115,8 +118,10 @@ void MainWindow::setupUi() {
   QHBoxLayout *filterLayout = new QHBoxLayout();
   QLabel *filterLabel = new QLabel("Filtrar por Type:", this);
   m_filterField = new QLineEdit(this);
-  m_filterField->setPlaceholderText("Digite para filtrar... (ex: SysEx, Flex, Voice)");
-  m_statsLabel = new QLabel("Estatísticas: 0 lidos | 0 válidos | 0 erros", this);
+  m_filterField->setPlaceholderText(
+      "Digite para filtrar... (ex: SysEx, Flex, Voice)");
+  m_statsLabel =
+      new QLabel("Estatísticas: 0 lidos | 0 válidos | 0 erros", this);
   filterLayout->addWidget(filterLabel);
   filterLayout->addWidget(m_filterField);
   filterLayout->addStretch();
@@ -126,8 +131,11 @@ void MainWindow::setupUi() {
   // Área da Tabela
   m_tableWidget = new QTableWidget(this);
   m_tableWidget->setColumnCount(8);
-  m_tableWidget->setHorizontalHeaderLabels({"#", "Words (Hex)", "Size", "Type", "Group", "Status", "Channel", "Description"});
-  m_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+  m_tableWidget->setHorizontalHeaderLabels({"#", "Words (Hex)", "Size", "Type",
+                                            "Group", "Status", "Channel",
+                                            "Description"});
+  m_tableWidget->horizontalHeader()->setSectionResizeMode(
+      QHeaderView::Interactive);
   m_tableWidget->horizontalHeader()->setStretchLastSection(true);
   m_tableWidget->setColumnWidth(0, 40);
   m_tableWidget->setColumnWidth(1, 260);
@@ -166,11 +174,15 @@ void MainWindow::setupUi() {
   m_pauseLiveMidiBtn = new QPushButton("Pausar Monitor", this);
   m_pauseLiveMidiBtn->setEnabled(false);
   m_clearLiveMidiLogBtn = new QPushButton("Limpar Live Log", this);
+  m_exportLiveTxtBtn = new QPushButton("Exportar Live TXT", this);
+  m_exportLiveCsvBtn = new QPushButton("Exportar Live CSV", this);
   m_liveMidiStatusLabel = new QLabel("Status: Porta fechada", this);
   m_liveMidiCountersLabel = new QLabel("Recebidas: 0 | Exibidas: 0", this);
 
   liveMidiControlsLayout->addWidget(m_pauseLiveMidiBtn);
   liveMidiControlsLayout->addWidget(m_clearLiveMidiLogBtn);
+  liveMidiControlsLayout->addWidget(m_exportLiveTxtBtn);
+  liveMidiControlsLayout->addWidget(m_exportLiveCsvBtn);
   liveMidiControlsLayout->addStretch();
   liveMidiControlsLayout->addWidget(m_liveMidiStatusLabel);
   liveMidiControlsLayout->addWidget(m_liveMidiCountersLabel);
@@ -178,15 +190,20 @@ void MainWindow::setupUi() {
   m_liveMidiLog = new QTextEdit(this);
   m_liveMidiLog->setReadOnly(true);
   m_liveMidiLog->document()->setMaximumBlockCount(1000);
-  m_liveMidiLog->setPlaceholderText("Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
+  m_liveMidiLog->setPlaceholderText(
+      "Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
 
   liveMidiMainLayout->addLayout(liveMidiBtnLayout);
   liveMidiMainLayout->addLayout(liveMidiControlsLayout);
   liveMidiMainLayout->addWidget(m_liveMidiLog, 1);
 
 #ifndef USE_RTMIDI
-  QLabel *rtMidiWarning = new QLabel("<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). Compile com RtMidi=ON para usar o Live MIDI.", this);
-  rtMidiWarning->setStyleSheet("color: #d32f2f; font-weight: bold; padding: 5px;");
+  QLabel *rtMidiWarning = new QLabel(
+      "<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). "
+      "Compile com RtMidi=ON para usar o Live MIDI.",
+      this);
+  rtMidiWarning->setStyleSheet(
+      "color: #d32f2f; font-weight: bold; padding: 5px;");
   liveMidiMainLayout->addWidget(rtMidiWarning);
 #endif
 
@@ -199,7 +216,8 @@ void MainWindow::setupUi() {
 
   m_diagnosticsLabel = new QLabel(this);
   m_diagnosticsLabel->setStyleSheet(
-      "QLabel { background-color: #f0f4f8; border: 1px solid #d9e2ec; padding: 4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
+      "QLabel { background-color: #f0f4f8; border: 1px solid #d9e2ec; padding: "
+      "4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
   logsLayout->addWidget(m_diagnosticsLabel);
 
   QLabel *logLabel = new QLabel("Log Geral da Aplicação:", this);
@@ -218,20 +236,28 @@ void MainWindow::setupUi() {
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
       "<p><b>Versão:</b> v2.8.1</p>"
-      "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) de 32 a 128 bits e monitor experimental de portas de hardware MIDI 1.0.</p>"
+      "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
+      "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
+      "1.0.</p>"
       "<h3>Limitações Conhecidas</h3>"
       "<ul>"
       "<li>Não é um Host MIDI completo ou Sequencer.</li>"
       "<li>Não implementa MIDI-CI (Capability Inquiry).</li>"
       "<li>Não implementa UMP Property Exchange.</li>"
-      "<li>Não recebe nem transmite UMP real via endpoints USB MIDI 2.0 nativos ainda.</li>"
-      "<li>O módulo RtMidi é experimental e focado em ler e decodificar passivamente Bytes Crus do MIDI 1.0.</li>"
+      "<li>Não recebe nem transmite UMP real via endpoints USB MIDI 2.0 "
+      "nativos ainda.</li>"
+      "<li>O módulo RtMidi é experimental e focado em ler e decodificar "
+      "passivamente Bytes Crus do MIDI 1.0.</li>"
       "</ul>"
       "<h3>Instruções - Offline UMP Analyzer</h3>"
-      "<p>Cole os blocos hexadecimais de pacotes UMP na aba Offline (ou abra um arquivo TXT de log de console). Clique em 'Interpretar' para visualizar o detalhamento completo dos campos MIDI 2.0/MIDI 1.0 empacotados na tabela estática.</p>"
+      "<p>Cole os blocos hexadecimais de pacotes UMP na aba Offline (ou abra "
+      "um arquivo TXT de log de console). Clique em 'Interpretar' para "
+      "visualizar o detalhamento completo dos campos MIDI 2.0/MIDI 1.0 "
+      "empacotados na tabela estática.</p>"
       "<h3>Instruções - Live MIDI Monitor</h3>"
-      "<p>Na versão compilada com RtMidi (experimental), selecione sua interface MIDI 1.0 de entrada, abra a porta e acompanhe os bytes Note On/Off e CCs entrarem na tela em tempo real.</p>"
-  );
+      "<p>Na versão compilada com RtMidi (experimental), selecione sua "
+      "interface MIDI 1.0 de entrada, abra a porta e acompanhe os bytes Note "
+      "On/Off e CCs entrarem na tela em tempo real.</p>");
   aboutLayout->addWidget(aboutText);
   tabWidget->addTab(tabAbout, "About / Help");
 
@@ -263,6 +289,10 @@ void MainWindow::setupUi() {
           &MainWindow::pauseLiveMidiClicked);
   connect(m_clearLiveMidiLogBtn, &QPushButton::clicked, this,
           &MainWindow::clearLiveMidiLogClicked);
+  connect(m_exportLiveTxtBtn, &QPushButton::clicked, this,
+          &MainWindow::exportLiveTxtClicked);
+  connect(m_exportLiveCsvBtn, &QPushButton::clicked, this,
+          &MainWindow::exportLiveCsvClicked);
 
   logMessage(
       "Sistema inicializado. Aguardando pacotes UMP em formato hexadecimal.");
@@ -692,6 +722,16 @@ void MainWindow::pollLiveMidi() {
         if (m_liveMidiLog) {
           m_liveMidiLog->append(msg);
         }
+
+        LiveMidiLogEntry entry;
+        entry.timestamp = QString("%1").arg(ev.timestamp, 0, 'f', 3);
+        entry.bytesHex = hexStr.trimmed();
+        entry.description = decoded;
+        m_liveMidiEvents.append(entry);
+
+        if (m_liveMidiEvents.size() > 1000) {
+          m_liveMidiEvents.removeFirst();
+        }
       }
     }
   }
@@ -716,6 +756,7 @@ void MainWindow::pauseLiveMidiClicked() {
 
 void MainWindow::clearLiveMidiLogClicked() {
   m_liveMidiLog->clear();
+  m_liveMidiEvents.clear();
   m_liveMidiDisplayedCount = 0;
   m_liveMidiReceivedCount = 0;
   updateLiveMidiStatus();
@@ -738,9 +779,80 @@ void MainWindow::updateLiveMidiStatus() {
   m_liveMidiStatusLabel->setText("Status: RtMidi desativado nesta build");
   m_pauseLiveMidiBtn->setEnabled(false);
 #endif
-  
+
   m_liveMidiCountersLabel->setText(QString("Recebidas: %1 | Exibidas: %2")
-                                    .arg(m_liveMidiReceivedCount)
-                                    .arg(m_liveMidiDisplayedCount));
+                                       .arg(m_liveMidiReceivedCount)
+                                       .arg(m_liveMidiDisplayedCount));
 }
 
+void MainWindow::exportLiveTxtClicked() {
+  if (m_liveMidiEvents.isEmpty()) {
+    QMessageBox::information(this, "Aviso", "Não há eventos Live MIDI para exportar.");
+    return;
+  }
+
+  QString defaultFileName = QString("LiveMidiExport_%1.txt").arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
+  QString fileName = QFileDialog::getSaveFileName(this, "Salvar Exportação Live MIDI (TXT)", defaultFileName, "Arquivos de Texto (*.txt);;Todos os Arquivos (*)");
+
+  if (fileName.isEmpty()) {
+    logMessage("Exportação cancelada.");
+    return;
+  }
+
+  QFile file(fileName);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    logMessage("Erro ao salvar exportação: Não foi possível abrir o arquivo para escrita.");
+    return;
+  }
+
+  QTextStream out(&file);
+  out << "MidiUmpAnalyzer - Live MIDI Monitor Export\n";
+  out << "Version: v2.10.0\n";
+  out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+  out << m_liveMidiStatusLabel->text() << "\n";
+  out << "Received: " << m_liveMidiReceivedCount << "\n";
+  out << "Displayed: " << m_liveMidiDisplayedCount << "\n";
+  out << "Max live log lines: 1000\n\n";
+  out << "Live MIDI Log:\n";
+
+  for (const auto& ev : m_liveMidiEvents) {
+    out << "[" << ev.timestamp << "s] " << ev.bytesHex << " | " << ev.description << "\n";
+  }
+
+  file.close();
+  logMessage("Live MIDI TXT exportado com sucesso para: " + fileName);
+}
+
+void MainWindow::exportLiveCsvClicked() {
+  if (m_liveMidiEvents.isEmpty()) {
+    QMessageBox::information(this, "Aviso", "Não há eventos Live MIDI para exportar.");
+    return;
+  }
+
+  QString defaultFileName = QString("LiveMidiExport_%1.csv").arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
+  QString fileName = QFileDialog::getSaveFileName(this, "Salvar Exportação Live MIDI (CSV)", defaultFileName, "Arquivos CSV (*.csv);;Todos os Arquivos (*)");
+
+  if (fileName.isEmpty()) {
+    logMessage("Exportação cancelada.");
+    return;
+  }
+
+  QFile file(fileName);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    logMessage("Erro ao salvar exportação: Não foi possível abrir o arquivo para escrita.");
+    return;
+  }
+
+  QTextStream out(&file);
+  out.setEncoding(QStringConverter::Utf8);
+  out << "timestamp;bytes_hex;description\n";
+
+  for (const auto& ev : m_liveMidiEvents) {
+    QString desc = ev.description;
+    desc.replace("\"", "\"\"");
+    out << ev.timestamp << ";" << ev.bytesHex << ";\"" << desc << "\"\n";
+  }
+
+  file.close();
+  logMessage("Live MIDI CSV exportado com sucesso para: " + fileName);
+}

@@ -1,6 +1,6 @@
-# Live MIDI Backend Architecture
+# Live MIDI Backend Architecture Plan
 
-**Versão Atual:** v2.9.0 (Controles do Monitor)
+**Versão Atual:** v2.10.0 (Live MIDI Export)
 
 ## Objetivo
 Preparar a fundação de código para receber mensagens MIDI ao vivo vindas de hardwares, sem acoplar a UI diretamente a nenhuma biblioteca específica de áudio/MIDI.

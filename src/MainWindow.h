@@ -10,7 +10,14 @@
 #include <QDir>
 #include <QLabel>
 #include <QTimer>
+#include <QVector>
 #include "midi/IMidiInputBackend.h"
+
+struct LiveMidiLogEntry {
+    QString timestamp;
+    QString bytesHex;
+    QString description;
+};
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -34,6 +41,8 @@ private slots:
     void pollLiveMidi();
     void pauseLiveMidiClicked();
     void clearLiveMidiLogClicked();
+    void exportLiveTxtClicked();
+    void exportLiveCsvClicked();
 
 private:
     void setupUi();
@@ -69,6 +78,8 @@ private:
     QPushButton* m_closeMidiPortBtn;
     QPushButton* m_pauseLiveMidiBtn;
     QPushButton* m_clearLiveMidiLogBtn;
+    QPushButton* m_exportLiveTxtBtn;
+    QPushButton* m_exportLiveCsvBtn;
     QLabel* m_liveMidiStatusLabel;
     QLabel* m_liveMidiCountersLabel;
     QTextEdit* m_liveMidiLog;
@@ -79,4 +90,5 @@ private:
     bool m_isLiveMidiPaused = false;
     uint64_t m_liveMidiReceivedCount = 0;
     uint64_t m_liveMidiDisplayedCount = 0;
+    QVector<LiveMidiLogEntry> m_liveMidiEvents;
 };

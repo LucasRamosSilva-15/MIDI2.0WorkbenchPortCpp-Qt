@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.10.0 - Live MIDI export
+- Adicionados botões dedicados de exportação no Live MIDI Monitor ("Exportar Live TXT" e "Exportar Live CSV").
+- As exportações refletem a lista real e estruturada das mensagens visualizadas, contornando parsing ineficiente da GUI.
+- Separação completa e estrita entre as lógicas de Exportação Offline (Tabela de UMP Hex) e de Captura Live.
+- O formato CSV inclui suporte a UTF-8 com fallback RFC 4180 de aspas, para abrir confiavelmente em Excel/Numbers.
+
 ## v2.9.0 - Live MIDI monitor controls
 - Adicionados controles avançados na aba do Live MIDI Monitor.
 - Botão "Pausar/Retomar Monitor" adicionado, permitindo que a porta permaneça aberta e drenada sem sobrecarregar a renderização da GUI.
