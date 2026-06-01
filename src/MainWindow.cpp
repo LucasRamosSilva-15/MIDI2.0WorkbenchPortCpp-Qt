@@ -71,9 +71,9 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.15.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.16.0)");
   setMinimumSize(1100, 700);
-  resize(1600, 1000);
+  resize(1400, 1000);
 
   QWidget *centralWidget = new QWidget(this);
   setCentralWidget(centralWidget);
@@ -195,6 +195,27 @@ void MainWindow::setupUi() {
   liveMidiControlsLayout->addWidget(m_liveMidiStatusLabel);
   liveMidiControlsLayout->addWidget(m_liveMidiCountersLabel);
 
+  QGroupBox *sessionGroup = new QGroupBox("Session Recording", this);
+  QHBoxLayout *sessionLayout = new QHBoxLayout(sessionGroup);
+  m_sessionStatusLabel = new QLabel("Status: Parada", this);
+  m_sessionCountLabel = new QLabel("Eventos gravados: 0", this);
+  m_startSessionBtn = new QPushButton("Iniciar Gravação", this);
+  m_stopSessionBtn = new QPushButton("Parar Gravação", this);
+  m_stopSessionBtn->setEnabled(false);
+  m_clearSessionBtn = new QPushButton("Limpar Sessão", this);
+  m_exportSessionTxtBtn = new QPushButton("Exportar Sessão TXT", this);
+  m_exportSessionCsvBtn = new QPushButton("Exportar Sessão CSV", this);
+
+  sessionLayout->addWidget(m_sessionStatusLabel);
+  sessionLayout->addWidget(m_sessionCountLabel);
+  sessionLayout->addSpacing(20);
+  sessionLayout->addWidget(m_startSessionBtn);
+  sessionLayout->addWidget(m_stopSessionBtn);
+  sessionLayout->addWidget(m_clearSessionBtn);
+  sessionLayout->addStretch();
+  sessionLayout->addWidget(m_exportSessionTxtBtn);
+  sessionLayout->addWidget(m_exportSessionCsvBtn);
+
   m_liveMidiLog = new QTextEdit(this);
   m_liveMidiLog->setReadOnly(true);
   m_liveMidiLog->document()->setMaximumBlockCount(1000);
@@ -247,6 +268,7 @@ void MainWindow::setupUi() {
   liveMidiMainLayout->addLayout(liveMidiBtnLayout);
   liveMidiMainLayout->addLayout(liveMidiFiltersLayout);
   liveMidiMainLayout->addLayout(liveMidiControlsLayout);
+  liveMidiMainLayout->addWidget(sessionGroup);
 
   QGroupBox *statsGroup = new QGroupBox("Live MIDI Statistics", this);
   QVBoxLayout *statsLayout = new QVBoxLayout(statsGroup);
@@ -311,7 +333,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.15.0</p>"
+      "<p><b>Versão:</b> v2.16.0</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
       "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
       "1.0.</p>"
@@ -370,6 +392,17 @@ void MainWindow::setupUi() {
           &MainWindow::exportLiveTxtClicked);
   connect(m_exportLiveCsvBtn, &QPushButton::clicked, this,
           &MainWindow::exportLiveCsvClicked);
+
+  connect(m_startSessionBtn, &QPushButton::clicked, this,
+          &MainWindow::startSessionRecording);
+  connect(m_stopSessionBtn, &QPushButton::clicked, this,
+          &MainWindow::stopSessionRecording);
+  connect(m_clearSessionBtn, &QPushButton::clicked, this,
+          &MainWindow::clearSessionRecording);
+  connect(m_exportSessionTxtBtn, &QPushButton::clicked, this,
+          &MainWindow::exportSessionTxt);
+  connect(m_exportSessionCsvBtn, &QPushButton::clicked, this,
+          &MainWindow::exportSessionCsv);
 
   auto filterChangedLog = [this]() {
     logMessage("Filtros do Live MIDI atualizados.");
@@ -771,6 +804,11 @@ void MainWindow::closeMidiPortClicked() {
       m_liveMidiTimer->stop();
     m_midiBackend->closeInputPort();
     logMessage("Porta MIDI fechada com sucesso.");
+    if (m_isLiveMidiRecording) {
+      stopSessionRecording();
+      logMessage("Gravação de sessão interrompida automaticamente devido ao "
+                 "fechamento da porta.");
+    }
     m_openMidiPortBtn->setEnabled(true);
     m_closeMidiPortBtn->setEnabled(false);
     m_refreshMidiPortsBtn->setEnabled(true);
@@ -797,15 +835,39 @@ void MainWindow::pollLiveMidi() {
     if (ev.sourceType == InputSourceType::LiveMidi1Bytes) {
       m_liveMidiStats.received++;
 
-      if (!m_isLiveMidiPaused) {
-        QString hexStr;
-        for (uint8_t byte : ev.midi1Bytes) {
-          hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
-        }
+      QString hexStr;
+      for (uint8_t byte : ev.midi1Bytes) {
+        hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
+      }
 
-        bool treatZeroVel = m_treatNoteOnZeroAsOffCb->isChecked();
-        Midi1DecodedMessage decodedMsg =
-            Midi1LiveDecoder::decodeDetailed(ev.midi1Bytes, treatZeroVel);
+      bool treatZeroVel = m_treatNoteOnZeroAsOffCb->isChecked();
+      Midi1DecodedMessage decodedMsg =
+          Midi1LiveDecoder::decodeDetailed(ev.midi1Bytes, treatZeroVel);
+
+      Midi1ToUmpPreviewResult previewResult =
+          Midi1ToUmpPreviewConverter::convert(ev.midi1Bytes);
+
+      if (m_isLiveMidiRecording) {
+        LiveMidiRecordedEvent recEvent;
+        recEvent.timestamp = QString("%1").arg(ev.timestamp, 0, 'f', 3);
+        recEvent.bytesHex = hexStr.trimmed();
+        recEvent.description = decodedMsg.description;
+        recEvent.messageType = decodedMsg.messageType;
+        recEvent.channel = decodedMsg.channel;
+        if (previewResult.supported) {
+          recEvent.umpPreview = previewResult.umpHex;
+        } else {
+          recEvent.umpPreview = "";
+        }
+        m_liveMidiRecording.append(recEvent);
+        m_liveMidiRecordedCount++;
+        if (m_liveMidiRecordedCount % 10 == 0 || m_liveMidiRecordedCount < 10) {
+          m_sessionCountLabel->setText(
+              QString("Eventos gravados: %1").arg(m_liveMidiRecordedCount));
+        }
+      }
+
+      if (!m_isLiveMidiPaused) {
 
         QString selectedType = m_liveMidiTypeFilterCombo->currentText();
         bool typePasses =
@@ -832,8 +894,6 @@ void MainWindow::pollLiveMidi() {
           entry.bytesHex = hexStr.trimmed();
           entry.description = decodedMsg.description;
 
-          Midi1ToUmpPreviewResult previewResult =
-              Midi1ToUmpPreviewConverter::convert(ev.midi1Bytes);
           if (previewResult.supported) {
             entry.umpPreview = previewResult.umpHex;
             m_umpPreviewLabel->setText(
@@ -863,9 +923,37 @@ void MainWindow::pollLiveMidi() {
         updateLiveMidiStats(decodedMsg, (typePasses && channelPasses));
       } else {
         // Even paused, we count received types (but display won't update)
+        QString hexStr;
+        for (uint8_t byte : ev.midi1Bytes) {
+          hexStr += QString("%1 ").arg(byte, 2, 16, QChar('0')).toUpper();
+        }
+
         bool treatZeroVel = m_treatNoteOnZeroAsOffCb->isChecked();
         Midi1DecodedMessage decodedMsg =
             Midi1LiveDecoder::decodeDetailed(ev.midi1Bytes, treatZeroVel);
+
+        if (m_isLiveMidiRecording) {
+          Midi1ToUmpPreviewResult previewResult =
+              Midi1ToUmpPreviewConverter::convert(ev.midi1Bytes);
+          LiveMidiRecordedEvent recEvent;
+          recEvent.timestamp = QString("%1").arg(ev.timestamp, 0, 'f', 3);
+          recEvent.bytesHex = hexStr.trimmed();
+          recEvent.description = decodedMsg.description;
+          recEvent.messageType = decodedMsg.messageType;
+          recEvent.channel = decodedMsg.channel;
+          if (previewResult.supported) {
+            recEvent.umpPreview = previewResult.umpHex;
+          } else {
+            recEvent.umpPreview = "";
+          }
+          m_liveMidiRecording.append(recEvent);
+          m_liveMidiRecordedCount++;
+          if (m_liveMidiRecordedCount % 10 == 0 ||
+              m_liveMidiRecordedCount < 10) {
+            m_sessionCountLabel->setText(
+                QString("Eventos gravados: %1").arg(m_liveMidiRecordedCount));
+          }
+        }
         updateLiveMidiStats(decodedMsg, false);
       }
     }
@@ -1181,3 +1269,101 @@ void MainWindow::refreshLiveMidiStatsUi() {
 }
 
 void MainWindow::resetLiveMidiStats() { m_liveMidiStats = LiveMidiStats(); }
+
+void MainWindow::startSessionRecording() {
+  if (m_liveMidiRecordedCount > 0) {
+    clearSessionRecording();
+  }
+  m_isLiveMidiRecording = true;
+  m_startSessionBtn->setEnabled(false);
+  m_stopSessionBtn->setEnabled(true);
+  m_sessionStatusLabel->setText("Status: Gravando");
+  logMessage("Gravação de sessão MIDI iniciada.");
+}
+
+void MainWindow::stopSessionRecording() {
+  m_isLiveMidiRecording = false;
+  m_startSessionBtn->setEnabled(true);
+  m_stopSessionBtn->setEnabled(false);
+  m_sessionStatusLabel->setText("Status: Parada");
+  logMessage(
+      QString("Gravação de sessão MIDI parada. Total de eventos gravados: %1")
+          .arg(m_liveMidiRecordedCount));
+}
+
+void MainWindow::clearSessionRecording() {
+  m_liveMidiRecording.clear();
+  m_liveMidiRecordedCount = 0;
+  m_sessionCountLabel->setText("Eventos gravados: 0");
+  logMessage("Sessão MIDI gravada foi limpa.");
+}
+
+void MainWindow::exportSessionTxt() {
+  if (m_liveMidiRecording.isEmpty()) {
+    logMessage("Erro: Não há eventos gravados na sessão para exportar.");
+    return;
+  }
+  QString fileName = QFileDialog::getSaveFileName(
+      this, "Exportar Sessão MIDI TXT",
+      QDir::homePath() + "/LiveMidiSession.txt", "Text Files (*.txt)");
+  if (fileName.isEmpty())
+    return;
+  QFile file(fileName);
+  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    QTextStream out(&file);
+    out << "MidiUmpAnalyzer - Live MIDI Session Recording\n";
+    out << "Version: v2.16.0\n";
+    out << "Exported at: "
+        << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    out << "Recorded events: " << m_liveMidiRecordedCount << "\n";
+    out << "Note: Session recording captures received Live MIDI events while "
+           "recording is active.\n\n";
+    for (const auto &ev : m_liveMidiRecording) {
+      out << "[" << ev.timestamp << "s] " << ev.bytesHex << " | "
+          << ev.description << " | Type: " << ev.messageType;
+      if (ev.channel != -1) {
+        out << " | Channel: " << ev.channel;
+      }
+      if (!ev.umpPreview.isEmpty()) {
+        out << " | UMP: " << ev.umpPreview;
+      }
+      out << "\n";
+    }
+    file.close();
+    logMessage("Sessão MIDI gravada exportada com sucesso (TXT).");
+  } else {
+    logMessage("Erro ao exportar Sessão MIDI gravada (TXT).");
+  }
+}
+
+void MainWindow::exportSessionCsv() {
+  if (m_liveMidiRecording.isEmpty()) {
+    logMessage("Erro: Não há eventos gravados na sessão para exportar.");
+    return;
+  }
+  QString fileName = QFileDialog::getSaveFileName(
+      this, "Exportar Sessão MIDI CSV",
+      QDir::homePath() + "/LiveMidiSession.csv", "CSV Files (*.csv)");
+  if (fileName.isEmpty())
+    return;
+  QFile file(fileName);
+  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    QTextStream out(&file);
+    out.setEncoding(QStringConverter::Utf8);
+    out << "timestamp;bytes_hex;description;message_type;channel;ump_preview\n";
+    for (const auto &ev : m_liveMidiRecording) {
+      QString desc = ev.description;
+      desc.replace("\"", "\"\"");
+      out << ev.timestamp << ";" << ev.bytesHex << ";\"" << desc << "\";\""
+          << ev.messageType << "\";";
+      if (ev.channel != -1) {
+        out << ev.channel;
+      }
+      out << ";\"" << ev.umpPreview << "\"\n";
+    }
+    file.close();
+    logMessage("Sessão MIDI gravada exportada com sucesso (CSV).");
+  } else {
+    logMessage("Erro ao exportar Sessão MIDI gravada (CSV).");
+  }
+}

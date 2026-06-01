@@ -20,6 +20,15 @@ struct LiveMidiLogEntry {
     QString umpPreview;
 };
 
+struct LiveMidiRecordedEvent {
+    QString timestamp;
+    QString bytesHex;
+    QString description;
+    QString messageType;
+    int channel = -1;
+    QString umpPreview;
+};
+
 struct LiveMidiStats {
     quint64 received = 0;
     quint64 displayed = 0;
@@ -68,6 +77,11 @@ private slots:
     void clearLiveMidiLogClicked();
     void exportLiveTxtClicked();
     void exportLiveCsvClicked();
+    void startSessionRecording();
+    void stopSessionRecording();
+    void clearSessionRecording();
+    void exportSessionTxt();
+    void exportSessionCsv();
 
 private:
     void setupUi();
@@ -113,6 +127,14 @@ private:
     QPushButton* m_exportLiveTxtBtn;
     QPushButton* m_exportLiveCsvBtn;
     
+    QPushButton* m_startSessionBtn;
+    QPushButton* m_stopSessionBtn;
+    QPushButton* m_clearSessionBtn;
+    QPushButton* m_exportSessionTxtBtn;
+    QPushButton* m_exportSessionCsvBtn;
+    QLabel* m_sessionStatusLabel;
+    QLabel* m_sessionCountLabel;
+    
     QComboBox* m_liveMidiTypeFilterCombo;
     QComboBox* m_liveMidiChannelFilterCombo;
     class QCheckBox* m_treatNoteOnZeroAsOffCb;
@@ -135,4 +157,8 @@ private:
     
     LiveMidiStats m_liveMidiStats;
     qint64 m_liveMidiSessionStartTimeMs = 0;
+    
+    QVector<LiveMidiRecordedEvent> m_liveMidiRecording;
+    bool m_isLiveMidiRecording = false;
+    quint64 m_liveMidiRecordedCount = 0;
 };
