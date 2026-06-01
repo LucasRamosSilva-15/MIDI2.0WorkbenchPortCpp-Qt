@@ -1,6 +1,6 @@
 # Live MIDI Backend Architecture Plan
 
-**Versão Atual:** v2.13.0 (Live MIDI 1.0 to UMP preview)
+**Versão Atual:** v2.14.0 (Live UMP preview table)
 
 ## Objetivo
 Preparar a fundação de código para receber mensagens MIDI ao vivo vindas de hardwares, sem acoplar a UI diretamente a nenhuma biblioteca específica de áudio/MIDI.

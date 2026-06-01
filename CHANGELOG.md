@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.14.0 - Live UMP preview table
+- Adicionada tabela visual "Live UMP Preview Table" na aba Live MIDI Monitor para exibir as conversões em tempo real.
+- Layout reestruturado utilizando um `QSplitter` vertical, permitindo redimensionar a nova tabela e o log original.
+- A tabela separa estruturalmente dados do UMP: Timestamp, Bytes, UMP Word, MT, Group, Status e Channel.
+- O botão "Limpar Live Log" agora também limpa o histórico da tabela de preview.
+
 ## v2.13.0 - Live MIDI 1.0 to UMP preview
 - Adicionada prévia experimental de conversão de mensagens Live MIDI 1.0 para UMP (MIDI 1.0 Channel Voice, MT 0x2).
 - Checkbox na aba Live MIDI Monitor permite ligar/desligar a exibição da UMP word (32 bits) no log da interface.

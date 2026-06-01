@@ -64,7 +64,6 @@ private slots:
     void refreshMidiPortsClicked();
     void openMidiPortClicked();
     void closeMidiPortClicked();
-    void pollLiveMidi();
     void pauseLiveMidiClicked();
     void clearLiveMidiLogClicked();
     void exportLiveTxtClicked();
@@ -75,10 +74,13 @@ private:
     void logMessage(const QString& msg);
     void updateDiagnostics();
     void updateLiveMidiStatus();
-    
+    void pollLiveMidi();
     void updateLiveMidiStats(const struct Midi1DecodedMessage& decoded, bool displayed);
     void refreshLiveMidiStatsUi();
     void resetLiveMidiStats();
+    
+    void addLiveUmpPreviewRow(const QString& timestamp, const QString& midiBytes, const struct Midi1ToUmpPreviewResult& result, const struct Midi1DecodedMessage& decoded);
+    void clearLiveUmpPreviewTable();
     
     QString m_currentFile;
     QString m_lastOperation;
@@ -122,6 +124,7 @@ private:
     class QCheckBox* m_umpPreviewCb;
     QLabel* m_umpPreviewLabel;
     
+    QTableWidget* m_liveUmpPreviewTable;
     QTextEdit* m_liveMidiLog;
     QTimer* m_liveMidiTimer;
 

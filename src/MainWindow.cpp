@@ -17,10 +17,15 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QPushButton>
 #include <QRegularExpression>
+#include <QSplitter>
 #include <QStringList>
 #include <QTabWidget>
+#include <QTextEdit>
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -66,8 +71,9 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.13.0)");
-  resize(900, 600);
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.14.0)");
+  setMinimumSize(1100, 700);
+  resize(1600, 1000);
 
   QWidget *centralWidget = new QWidget(this);
   setCentralWidget(centralWidget);
@@ -195,6 +201,16 @@ void MainWindow::setupUi() {
   m_liveMidiLog->setPlaceholderText(
       "Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
 
+  m_liveUmpPreviewTable = new QTableWidget(this);
+  m_liveUmpPreviewTable->setColumnCount(8);
+  m_liveUmpPreviewTable->setHorizontalHeaderLabels(
+      {"Timestamp", "MIDI Bytes", "UMP Word", "MT", "Group", "Status", "Channel", "Description"});
+  m_liveUmpPreviewTable->horizontalHeader()->setStretchLastSection(true);
+  m_liveUmpPreviewTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+  m_liveUmpPreviewTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  m_liveUmpPreviewTable->verticalHeader()->setVisible(false);
+
+
   QHBoxLayout *liveMidiFiltersLayout = new QHBoxLayout();
   QLabel *typeLabel = new QLabel("Tipo:", this);
   m_liveMidiTypeFilterCombo = new QComboBox(this);
@@ -251,8 +267,11 @@ void MainWindow::setupUi() {
   umpPreviewLayout->addSpacing(20);
   umpPreviewLayout->addWidget(m_umpPreviewLabel, 1);
   liveMidiMainLayout->addWidget(umpPreviewGroup);
-
-  liveMidiMainLayout->addWidget(m_liveMidiLog, 1);
+  QSplitter *liveSplitter = new QSplitter(Qt::Vertical, this);
+  liveSplitter->addWidget(m_liveUmpPreviewTable);
+  liveSplitter->addWidget(m_liveMidiLog);
+  liveSplitter->setSizes({600, 400});
+  liveMidiMainLayout->addWidget(liveSplitter, 1);
 
 #ifndef USE_RTMIDI
   QLabel *rtMidiWarning = new QLabel(
@@ -292,7 +311,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.13.0</p>"
+      "<p><b>Versão:</b> v2.14.0</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
       "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
       "1.0.</p>"
@@ -802,7 +821,7 @@ void MainWindow::pollLiveMidi() {
 
         if (typePasses && channelPasses) {
           m_liveMidiStats.displayed++;
-          
+
           QString msg = QString("[%1s] %2 | %3")
                             .arg(ev.timestamp, 0, 'f', 3)
                             .arg(hexStr.trimmed(), -8)
@@ -813,13 +832,15 @@ void MainWindow::pollLiveMidi() {
           entry.bytesHex = hexStr.trimmed();
           entry.description = decodedMsg.description;
 
-          Midi1ToUmpPreviewResult previewResult = Midi1ToUmpPreviewConverter::convert(ev.midi1Bytes);
+          Midi1ToUmpPreviewResult previewResult =
+              Midi1ToUmpPreviewConverter::convert(ev.midi1Bytes);
           if (previewResult.supported) {
               entry.umpPreview = previewResult.umpHex;
               m_umpPreviewLabel->setText(QString("Último UMP Gerado: %1").arg(previewResult.umpHex));
               if (m_umpPreviewCb->isChecked()) {
                   msg += " | UMP: " + previewResult.umpHex;
               }
+              addLiveUmpPreviewRow(entry.timestamp, entry.bytesHex, previewResult, decodedMsg);
           } else {
               entry.umpPreview = "";
               m_umpPreviewLabel->setText("Último UMP Gerado: " + previewResult.reason);
@@ -856,6 +877,44 @@ void MainWindow::pollLiveMidi() {
 #endif
 }
 
+void MainWindow::addLiveUmpPreviewRow(const QString& timestamp, const QString& midiBytes, const Midi1ToUmpPreviewResult& result, const Midi1DecodedMessage& decoded) {
+    if (!m_liveUmpPreviewTable) return;
+    
+    int row = m_liveUmpPreviewTable->rowCount();
+    m_liveUmpPreviewTable->insertRow(row);
+    
+    QTableWidgetItem* itemTimestamp = new QTableWidgetItem(timestamp);
+    QTableWidgetItem* itemBytes = new QTableWidgetItem(midiBytes);
+    QTableWidgetItem* itemUmp = new QTableWidgetItem(result.umpHex);
+    QTableWidgetItem* itemMt = new QTableWidgetItem(QString("0x%1").arg((result.umpWord >> 28) & 0xF, 1, 16).toUpper());
+    QTableWidgetItem* itemGroup = new QTableWidgetItem(QString::number((result.umpWord >> 24) & 0xF));
+    QTableWidgetItem* itemStatus = new QTableWidgetItem(QString("0x%1 %2").arg((result.umpWord >> 16) & 0xF0, 2, 16, QChar('0')).toUpper().arg(decoded.messageType));
+    QTableWidgetItem* itemChannel = new QTableWidgetItem(QString::number(decoded.channel));
+    QTableWidgetItem* itemDesc = new QTableWidgetItem(decoded.description);
+    
+    m_liveUmpPreviewTable->setItem(row, 0, itemTimestamp);
+    m_liveUmpPreviewTable->setItem(row, 1, itemBytes);
+    m_liveUmpPreviewTable->setItem(row, 2, itemUmp);
+    m_liveUmpPreviewTable->setItem(row, 3, itemMt);
+    m_liveUmpPreviewTable->setItem(row, 4, itemGroup);
+    m_liveUmpPreviewTable->setItem(row, 5, itemStatus);
+    m_liveUmpPreviewTable->setItem(row, 6, itemChannel);
+    m_liveUmpPreviewTable->setItem(row, 7, itemDesc);
+    
+    m_liveUmpPreviewTable->scrollToBottom();
+    
+    if (m_liveUmpPreviewTable->rowCount() > 1000) {
+        m_liveUmpPreviewTable->removeRow(0);
+    }
+}
+
+void MainWindow::clearLiveUmpPreviewTable() {
+    if (m_liveUmpPreviewTable) {
+        m_liveUmpPreviewTable->setRowCount(0);
+        m_umpPreviewLabel->setText("Último UMP Gerado: Nenhum");
+    }
+}
+
 void MainWindow::pauseLiveMidiClicked() {
   m_isLiveMidiPaused = !m_isLiveMidiPaused;
   if (m_isLiveMidiPaused) {
@@ -868,6 +927,7 @@ void MainWindow::pauseLiveMidiClicked() {
 
 void MainWindow::clearLiveMidiLogClicked() {
   m_liveMidiLog->clear();
+  clearLiveUmpPreviewTable();
   m_liveMidiEvents.clear();
   resetLiveMidiStats();
   m_liveMidiSessionStartTimeMs = QDateTime::currentMSecsSinceEpoch();
@@ -936,9 +996,12 @@ void MainWindow::exportLiveTxtClicked() {
   out << "Live MIDI Log:\n";
 
   for (const auto &ev : m_liveMidiEvents) {
-    QString line = QString("[%1s] %2 | %3").arg(ev.timestamp).arg(ev.bytesHex).arg(ev.description);
+    QString line = QString("[%1s] %2 | %3")
+                       .arg(ev.timestamp)
+                       .arg(ev.bytesHex)
+                       .arg(ev.description);
     if (m_umpPreviewCb->isChecked() && !ev.umpPreview.isEmpty()) {
-        line += " | UMP: " + ev.umpPreview;
+      line += " | UMP: " + ev.umpPreview;
     }
     out << line << "\n";
   }
@@ -980,7 +1043,8 @@ void MainWindow::exportLiveCsvClicked() {
   for (const auto &ev : m_liveMidiEvents) {
     QString desc = ev.description;
     desc.replace("\"", "\"\"");
-    out << ev.timestamp << ";" << ev.bytesHex << ";\"" << desc << "\";" << ev.umpPreview << "\n";
+    out << ev.timestamp << ";" << ev.bytesHex << ";\"" << desc << "\";"
+        << ev.umpPreview << "\n";
   }
 
   file.close();
