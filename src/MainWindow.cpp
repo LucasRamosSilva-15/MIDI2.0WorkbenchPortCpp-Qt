@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.18.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.19.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -336,7 +336,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.18.0</p>"
+      "<p><b>Versão:</b> v2.19.0</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
       "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
       "1.0.</p>"
@@ -1426,7 +1426,9 @@ LiveMidiSessionSummary MainWindow::buildLiveMidiSessionSummary() const {
   return summary;
 }
 
-QString MainWindow::formatRecordedExample(const QString& title, bool hasEvent, const LiveMidiRecordedEvent& event) const {
+QString
+MainWindow::formatRecordedExample(const QString &title, bool hasEvent,
+                                  const LiveMidiRecordedEvent &event) const {
   QString out;
   QTextStream stream(&out);
   if (hasEvent) {
@@ -1447,29 +1449,39 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v2.18.0\n";
+  stream << "Version: v2.19.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
 
   stream << "2. Purpose\n";
-  stream << "--------------------------------------------------------------------------------\n";
-  stream << "This report summarizes a recorded Live MIDI session captured through the\n"
-            "experimental RtMidi backend. It is intended to document received MIDI 1.0\n"
-            "messages, their decoded types/channels, and their optional UMP MIDI 1.0\n"
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
+  stream << "This report summarizes a recorded Live MIDI session captured "
+            "through the\n"
+            "experimental RtMidi backend. It is intended to document received "
+            "MIDI 1.0\n"
+            "messages, their decoded types/channels, and their optional UMP "
+            "MIDI 1.0\n"
             "Channel Voice preview.\n\n";
 
   stream << "3. Methodology\n";
-  stream << "--------------------------------------------------------------------------------\n";
-  stream << "- The session recording captures received Live MIDI events while recording is active.\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
+  stream << "- The session recording captures received Live MIDI events while "
+            "recording is active.\n";
   stream << "- Recording is independent from visual filters.\n";
   stream << "- Recording can continue while the visual monitor is paused.\n";
-  stream << "- Each received MIDI 1.0 event is decoded using Midi1LiveDecoder.\n";
-  stream << "- Supported Channel Voice events may receive an UMP Preview using Midi1ToUmpPreviewConverter.\n\n";
+  stream
+      << "- Each received MIDI 1.0 event is decoded using Midi1LiveDecoder.\n";
+  stream << "- Supported Channel Voice events may receive an UMP Preview using "
+            "Midi1ToUmpPreviewConverter.\n\n";
 
   stream << "4. Session Overview\n";
-  stream << "--------------------------------------------------------------------------------\n";
-  stream << "- Recording status: " << (m_isLiveMidiRecording ? "Active" : "Stopped") << "\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
+  stream << "- Recording status: "
+         << (m_isLiveMidiRecording ? "Active" : "Stopped") << "\n";
   stream << "- Recorded events: " << summary.totalEvents << "\n";
   stream << "- Events with UMP Preview: " << summary.umpSupported << "\n";
   stream << "- Events without UMP Preview: " << summary.umpUnsupported << "\n";
@@ -1480,19 +1492,33 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
          << " seconds\n\n";
 
   stream << "5. Message Type Distribution\n";
-  stream << "--------------------------------------------------------------------------------\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
   stream << "- Note On: " << summary.byType.value("Note On", 0) << "\n";
   stream << "- Note Off: " << summary.byType.value("Note Off", 0) << "\n";
-  stream << "- Control Change: " << summary.byType.value("Control Change", 0) << "\n";
-  stream << "- Program Change: " << summary.byType.value("Program Change", 0) << "\n";
+  stream << "- Control Change: " << summary.byType.value("Control Change", 0)
+         << "\n";
+  stream << "- Program Change: " << summary.byType.value("Program Change", 0)
+         << "\n";
   stream << "- Pitch Bend: " << summary.byType.value("Pitch Bend", 0) << "\n";
-  stream << "- Poly Aftertouch: " << summary.byType.value("Poly Aftertouch", 0) << "\n";
-  stream << "- Channel Aftertouch: " << summary.byType.value("Channel Aftertouch", 0) << "\n";
-  stream << "- System/Common/Real-Time: " << summary.byType.value("System/Common/Real-Time", 0) << "\n";
+  stream << "- Poly Aftertouch: " << summary.byType.value("Poly Aftertouch", 0)
+         << "\n";
+  stream << "- Channel Aftertouch: "
+         << summary.byType.value("Channel Aftertouch", 0) << "\n";
+  stream << "- System/Common/Real-Time: "
+         << summary.byType.value("System/Common/Real-Time", 0) << "\n";
 
-  QStringList standardTypes = {"Note On", "Note Off", "Control Change", "Program Change", "Pitch Bend", "Poly Aftertouch", "Channel Aftertouch", "System/Common/Real-Time"};
+  QStringList standardTypes = {"Note On",
+                               "Note Off",
+                               "Control Change",
+                               "Program Change",
+                               "Pitch Bend",
+                               "Poly Aftertouch",
+                               "Channel Aftertouch",
+                               "System/Common/Real-Time"};
   int unknownCount = 0;
-  for (auto it = summary.byType.constBegin(); it != summary.byType.constEnd(); ++it) {
+  for (auto it = summary.byType.constBegin(); it != summary.byType.constEnd();
+       ++it) {
     if (!standardTypes.contains(it.key())) {
       unknownCount += it.value();
     }
@@ -1500,43 +1526,68 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   stream << "- Unknown/Unsupported: " << unknownCount << "\n\n";
 
   stream << "6. Channel Distribution\n";
-  stream << "--------------------------------------------------------------------------------\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
   for (int i = 0; i < 16; ++i) {
     stream << "- Ch " << (i + 1) << ": " << summary.byChannel[i] << "\n";
   }
   stream << "- No channel/System: " << summary.noChannel << "\n\n";
 
   stream << "7. UMP Preview Summary\n";
-  stream << "--------------------------------------------------------------------------------\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
   stream << "- Supported UMP Preview events: " << summary.umpSupported << "\n";
   stream << "- Unsupported for UMP Preview: " << summary.umpUnsupported << "\n";
   stream << "- UMP format used: MIDI 1.0 Channel Voice in UMP\n";
   stream << "- Message Type used: 0x2\n";
   stream << "- Default Group: 0\n";
-  stream << "- Important: This report does not demonstrate MIDI 2.0 Channel Voice MT 0x4 conversion.\n\n";
+  stream << "- Important: This report does not demonstrate MIDI 2.0 Channel "
+            "Voice MT 0x4 conversion.\n\n";
 
   stream << "8. Representative Examples\n";
-  stream << "--------------------------------------------------------------------------------\n";
-  stream << formatRecordedExample("Note On", summary.hasFirstNoteOn, summary.firstNoteOn) << "\n\n";
-  stream << formatRecordedExample("Note Off", summary.hasFirstNoteOff, summary.firstNoteOff) << "\n\n";
-  stream << formatRecordedExample("Control Change", summary.hasFirstControlChange, summary.firstControlChange) << "\n\n";
-  stream << formatRecordedExample("Program Change", summary.hasFirstProgramChange, summary.firstProgramChange) << "\n\n";
-  stream << formatRecordedExample("Pitch Bend", summary.hasFirstPitchBend, summary.firstPitchBend) << "\n\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
+  stream << formatRecordedExample("Note On", summary.hasFirstNoteOn,
+                                  summary.firstNoteOn)
+         << "\n\n";
+  stream << formatRecordedExample("Note Off", summary.hasFirstNoteOff,
+                                  summary.firstNoteOff)
+         << "\n\n";
+  stream << formatRecordedExample("Control Change",
+                                  summary.hasFirstControlChange,
+                                  summary.firstControlChange)
+         << "\n\n";
+  stream << formatRecordedExample("Program Change",
+                                  summary.hasFirstProgramChange,
+                                  summary.firstProgramChange)
+         << "\n\n";
+  stream << formatRecordedExample("Pitch Bend", summary.hasFirstPitchBend,
+                                  summary.firstPitchBend)
+         << "\n\n";
 
   stream << "9. Limitations\n";
-  stream << "--------------------------------------------------------------------------------\n";
-  stream << "- RtMidi provides MIDI 1.0 byte streams, not native UMP packets.\n";
-  stream << "- UMP Preview currently supports only MIDI 1.0 Channel Voice messages.\n";
-  stream << "- System Common, System Real-Time and SysEx messages are not converted to UMP Preview in this version.\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
+  stream
+      << "- RtMidi provides MIDI 1.0 byte streams, not native UMP packets.\n";
+  stream << "- UMP Preview currently supports only MIDI 1.0 Channel Voice "
+            "messages.\n";
+  stream << "- System Common, System Real-Time and SysEx messages are not "
+            "converted to UMP Preview in this version.\n";
   stream << "- MIDI-CI, Property Exchange and Profiles are not implemented.\n";
-  stream << "- MIDI 2.0 Channel Voice MT 0x4 is not implemented in this preview.\n\n";
+  stream << "- MIDI 2.0 Channel Voice MT 0x4 is not implemented in this "
+            "preview.\n\n";
 
   stream << "10. Interpretation Notes\n";
-  stream << "--------------------------------------------------------------------------------\n";
-  stream << "- UMP MT 0x2 is an encapsulation of MIDI 1.0 Channel Voice messages inside a 32-bit UMP word.\n";
+  stream << "------------------------------------------------------------------"
+            "--------------\n";
+  stream << "- UMP MT 0x2 is an encapsulation of MIDI 1.0 Channel Voice "
+            "messages inside a 32-bit UMP word.\n";
   stream << "- The preview word is built as:\n";
-  stream << "  0x20000000 | (group << 24) | (status << 16) | (data1 << 8) | data2\n";
-  stream << "- For 2-byte MIDI messages such as Program Change and Channel Aftertouch, data2 is padded with 0.\n";
+  stream << "  0x20000000 | (group << 24) | (status << 16) | (data1 << 8) | "
+            "data2\n";
+  stream << "- For 2-byte MIDI messages such as Program Change and Channel "
+            "Aftertouch, data2 is padded with 0.\n";
 
   return out;
 }

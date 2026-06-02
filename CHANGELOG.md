@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v2.19.0 - TCC documentation package
+- Added TCC-focused documentation package
+- Added demo guide
+- Added architecture overview
+- Added Live MIDI to UMP explanation
+- Added known limitations document
+- Added test plan
+- Added v2 release summary
+
 ## v2.18.0 - Live MIDI session report polishing
 - Refinamento textual e visual do relatório de sessão Live MIDI, agregando formato acadêmico, propósito, metodologia, e melhorias de legibilidade.
 - Exemplos representativos formatados estruturalmente com indentação, bytes e decodificação descritiva.

@@ -78,6 +78,14 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 ```
 *(Você pode usar a flag opcional `-SkipBuild` caso já tenha rodado o CMake antes e queira apenas os resultados do binário).*
 
+## Documentation
+- [TCC Demo Guide](docs/tcc_demo_guide.md)
+- [Live MIDI to UMP Explanation](docs/live_midi_to_ump_explanation.md)
+- [Known Limitations](docs/known_limitations.md)
+- [Project Architecture Overview](docs/project_architecture_overview.md)
+- [Test Plan](docs/test_plan.md)
+- [Release Summary v2](docs/release_summary_v2.md)
+
 ## Roadmap
 O que esperar para as próximas evoluções (*Pós-MVP*):
 - Investigação controlada para integração com interfaces UMP MIDI via OS (Windows MIDI Services).
