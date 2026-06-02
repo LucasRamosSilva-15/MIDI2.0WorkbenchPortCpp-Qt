@@ -1,23 +1,29 @@
-# BEM VINDO AO MIDI UMP ANALYZER OFFLINE
+# BEM VINDO AO MIDI UMP ANALYZER
 
-Siga os passos abaixo para utilizar o aplicativo imediatamente:
+Este guia o ajudará a utilizar as duas versões do aplicativo disponíveis no pacote ZIP:
 
-1. EXTRAIA O ARQUIVO ZIP. Não rode o aplicativo de dentro do WinRAR/ZIP.
-2. Abra o arquivo 'Start-MidiUmpAnalyzer.bat' ou o executável 'MidiUmpAnalyzer.exe'.
-3. Cole as suas mensagens hexadecimais de Universal MIDI Packets na caixa superior.
-4. Clique no botão "Interpret" para processar a tabela em tempo real.
-5. (Opcional) Utilize a barra suspensa de Exemplos no topo da janela para selecionar um dos logs didáticos (SysEx, Flex, Voice, etc).
-6. Clique no botão "Carregar exemplo" e em seguida "Interpret" para ver o resultado prático.
-7. Use o botão "Copiar Tabela" (Copy Table) para extrair os resultados- Exportar Resultados:
-  A barra superior contém ferramentas ricas de exportação que respeitam o que está aparecendo no momento na tabela (filtro visual).
-  -> Exportar TXT: Cria um relatório amplo em texto simples (Data/Hora, Estatísticas e Tabela Completa para leitura fácil).
-  -> Exportar CSV: Salva a tabela formatada (separada por ponto-e-vírgula) para abrir diretamente no Excel/Google Sheets.
-  -> Copiar Tabela: Joga o grid para a área de transferência do Windows para colar onde quiser.
+--- MODO 1: OFFLINE UMP ANALYZER (Build Normal) ---
+Ideal para desenvolvedores depurando tráfego hexadecimal puro de pacotes MIDI 2.0 (MT 0x2, 0x4, SysEx, UMP Stream).
+1. Abra 'MidiUmpAnalyzer.exe'.
+2. Selecione a aba "Offline UMP Analyzer".
+3. Use a barra suspensa e clique em "Carregar exemplo" (ex: "tcc_demo_midi1_to_ump.txt").
+4. Clique em "Interpret" para gerar a tabela estruturada das UMP Words.
+5. Use "Export CSV/TXT" para guardar a tabela processada.
 
-Se o arquivo não abrir, certifique-se de que a pasta foi devidamente extraída.
+--- MODO 2: LIVE MIDI MONITOR (Build -rtmidi) ---
+Ideal para demonstrações de interceptação de sinal real, testando hardwares antigos MIDI 1.0.
+1. Abra o executável contido no ZIP finalizado com "-rtmidi".
+2. Selecione a aba "Live MIDI Monitor".
+3. Clique em "Atualizar portas MIDI" e selecione o seu dispositivo de hardware.
+4. Clique em "Abrir porta". A luz indicará sucesso na conexão.
+5. Pressione as teclas do instrumento: observe os bytes crus decodificados no log e a UMP Preview de 32-bits (MT 0x2) populando o grid.
 
-* Dica Pro: Você pode adicionar comentários livres nos arquivos de exemplo usando o caractere '#' no início da linha ou no fim de um pacote.
-* Dica Pro 2: Você pode enviar múltiplos testes de uma vez separando-os por linhas em branco. O app processará cada bloco individualmente e exibirá todos os resultados/erros de uma vez só no log.
+--- GRAVAÇÃO DE SESSÃO (Session Recording) ---
+Para salvar grandes performances sem que os limites e travamentos de interface interrompam os logs:
+1. Na aba Live MIDI Monitor, pressione "Iniciar Gravação".
+2. Toque sua música/trecho à vontade no hardware físico.
+3. Clique em "Parar Gravação".
+4. Pressione "Exportar Resumo da Sessão". Será gerado um txt sumário matemático para o seu TCC.
+* Dica técnica: "Exportar Live TXT" extrai o que a tela mostra (afetado por filtros). Já "Exportar Resumo" condensa toda a amostragem de fundo pura contida no vetor seguro da RAM.
 
-* Lembrete Técnico:
-Este aplicativo trabalha offline em modo de diagnóstico puro. Ele não lê sinais elétricos MIDI ou emite áudio via Windows/USB. Ele serve exclusivamente para auditar strings de rede ou desenvolvedores depurando o próprio fluxo MIDI UMP.
+Aviso Crítico: Se o aplicativo acusar falta de DLLs, certifique-se de que a pasta foi devidamente extraída. Não rode o .exe compactado diretamente de dentro do WinZIP/RAR.

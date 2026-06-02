@@ -5,7 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
 
-**Versão:** v2.18.0 - Live MIDI session report polishing
+**Versão:** v2.20.0 - Polish TCC demo materials
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
@@ -78,8 +78,10 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 ```
 *(Você pode usar a flag opcional `-SkipBuild` caso já tenha rodado o CMake antes e queira apenas os resultados do binário).*
 
-## Documentation
+## TCC Demo
 - [TCC Demo Guide](docs/tcc_demo_guide.md)
+- [TCC Demo Script](docs/demo_script_short.md)
+- [TCC Screenshots Guide](docs/screenshots_guide.md)
 - [Live MIDI to UMP Explanation](docs/live_midi_to_ump_explanation.md)
 - [Known Limitations](docs/known_limitations.md)
 - [Project Architecture Overview](docs/project_architecture_overview.md)

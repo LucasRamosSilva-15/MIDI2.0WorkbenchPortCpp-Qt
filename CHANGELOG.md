@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v2.20.0 - TCC demo polishing
+- Improved About / Help text for presentation use.
+- Added screenshots guide.
+- Added short demo script.
+- Added TCC demo sample (tcc_demo_midi1_to_ump.txt).
+- Updated README demo links.
+- Updated quick start instructions.
+
 ## v2.19.0 - TCC documentation package
 - Added TCC-focused documentation package
 - Added demo guide

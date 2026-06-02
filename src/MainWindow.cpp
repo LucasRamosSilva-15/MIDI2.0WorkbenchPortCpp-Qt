@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.19.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.20.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -336,30 +336,37 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.19.0</p>"
-      "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
-      "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
-      "1.0.</p>"
-      "<h3>Limitações Conhecidas</h3>"
+      "<p><b>Versão:</b> v2.20.0</p>"
+      "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
+      "Packets (UMP) "
+      "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
+
+      "<h3>Offline UMP Analyzer</h3>"
+      "<p>Módulo analítico principal. Disseca hexadecimais puros representando "
+      "pacotes UMP de 32 a 128 bits "
+      "(MT 0x2, 0x4, SysEx, UMP Stream), validando blocos e campos nativos do "
+      "MIDI 2.0 em relatórios isolados.</p>"
+
+      "<h3>Live MIDI Monitor</h3>"
+      "<p>Módulo prático e experimental alimentado pelo backend <b>RtMidi</b>. "
+      "O driver recebe "
+      "<i>Bytes Crus MIDI 1.0</i> (ex: 90 3C 7F) diretamente do hardware "
+      "físico.</p>"
       "<ul>"
-      "<li>Não é um Host MIDI completo ou Sequencer.</li>"
-      "<li>Não implementa MIDI-CI (Capability Inquiry).</li>"
-      "<li>Não implementa UMP Property Exchange.</li>"
-      "<li>Não recebe nem transmite UMP real via endpoints USB MIDI 2.0 "
-      "nativos ainda.</li>"
-      "<li>O módulo RtMidi é experimental e focado em ler e decodificar "
-      "passivamente Bytes Crus do MIDI 1.0.</li>"
+      "<li><b>UMP Preview:</b> Traduz mensagens MIDI 1.0 Channel Voice para "
+      "uma word UMP de 32-bits (<b>Message Type 0x2</b>).</li>"
+      "<li><b>O que NÃO faz:</b> Não promove conversão pseudo-MIDI 2.0 (MT "
+      "0x4), não atua como MIDI-CI ou Property Exchange, nem intercepta driver "
+      "UMP real do S.O.</li>"
       "</ul>"
-      "<h3>Instruções - Offline UMP Analyzer</h3>"
-      "<p>Cole os blocos hexadecimais de pacotes UMP na aba Offline (ou abra "
-      "um arquivo TXT de log de console). Clique em 'Interpretar' para "
-      "visualizar o detalhamento completo dos campos MIDI 2.0/MIDI 1.0 "
-      "empacotados na tabela estática.</p>"
-      "<h3>Instruções - Live MIDI Monitor</h3>"
-      "<p>Na versão compilada com RtMidi (experimental), selecione sua "
-      "interface MIDI 1.0 de entrada, abra a porta e acompanhe os bytes Note "
-      "On/Off e CCs entrarem na tela em tempo real. Você pode aplicar filtros "
-      "para exibir somente os eventos desejados.</p>");
+
+      "<h3>Gravações e Relatórios</h3>"
+      "<p>A aba Live permite acionar a <b>Session Recording</b>, um cofre na "
+      "memória RAM invisível aos filtros "
+      "e limites de interface (1000 linhas). Ao exportar o <b>Session Summary "
+      "Report</b>, um sumário matemático denso é gerado, o que é fundamental "
+      "para depuração forense ou documentação em TCC.</p>");
+
   aboutLayout->addWidget(aboutText);
   tabWidget->addTab(tabAbout, "About / Help");
 
@@ -1449,7 +1456,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v2.19.0\n";
+  stream << "Version: v2.20.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
