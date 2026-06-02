@@ -123,6 +123,7 @@ private:
     
     LiveMidiSessionSummary buildLiveMidiSessionSummary() const;
     QString formatLiveMidiSessionSummaryReport(const LiveMidiSessionSummary& summary) const;
+    QString formatRecordedExample(const QString& title, bool hasEvent, const LiveMidiRecordedEvent& event) const;
 
     QString m_currentFile;
     QString m_lastOperation;

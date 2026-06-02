@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v2.18.0 - Live MIDI session report polishing
+- Refinamento textual e visual do relatório de sessão Live MIDI, agregando formato acadêmico, propósito, metodologia, e melhorias de legibilidade.
+- Exemplos representativos formatados estruturalmente com indentação, bytes e decodificação descritiva.
+- Declarações explícitas sobre limitações de conversão (somente UMP MT 0x2, sem MT 0x4 ou mensagens de sistema).
+
+## v2.17.0 - Live MIDI session summary report
+- Adicionada funcionalidade de exportação de um relatório analítico resumido em formato TXT sobre a sessão Live MIDI gravada.
+- O relatório agrega totais de eventos, contagens por tipo e canal, e captura dinamicamente o primeiro evento de cada categoria (Note On, Note Off, CC, etc.) para exemplificação.
+
+## v2.16.0 - Live MIDI session recording
+- Implementado sistema de gravação em memória paralela (`m_liveMidiRecording`), independente do buffer visual da interface.
+- Adicionados controles dedicados (Iniciar Gravação, Parar Gravação, Limpar Sessão, Exportar TXT/CSV).
+- A gravação preserva todos os eventos sem ser afetada pelo limite visual ou pela pausa da interface gráfica.
+
+## v2.15.0 - Live Monitor layout refinement
+- Refinamento do layout da aba Live MIDI Monitor, otimizando proporções do QSplitter e adicionando scroll areas para melhor suporte a monitores menores.
+- Reorganização e espaçamento dos componentes de Live MIDI e UMP Preview.
+
 ## v2.14.0 - Live UMP preview table
 - Adicionada tabela visual "Live UMP Preview Table" na aba Live MIDI Monitor para exibir as conversões em tempo real.
 - Layout reestruturado utilizando um `QSplitter` vertical, permitindo redimensionar a nova tabela e o log original.
