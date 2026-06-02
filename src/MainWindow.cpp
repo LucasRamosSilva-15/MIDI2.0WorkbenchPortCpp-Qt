@@ -71,9 +71,9 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.16.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.17.0)");
   setMinimumSize(1100, 700);
-  resize(1400, 1000);
+  resize(1600, 900);
 
   QWidget *centralWidget = new QWidget(this);
   setCentralWidget(centralWidget);
@@ -205,6 +205,8 @@ void MainWindow::setupUi() {
   m_clearSessionBtn = new QPushButton("Limpar Sessão", this);
   m_exportSessionTxtBtn = new QPushButton("Exportar Sessão TXT", this);
   m_exportSessionCsvBtn = new QPushButton("Exportar Sessão CSV", this);
+  m_exportSessionSummaryBtn =
+      new QPushButton("Exportar Resumo da Sessão", this);
 
   sessionLayout->addWidget(m_sessionStatusLabel);
   sessionLayout->addWidget(m_sessionCountLabel);
@@ -215,6 +217,7 @@ void MainWindow::setupUi() {
   sessionLayout->addStretch();
   sessionLayout->addWidget(m_exportSessionTxtBtn);
   sessionLayout->addWidget(m_exportSessionCsvBtn);
+  sessionLayout->addWidget(m_exportSessionSummaryBtn);
 
   m_liveMidiLog = new QTextEdit(this);
   m_liveMidiLog->setReadOnly(true);
@@ -333,7 +336,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.16.0</p>"
+      "<p><b>Versão:</b> v2.17.0</p>"
       "<p><b>Resumo:</b> Analisador passivo para Universal MIDI Packets (UMP) "
       "de 32 a 128 bits e monitor experimental de portas de hardware MIDI "
       "1.0.</p>"
@@ -403,6 +406,8 @@ void MainWindow::setupUi() {
           &MainWindow::exportSessionTxt);
   connect(m_exportSessionCsvBtn, &QPushButton::clicked, this,
           &MainWindow::exportSessionCsv);
+  connect(m_exportSessionSummaryBtn, &QPushButton::clicked, this,
+          &MainWindow::exportSessionSummaryClicked);
 
   auto filterChangedLog = [this]() {
     logMessage("Filtros do Live MIDI atualizados.");
@@ -1365,5 +1370,187 @@ void MainWindow::exportSessionCsv() {
     logMessage("Sessão MIDI gravada exportada com sucesso (CSV).");
   } else {
     logMessage("Erro ao exportar Sessão MIDI gravada (CSV).");
+  }
+}
+
+LiveMidiSessionSummary MainWindow::buildLiveMidiSessionSummary() const {
+  LiveMidiSessionSummary summary;
+  summary.totalEvents = m_liveMidiRecording.size();
+
+  if (summary.totalEvents == 0)
+    return summary;
+
+  summary.firstTimestamp = m_liveMidiRecording.first().timestamp;
+  summary.lastTimestamp = m_liveMidiRecording.last().timestamp;
+
+  summary.approximateDurationSeconds =
+      summary.lastTimestamp.toDouble() - summary.firstTimestamp.toDouble();
+
+  for (const auto &ev : m_liveMidiRecording) {
+    if (!ev.umpPreview.isEmpty()) {
+      summary.umpSupported++;
+    } else {
+      summary.umpUnsupported++;
+    }
+
+    summary.byType[ev.messageType]++;
+
+    if (ev.channel >= 1 && ev.channel <= 16) {
+      summary.byChannel[ev.channel - 1]++;
+    } else {
+      summary.noChannel++;
+    }
+
+    if (!summary.hasFirstNoteOn && ev.messageType == "Note On") {
+      summary.firstNoteOn = ev;
+      summary.hasFirstNoteOn = true;
+    }
+    if (!summary.hasFirstNoteOff && ev.messageType == "Note Off") {
+      summary.firstNoteOff = ev;
+      summary.hasFirstNoteOff = true;
+    }
+    if (!summary.hasFirstControlChange && ev.messageType == "Control Change") {
+      summary.firstControlChange = ev;
+      summary.hasFirstControlChange = true;
+    }
+    if (!summary.hasFirstProgramChange && ev.messageType == "Program Change") {
+      summary.firstProgramChange = ev;
+      summary.hasFirstProgramChange = true;
+    }
+    if (!summary.hasFirstPitchBend && ev.messageType == "Pitch Bend") {
+      summary.firstPitchBend = ev;
+      summary.hasFirstPitchBend = true;
+    }
+  }
+
+  return summary;
+}
+
+QString MainWindow::formatLiveMidiSessionSummaryReport(
+    const LiveMidiSessionSummary &summary) const {
+  QString out;
+  QTextStream stream(&out);
+
+  stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
+  stream << "Version: v2.17.0\n";
+  stream << "Exported at: "
+         << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
+         << "\n\n";
+
+  stream << "--- Session Overview ---\n";
+  stream << "Recording status: "
+         << (m_isLiveMidiRecording ? "Active" : "Stopped") << "\n";
+  stream << "Recorded events: " << summary.totalEvents << "\n";
+  stream << "Events with UMP Preview: " << summary.umpSupported << "\n";
+  stream << "Events without UMP Preview: " << summary.umpUnsupported << "\n";
+  stream << "First timestamp: " << summary.firstTimestamp << "s\n";
+  stream << "Last timestamp: " << summary.lastTimestamp << "s\n";
+  stream << "Approximate duration: "
+         << QString::number(summary.approximateDurationSeconds, 'f', 3)
+         << " seconds\n\n";
+
+  stream << "--- Message Types ---\n";
+  QStringList types = {"Note On",
+                       "Note Off",
+                       "Control Change",
+                       "Program Change",
+                       "Pitch Bend",
+                       "Poly Aftertouch",
+                       "Channel Aftertouch",
+                       "System/Common/Real-Time"};
+  for (const QString &type : types) {
+    stream << "- " << type << ": " << summary.byType.value(type, 0) << "\n";
+  }
+  int unknownCount = 0;
+  for (auto it = summary.byType.constBegin(); it != summary.byType.constEnd();
+       ++it) {
+    if (!types.contains(it.key())) {
+      unknownCount += it.value();
+    }
+  }
+  stream << "- Unknown/Unsupported: " << unknownCount << "\n\n";
+
+  stream << "--- Channels ---\n";
+  for (int i = 0; i < 16; ++i) {
+    stream << "- Ch " << (i + 1) << ": " << summary.byChannel[i] << "\n";
+  }
+  stream << "- No channel/System: " << summary.noChannel << "\n\n";
+
+  stream << "--- UMP Preview ---\n";
+  stream << "- Supported UMP Preview events: " << summary.umpSupported << "\n";
+  stream << "- Unsupported for UMP Preview: " << summary.umpUnsupported << "\n";
+  stream
+      << "- UMP format used: MIDI 1.0 Channel Voice in UMP, Message Type 0x2\n";
+  stream << "- Default group: 0\n";
+  stream << "- Important note: This is not MIDI 2.0 Channel Voice MT 0x4.\n\n";
+
+  stream << "--- Representative Examples ---\n";
+  auto printExample = [&stream](const QString &title,
+                                const LiveMidiRecordedEvent &ev) {
+    stream << "- First " << title << ":\n";
+    stream << "  timestamp: " << ev.timestamp << "s\n";
+    stream << "  bytes: " << ev.bytesHex << "\n";
+    stream << "  description: " << ev.description << "\n";
+    if (!ev.umpPreview.isEmpty()) {
+      stream << "  ump: " << ev.umpPreview << "\n";
+    }
+    stream << "\n";
+  };
+
+  if (summary.hasFirstNoteOn)
+    printExample("Note On", summary.firstNoteOn);
+  if (summary.hasFirstNoteOff)
+    printExample("Note Off", summary.firstNoteOff);
+  if (summary.hasFirstControlChange)
+    printExample("Control Change", summary.firstControlChange);
+  if (summary.hasFirstProgramChange)
+    printExample("Program Change", summary.firstProgramChange);
+  if (summary.hasFirstPitchBend)
+    printExample("Pitch Bend", summary.firstPitchBend);
+
+  stream << "--- Technical Notes ---\n";
+  stream << "- Session recording captures received Live MIDI events while "
+            "recording is active.\n";
+  stream
+      << "- Session recording is independent from Live MIDI visual filters.\n";
+  stream << "- Session recording can continue while the visual monitor is "
+            "paused.\n";
+  stream << "- UMP Preview currently converts only MIDI 1.0 Channel Voice "
+            "messages to UMP MT 0x2.\n";
+  stream << "- System, SysEx and unsupported messages are not converted to UMP "
+            "Preview in this version.\n";
+
+  return out;
+}
+
+#include <QMessageBox>
+void MainWindow::exportSessionSummaryClicked() {
+  if (m_liveMidiRecording.isEmpty()) {
+    QMessageBox::information(
+        this, "Aviso",
+        "Não há eventos gravados na sessão para gerar um resumo.");
+    return;
+  }
+
+  QString fileName = QFileDialog::getSaveFileName(
+      this, "Exportar Resumo da Sessão",
+      QDir::homePath() + "/LiveMidiSessionSummary.txt", "Text Files (*.txt)");
+  if (fileName.isEmpty()) {
+    logMessage("Exportação do resumo da sessão cancelada.");
+    return;
+  }
+
+  QFile file(fileName);
+  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    LiveMidiSessionSummary summary = buildLiveMidiSessionSummary();
+    QString report = formatLiveMidiSessionSummaryReport(summary);
+
+    QTextStream out(&file);
+    out.setEncoding(QStringConverter::Utf8);
+    out << report;
+    file.close();
+    logMessage("Resumo da sessão Live MIDI exportado com sucesso.");
+  } else {
+    logMessage("Erro ao exportar Resumo da Sessão MIDI.");
   }
 }

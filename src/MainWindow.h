@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QVector>
+#include <QMap>
 #include "midi/IMidiInputBackend.h"
 
 struct LiveMidiLogEntry {
@@ -54,6 +55,29 @@ struct LiveMidiStats {
     int lastPitchBend = -1;
 };
 
+struct LiveMidiSessionSummary {
+    int totalEvents = 0;
+    int umpSupported = 0;
+    int umpUnsupported = 0;
+    QMap<QString, int> byType;
+    int byChannel[16] = {0};
+    int noChannel = 0;
+    QString firstTimestamp;
+    QString lastTimestamp;
+    double approximateDurationSeconds = 0.0;
+
+    bool hasFirstNoteOn = false;
+    LiveMidiRecordedEvent firstNoteOn;
+    bool hasFirstNoteOff = false;
+    LiveMidiRecordedEvent firstNoteOff;
+    bool hasFirstControlChange = false;
+    LiveMidiRecordedEvent firstControlChange;
+    bool hasFirstProgramChange = false;
+    LiveMidiRecordedEvent firstProgramChange;
+    bool hasFirstPitchBend = false;
+    LiveMidiRecordedEvent firstPitchBend;
+};
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -82,6 +106,7 @@ private slots:
     void clearSessionRecording();
     void exportSessionTxt();
     void exportSessionCsv();
+    void exportSessionSummaryClicked();
 
 private:
     void setupUi();
@@ -96,6 +121,9 @@ private:
     void addLiveUmpPreviewRow(const QString& timestamp, const QString& midiBytes, const struct Midi1ToUmpPreviewResult& result, const struct Midi1DecodedMessage& decoded);
     void clearLiveUmpPreviewTable();
     
+    LiveMidiSessionSummary buildLiveMidiSessionSummary() const;
+    QString formatLiveMidiSessionSummaryReport(const LiveMidiSessionSummary& summary) const;
+
     QString m_currentFile;
     QString m_lastOperation;
     
@@ -132,6 +160,7 @@ private:
     QPushButton* m_clearSessionBtn;
     QPushButton* m_exportSessionTxtBtn;
     QPushButton* m_exportSessionCsvBtn;
+    QPushButton* m_exportSessionSummaryBtn;
     QLabel* m_sessionStatusLabel;
     QLabel* m_sessionCountLabel;
     
