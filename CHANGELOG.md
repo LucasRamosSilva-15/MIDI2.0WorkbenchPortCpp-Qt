@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2.21.0 - Stability and final review
+- Conducted final stability pass for TCC presentation.
+- Added Final Review Checklist document.
+- Verified all documentation, links, and versions.
+- Preserved core architecture without adding new MIDI features.
+
 ## v2.20.0 - TCC demo polishing
 - Improved About / Help text for presentation use.
 - Added screenshots guide.

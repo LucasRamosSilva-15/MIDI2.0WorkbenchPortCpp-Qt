@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.20.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v2.21.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -336,7 +336,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v2.20.0</p>"
+      "<p><b>Versão:</b> v2.21.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
@@ -1456,7 +1456,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v2.20.0\n";
+  stream << "Version: v2.21.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";

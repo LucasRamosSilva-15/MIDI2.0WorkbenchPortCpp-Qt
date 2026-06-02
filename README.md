@@ -5,7 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
 
-**Versão:** v2.20.0 - Polish TCC demo materials
+**Versão:** v2.21.0 - Stability and final review
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
@@ -39,8 +39,8 @@ Lá você poderá baixar o pacote `.zip` compactado (ex: `MidiUmpAnalyzer-v1.1.0
 
 ## Screenshots
 
-- ![Interface Principal](docs/screenshots/Screenshot1.png)
-- ![Filtragem SysEx](docs/screenshots/Screenshot2.png)
+- ![Interface Principal](docs/screenshots/Screenshot3.png)
+- ![Filtragem SysEx](docs/screenshots/Screenshot4.png)
 
 ## Como Usar
 
@@ -87,6 +87,7 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [Project Architecture Overview](docs/project_architecture_overview.md)
 - [Test Plan](docs/test_plan.md)
 - [Release Summary v2](docs/release_summary_v2.md)
+- [Final Review Checklist](docs/final_review_checklist.md)
 
 ## Roadmap
 O que esperar para as próximas evoluções (*Pós-MVP*):
