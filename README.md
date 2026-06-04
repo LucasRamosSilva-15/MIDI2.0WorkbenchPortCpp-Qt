@@ -89,6 +89,12 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [Release Summary v2](docs/release_summary_v2.md)
 - [Final Review Checklist](docs/final_review_checklist.md)
 
+## v3.x Experimental UMP Backend Research
+- [Experimental UMP Backend Research](docs/ump_backend_research.md)
+- [UMP Backend Architecture Plan](docs/ump_backend_architecture_plan.md)
+- [Windows MIDI Services Notes](docs/windows_midi_services_notes.md)
+- [Release Summary v3](docs/release_summary_v3.md)
+
 ## Roadmap
 O que esperar para as próximas evoluções (*Pós-MVP*):
 - Investigação controlada para integração com interfaces UMP MIDI via OS (Windows MIDI Services).

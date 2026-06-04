@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v3.0.0 - Experimental MIDI 2.0/UMP backend research
+- Added experimental UMP backend research documentation.
+- Added future IumpInputBackend architecture plan.
+- Added Windows MIDI Services notes.
+- Initiated v3 release summary.
+- No functional MIDI backend changes (RtMidi kept intact).
+
 ## v2.21.0 - Stability and final review
 - Conducted final stability pass for TCC presentation.
 - Added Final Review Checklist document.
