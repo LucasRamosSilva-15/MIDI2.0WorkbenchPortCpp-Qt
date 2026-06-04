@@ -13,6 +13,7 @@
 #include <QVector>
 #include <QMap>
 #include "midi/IMidiInputBackend.h"
+#include "midi/IUmpInputBackend.h"
 
 struct LiveMidiLogEntry {
     QString timestamp;
@@ -108,6 +109,17 @@ private slots:
     void exportSessionCsv();
     void exportSessionSummaryClicked();
 
+    void refreshFakeUmpPortsClicked();
+    void openFakeUmpPortClicked();
+    void closeFakeUmpPortClicked();
+    void startFakeUmpPollingClicked();
+    void stopFakeUmpPollingClicked();
+    void clearFakeUmpClicked();
+    void pollFakeUmpBackend();
+    void logFakeUmpMessage(const QString& message);
+    void updateFakeUmpStatus();
+    void addFakeUmpEventRow(const struct UmpRawEvent& event);
+
 private:
     void setupUi();
     void logMessage(const QString& msg);
@@ -191,4 +203,13 @@ private:
     QVector<LiveMidiRecordedEvent> m_liveMidiRecording;
     bool m_isLiveMidiRecording = false;
     quint64 m_liveMidiRecordedCount = 0;
+    
+    std::unique_ptr<class IUmpInputBackend> m_fakeUmpBackend;
+    QTimer* m_fakeUmpTimer = nullptr;
+    QComboBox* m_fakeUmpPortCombo = nullptr;
+    QLabel* m_fakeUmpStatusLabel = nullptr;
+    QLabel* m_fakeUmpCounterLabel = nullptr;
+    QTableWidget* m_fakeUmpTable = nullptr;
+    QTextEdit* m_fakeUmpLog = nullptr;
+    quint64 m_fakeUmpReceivedCount = 0;
 };

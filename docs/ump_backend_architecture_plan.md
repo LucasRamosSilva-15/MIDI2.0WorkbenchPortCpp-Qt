@@ -63,3 +63,7 @@ O motor estático deve continuar a receber exclusivamente a sequência numérica
 ### Bloqueio do Callback Subjacente
 Quando a *Audio Thread* do SO (seja via WinRT no Windows ou interrupção ALSA no Linux) emitir UMP, não podemos de maneira alguma chamar código manipulador gráfico Qt (como atualizar texto de *QTableWidget*). O sistema travaria catastroficamente por violação de *Thread-Safety*. 
 O *Backend* deve se limitar a copiar os pacotes em um cache isolado e silencioso. Em paralelo, a Main Thread do Qt continuará invocando um `QTimer` para verificar a fila de maneira rítmica (`pollUmpEvents()`), recuperando pacotes em segurança no exato momento que a interface estiver ociosa.
+
+## Entregas da v3.1.0 e v3.2.0
+A versão v3.1.0 consolidou materialmente as classes propostas: criação do `UmpRawEvent`, da interface `IUmpInputBackend` e do simulador `FakeUmpInputBackend` para CTest.
+A versão v3.2.0 materializou o fluxo visual: a interface Qt agora instancia o `FakeUmpInputBackend`, executa polling passivo (500ms~1000ms via `QTimer`), decodifica o cabeçalho (*MT/Group/Size*) localmente e submete o *hexadecimal derivado* para o `UmpParser` resolver, preservando os motores legados intocados.

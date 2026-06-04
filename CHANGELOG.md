@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v3.2.0 - Fake UMP backend integration prototype
+- Added "Experimental UMP Backend" tab in UI.
+- Integrated FakeUmpInputBackend to validate UMP UI polling pipeline.
+- Visual display of extracted UmpRawEvent (MT, Group, Size).
+- Re-used UmpParser silently for deep-packet description resolution.
+- Kept Live MIDI 1.0 logic untouched and independent.
+
 ## v3.1.0 - Define UMP backend interfaces
 - Added UmpRawEvent structure.
 - Added IUmpInputBackend interface.

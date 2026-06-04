@@ -3,6 +3,7 @@
 #include "midi/Midi1LiveDecoder.h"
 #include "midi/Midi1ToUmpPreviewConverter.h"
 #include "midi/RtMidiInputBackend.h"
+#include "midi/FakeUmpInputBackend.h"
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
@@ -71,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.1.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.2.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -311,6 +312,64 @@ void MainWindow::setupUi() {
   liveLayout->addWidget(liveMidiGroup, 1);
   tabWidget->addTab(tabLive, "Live MIDI Monitor");
 
+  // --- Tab Experimental UMP Backend ---
+  QWidget *tabFakeUmp = new QWidget();
+  QVBoxLayout *fakeUmpLayout = new QVBoxLayout(tabFakeUmp);
+
+  QGroupBox *fakeBackendGroup = new QGroupBox("Fake UMP Backend", this);
+  QHBoxLayout *fakeBackendLayout = new QHBoxLayout(fakeBackendGroup);
+  
+  QPushButton *refreshFakePortsBtn = new QPushButton("Atualizar portas UMP fake", this);
+  m_fakeUmpPortCombo = new QComboBox(this);
+  QPushButton *openFakePortBtn = new QPushButton("Abrir porta fake", this);
+  QPushButton *closeFakePortBtn = new QPushButton("Fechar porta fake", this);
+  m_fakeUmpStatusLabel = new QLabel("Fechada", this);
+  m_fakeUmpStatusLabel->setStyleSheet("color: gray; font-weight: bold;");
+
+  fakeBackendLayout->addWidget(refreshFakePortsBtn);
+  fakeBackendLayout->addWidget(m_fakeUmpPortCombo, 1);
+  fakeBackendLayout->addWidget(openFakePortBtn);
+  fakeBackendLayout->addWidget(closeFakePortBtn);
+  fakeBackendLayout->addWidget(new QLabel("Status:", this));
+  fakeBackendLayout->addWidget(m_fakeUmpStatusLabel);
+
+  QGroupBox *fakeStreamGroup = new QGroupBox("Experimental UMP Stream", this);
+  QVBoxLayout *fakeStreamLayout = new QVBoxLayout(fakeStreamGroup);
+  
+  QHBoxLayout *fakeStreamControls = new QHBoxLayout();
+  QPushButton *startFakePollingBtn = new QPushButton("Iniciar polling", this);
+  QPushButton *stopFakePollingBtn = new QPushButton("Parar polling", this);
+  QPushButton *clearFakeUmpBtn = new QPushButton("Limpar UMP experimental", this);
+  m_fakeUmpCounterLabel = new QLabel("Eventos: 0", this);
+
+  fakeStreamControls->addWidget(startFakePollingBtn);
+  fakeStreamControls->addWidget(stopFakePollingBtn);
+  fakeStreamControls->addWidget(clearFakeUmpBtn);
+  fakeStreamControls->addWidget(m_fakeUmpCounterLabel);
+  fakeStreamControls->addStretch();
+
+  QLabel *fakeWarningLabel = new QLabel("<b>This is a fake backend prototype. It does not capture real MIDI 2.0/UMP hardware.</b>", this);
+  fakeWarningLabel->setStyleSheet("color: #d32f2f; background-color: #ffcccc; padding: 5px; border-radius: 4px;");
+
+  m_fakeUmpTable = new QTableWidget(0, 8, this);
+  m_fakeUmpTable->setHorizontalHeaderLabels({"Timestamp", "Backend", "Port", "UMP Words", "MT", "Group", "Size", "Description"});
+  m_fakeUmpTable->horizontalHeader()->setStretchLastSection(true);
+  
+  m_fakeUmpLog = new QTextEdit(this);
+  m_fakeUmpLog->setReadOnly(true);
+  m_fakeUmpLog->setMaximumHeight(100);
+
+  fakeStreamLayout->addWidget(fakeWarningLabel);
+  fakeStreamLayout->addLayout(fakeStreamControls);
+  fakeStreamLayout->addWidget(m_fakeUmpTable, 1);
+  fakeStreamLayout->addWidget(new QLabel("Log experimental:", this));
+  fakeStreamLayout->addWidget(m_fakeUmpLog);
+
+  fakeUmpLayout->addWidget(fakeBackendGroup);
+  fakeUmpLayout->addWidget(fakeStreamGroup, 1);
+
+  tabWidget->addTab(tabFakeUmp, "Experimental UMP Backend");
+
   // --- Tab 3: Logs / Diagnostics ---
   QWidget *tabLogs = new QWidget();
   QVBoxLayout *logsLayout = new QVBoxLayout(tabLogs);
@@ -336,7 +395,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v3.1.0</p>"
+      "<p><b>Versão:</b> v3.2.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
@@ -415,6 +474,13 @@ void MainWindow::setupUi() {
           &MainWindow::exportSessionCsv);
   connect(m_exportSessionSummaryBtn, &QPushButton::clicked, this,
           &MainWindow::exportSessionSummaryClicked);
+
+  connect(refreshFakePortsBtn, &QPushButton::clicked, this, &MainWindow::refreshFakeUmpPortsClicked);
+  connect(openFakePortBtn, &QPushButton::clicked, this, &MainWindow::openFakeUmpPortClicked);
+  connect(closeFakePortBtn, &QPushButton::clicked, this, &MainWindow::closeFakeUmpPortClicked);
+  connect(startFakePollingBtn, &QPushButton::clicked, this, &MainWindow::startFakeUmpPollingClicked);
+  connect(stopFakePollingBtn, &QPushButton::clicked, this, &MainWindow::stopFakeUmpPollingClicked);
+  connect(clearFakeUmpBtn, &QPushButton::clicked, this, &MainWindow::clearFakeUmpClicked);
 
   auto filterChangedLog = [this]() {
     logMessage("Filtros do Live MIDI atualizados.");
@@ -1456,7 +1522,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v3.1.0\n";
+  stream << "Version: v3.2.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
@@ -1629,4 +1695,152 @@ void MainWindow::exportSessionSummaryClicked() {
   } else {
     logMessage("Erro ao exportar Resumo da Sessão MIDI.");
   }
+}
+
+// =======================================================================
+// EXPERIMENTAL UMP BACKEND METHODS
+// =======================================================================
+
+void MainWindow::refreshFakeUmpPortsClicked() {
+  if (!m_fakeUmpBackend) {
+      m_fakeUmpBackend = std::make_unique<FakeUmpInputBackend>();
+  }
+  m_fakeUmpPortCombo->clear();
+  QStringList ports = m_fakeUmpBackend->listInputPorts();
+  m_fakeUmpPortCombo->addItems(ports);
+  logFakeUmpMessage("Portas atualizadas.");
+}
+
+void MainWindow::openFakeUmpPortClicked() {
+  if (!m_fakeUmpBackend) return;
+  int idx = m_fakeUmpPortCombo->currentIndex();
+  if (idx < 0) return;
+  if (m_fakeUmpBackend->openInputPort(idx)) {
+      logFakeUmpMessage("Porta aberta: " + m_fakeUmpPortCombo->currentText());
+  } else {
+      logFakeUmpMessage("Falha ao abrir porta.");
+  }
+  updateFakeUmpStatus();
+}
+
+void MainWindow::closeFakeUmpPortClicked() {
+  if (m_fakeUmpTimer) {
+      m_fakeUmpTimer->stop();
+  }
+  if (m_fakeUmpBackend) {
+      m_fakeUmpBackend->closeInputPort();
+      logFakeUmpMessage("Porta fechada.");
+  }
+  updateFakeUmpStatus();
+}
+
+void MainWindow::startFakeUmpPollingClicked() {
+  if (!m_fakeUmpBackend || !m_fakeUmpBackend->isOpen()) {
+      logFakeUmpMessage("Erro: Abra a porta antes de iniciar o polling.");
+      return;
+  }
+  if (!m_fakeUmpTimer) {
+      m_fakeUmpTimer = new QTimer(this);
+      connect(m_fakeUmpTimer, &QTimer::timeout, this, &MainWindow::pollFakeUmpBackend);
+  }
+  m_fakeUmpTimer->start(1000);
+  logFakeUmpMessage("Polling iniciado (1000ms).");
+  updateFakeUmpStatus();
+}
+
+void MainWindow::stopFakeUmpPollingClicked() {
+  if (m_fakeUmpTimer) {
+      m_fakeUmpTimer->stop();
+      logFakeUmpMessage("Polling parado.");
+  }
+  updateFakeUmpStatus();
+}
+
+void MainWindow::clearFakeUmpClicked() {
+  m_fakeUmpTable->setRowCount(0);
+  m_fakeUmpLog->clear();
+  m_fakeUmpReceivedCount = 0;
+  m_fakeUmpCounterLabel->setText("Eventos: 0");
+  logFakeUmpMessage("Tabela e contadores limpos.");
+}
+
+void MainWindow::pollFakeUmpBackend() {
+  if (!m_fakeUmpBackend || !m_fakeUmpBackend->isOpen()) return;
+  auto events = m_fakeUmpBackend->pollUmpEvents();
+  for (const auto& ev : events) {
+      addFakeUmpEventRow(ev);
+      m_fakeUmpReceivedCount++;
+  }
+  m_fakeUmpCounterLabel->setText(QString("Eventos: %1").arg(m_fakeUmpReceivedCount));
+}
+
+void MainWindow::logFakeUmpMessage(const QString& message) {
+  QString timeStr = QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
+  m_fakeUmpLog->append(QString("[%1] %2").arg(timeStr, message));
+}
+
+void MainWindow::updateFakeUmpStatus() {
+  if (!m_fakeUmpBackend) return;
+  if (!m_fakeUmpBackend->isOpen()) {
+      m_fakeUmpStatusLabel->setText("Fechada");
+      m_fakeUmpStatusLabel->setStyleSheet("color: gray; font-weight: bold;");
+  } else {
+      if (m_fakeUmpTimer && m_fakeUmpTimer->isActive()) {
+          m_fakeUmpStatusLabel->setText("Polling ativo");
+          m_fakeUmpStatusLabel->setStyleSheet("color: #00796b; font-weight: bold;");
+      } else {
+          m_fakeUmpStatusLabel->setText("Aberta");
+          m_fakeUmpStatusLabel->setStyleSheet("color: #d84315; font-weight: bold;");
+      }
+  }
+}
+
+void MainWindow::addFakeUmpEventRow(const UmpRawEvent& event) {
+  int row = m_fakeUmpTable->rowCount();
+  m_fakeUmpTable->insertRow(row);
+
+  QString timeStr = QString::number(event.timestampMs, 'f', 2) + " ms";
+  
+  QString wordsHex;
+  for (uint32_t w : event.umpWords) {
+      if (!wordsHex.isEmpty()) wordsHex += " ";
+      wordsHex += QString("%1").arg(w, 8, 16, QChar('0')).toUpper();
+  }
+
+  QString mtStr = "Unknown";
+  QString groupStr = "?";
+  QString sizeStr = "?";
+  
+  if (!event.umpWords.empty()) {
+      uint32_t first = event.umpWords[0];
+      uint8_t mt = (first >> 28) & 0xF;
+      uint8_t group = (first >> 24) & 0xF;
+      mtStr = QString("0x%1").arg(mt, 1, 16, QChar('0')).toUpper();
+      groupStr = QString::number(group + 1);
+
+      if (mt == 0x0 || mt == 0x1 || mt == 0x2) sizeStr = "1 word (32-bit)";
+      else if (mt == 0x3 || mt == 0x4) sizeStr = "2 words (64-bit)";
+      else if (mt == 0x5 || mt == 0xD || mt == 0xF) sizeStr = "4 words (128-bit)";
+  }
+
+  // Use UmpParser for description
+  QString desc = "Fake UMP Event";
+  auto result = UmpParser::validateAndExtractWords(wordsHex);
+  if (result.success && !result.extractedMessages.empty()) {
+      auto parsed = UmpParser::parseMessage(result.extractedMessages[0]);
+      desc = parsed.description;
+      // Truncate newlines to look clean
+      desc.replace('\n', " | ");
+  }
+
+  m_fakeUmpTable->setItem(row, 0, new QTableWidgetItem(timeStr));
+  m_fakeUmpTable->setItem(row, 1, new QTableWidgetItem(event.backendName));
+  m_fakeUmpTable->setItem(row, 2, new QTableWidgetItem(event.portName));
+  m_fakeUmpTable->setItem(row, 3, new QTableWidgetItem(wordsHex));
+  m_fakeUmpTable->setItem(row, 4, new QTableWidgetItem(mtStr));
+  m_fakeUmpTable->setItem(row, 5, new QTableWidgetItem(groupStr));
+  m_fakeUmpTable->setItem(row, 6, new QTableWidgetItem(sizeStr));
+  m_fakeUmpTable->setItem(row, 7, new QTableWidgetItem(desc));
+  
+  m_fakeUmpTable->scrollToBottom();
 }
