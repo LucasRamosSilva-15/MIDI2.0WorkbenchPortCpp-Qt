@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.2.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.3.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -351,8 +351,8 @@ void MainWindow::setupUi() {
   QLabel *fakeWarningLabel = new QLabel("<b>This is a fake backend prototype. It does not capture real MIDI 2.0/UMP hardware.</b>", this);
   fakeWarningLabel->setStyleSheet("color: #d32f2f; background-color: #ffcccc; padding: 5px; border-radius: 4px;");
 
-  m_fakeUmpTable = new QTableWidget(0, 8, this);
-  m_fakeUmpTable->setHorizontalHeaderLabels({"Timestamp", "Backend", "Port", "UMP Words", "MT", "Group", "Size", "Description"});
+  m_fakeUmpTable = new QTableWidget(0, 11, this);
+  m_fakeUmpTable->setHorizontalHeaderLabels({"Timestamp", "Backend", "Port", "UMP Words", "Bits", "MT", "Group", "Status", "Channel", "Size", "Description"});
   m_fakeUmpTable->horizontalHeader()->setStretchLastSection(true);
   
   m_fakeUmpLog = new QTextEdit(this);
@@ -395,7 +395,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v3.2.0</p>"
+      "<p><b>Versão:</b> v3.3.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
@@ -1522,7 +1522,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v3.2.0\n";
+  stream << "Version: v3.3.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
@@ -1796,6 +1796,10 @@ void MainWindow::updateFakeUmpStatus() {
 }
 
 void MainWindow::addFakeUmpEventRow(const UmpRawEvent& event) {
+  if (m_fakeUmpTable->rowCount() >= 1000) {
+      m_fakeUmpTable->removeRow(0);
+  }
+
   int row = m_fakeUmpTable->rowCount();
   m_fakeUmpTable->insertRow(row);
 
@@ -1807,20 +1811,32 @@ void MainWindow::addFakeUmpEventRow(const UmpRawEvent& event) {
       wordsHex += QString("%1").arg(w, 8, 16, QChar('0')).toUpper();
   }
 
+  QString bitsStr = "?";
   QString mtStr = "Unknown";
   QString groupStr = "?";
+  QString statusStr = "-";
+  QString channelStr = "-";
   QString sizeStr = "?";
   
   if (!event.umpWords.empty()) {
       uint32_t first = event.umpWords[0];
       uint8_t mt = (first >> 28) & 0xF;
       uint8_t group = (first >> 24) & 0xF;
+      
       mtStr = QString("0x%1").arg(mt, 1, 16, QChar('0')).toUpper();
       groupStr = QString::number(group + 1);
+      
+      bitsStr = QString::number(event.umpWords.size() * 32);
+      sizeStr = getUmpSizeLabel(mt);
 
-      if (mt == 0x0 || mt == 0x1 || mt == 0x2) sizeStr = "1 word (32-bit)";
-      else if (mt == 0x3 || mt == 0x4) sizeStr = "2 words (64-bit)";
-      else if (mt == 0x5 || mt == 0xD || mt == 0xF) sizeStr = "4 words (128-bit)";
+      if (mt == 0x2 || mt == 0x4) {
+          uint8_t statusByte = (first >> 16) & 0xFF;
+          uint8_t statusNibble = statusByte & 0xF0;
+          uint8_t channel = (statusByte & 0x0F) + 1;
+          
+          statusStr = QString("0x%1 %2").arg(statusNibble, 2, 16, QChar('0')).toUpper().arg(getUmpStatusLabel(statusNibble));
+          channelStr = QString::number(channel);
+      }
   }
 
   // Use UmpParser for description
@@ -1837,10 +1853,40 @@ void MainWindow::addFakeUmpEventRow(const UmpRawEvent& event) {
   m_fakeUmpTable->setItem(row, 1, new QTableWidgetItem(event.backendName));
   m_fakeUmpTable->setItem(row, 2, new QTableWidgetItem(event.portName));
   m_fakeUmpTable->setItem(row, 3, new QTableWidgetItem(wordsHex));
-  m_fakeUmpTable->setItem(row, 4, new QTableWidgetItem(mtStr));
-  m_fakeUmpTable->setItem(row, 5, new QTableWidgetItem(groupStr));
-  m_fakeUmpTable->setItem(row, 6, new QTableWidgetItem(sizeStr));
-  m_fakeUmpTable->setItem(row, 7, new QTableWidgetItem(desc));
+  m_fakeUmpTable->setItem(row, 4, new QTableWidgetItem(bitsStr));
+  m_fakeUmpTable->setItem(row, 5, new QTableWidgetItem(mtStr));
+  m_fakeUmpTable->setItem(row, 6, new QTableWidgetItem(groupStr));
+  m_fakeUmpTable->setItem(row, 7, new QTableWidgetItem(statusStr));
+  m_fakeUmpTable->setItem(row, 8, new QTableWidgetItem(channelStr));
+  m_fakeUmpTable->setItem(row, 9, new QTableWidgetItem(sizeStr));
+  m_fakeUmpTable->setItem(row, 10, new QTableWidgetItem(desc));
   
   m_fakeUmpTable->scrollToBottom();
+}
+
+QString MainWindow::getUmpStatusLabel(uint8_t status) const {
+    switch (status) {
+        case 0x80: return "Note Off";
+        case 0x90: return "Note On";
+        case 0xA0: return "Poly Aftertouch";
+        case 0xB0: return "Control Change";
+        case 0xC0: return "Program Change";
+        case 0xD0: return "Channel Aftertouch";
+        case 0xE0: return "Pitch Bend";
+        default: return "Unknown";
+    }
+}
+
+QString MainWindow::getUmpSizeLabel(uint8_t messageType) const {
+    switch (messageType) {
+        case 0x0:
+        case 0x1:
+        case 0x2: return "1 word (32-bit)";
+        case 0x3:
+        case 0x4: return "2 words (64-bit)";
+        case 0x5:
+        case 0xD:
+        case 0xF: return "4 words (128-bit)";
+        default: return "Unknown";
+    }
 }

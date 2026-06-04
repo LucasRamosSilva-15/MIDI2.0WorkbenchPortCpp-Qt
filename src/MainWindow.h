@@ -136,6 +136,9 @@ private:
     LiveMidiSessionSummary buildLiveMidiSessionSummary() const;
     QString formatLiveMidiSessionSummaryReport(const LiveMidiSessionSummary& summary) const;
     QString formatRecordedExample(const QString& title, bool hasEvent, const LiveMidiRecordedEvent& event) const;
+    
+    QString getUmpStatusLabel(uint8_t status) const;
+    QString getUmpSizeLabel(uint8_t messageType) const;
 
     QString m_currentFile;
     QString m_lastOperation;

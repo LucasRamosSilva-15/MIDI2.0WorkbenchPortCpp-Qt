@@ -7,8 +7,18 @@ A linha `v3.x` surge com o propósito de avançar a infraestrutura construída n
   O software continua idêntico funcionalmente, mas o terreno da `v3` já traça a via livre para a futura chegada dos bytes de alta-resolução reais.
 
 - **v3.1.0 - Define UMP backend interfaces**:
-  - Added UmpRawEvent structure
-  - Added IUmpInputBackend pure virtual interface
-  - Added FakeUmpInputBackend for unit testing without hardware
-  - Added specific CTest coverage for fake UMP backend
-  - No real UMP capture implementation yet (Windows MIDI Services e ALSA pendentes)
+  - Added UmpRawEvent structure.
+- Added IUmpInputBackend interface.
+- Added FakeUmpInputBackend for testing without hardware.
+- No real UMP backend or parsing changes yet.
+
+### v3.2.0 - Fake UMP backend integration prototype
+- Added "Experimental UMP Backend" tab in UI.
+- Integrated FakeUmpInputBackend to validate polling pipeline.
+- Rendered raw UmpRawEvent visually.
+
+### v3.3.0 - Experimental UMP backend parser integration
+- Improved experimental fake UMP table with Bits, Status, and Channel.
+- Added richer parsed fields using UmpParser intelligently.
+- Implemented fast bit-shifting heuristics in the UI layer.
+- No real UMP backend implementation yet.

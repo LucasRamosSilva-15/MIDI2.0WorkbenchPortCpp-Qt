@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v3.3.0 - Experimental UMP backend parser integration
+- Improved Experimental UMP Backend table with richer parsed fields.
+- Added MT, Group, Status, Channel and Size columns.
+- Improved UmpParser reuse for fake UMP events.
+- Maintained separation from Offline UMP Analyzer and Live MIDI Monitor.
+- No Windows MIDI Services, ALSA UMP or real MIDI 2.0 backend yet.
+
 ## v3.2.0 - Fake UMP backend integration prototype
 - Added "Experimental UMP Backend" tab in UI.
 - Integrated FakeUmpInputBackend to validate UMP UI polling pipeline.
