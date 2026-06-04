@@ -115,11 +115,13 @@ private slots:
     void startFakeUmpPollingClicked();
     void stopFakeUmpPollingClicked();
     void clearFakeUmpClicked();
+    void exportExperimentalUmpTxtClicked();
+    void exportExperimentalUmpCsvClicked();
     void pollFakeUmpBackend();
     void logFakeUmpMessage(const QString& message);
     void updateFakeUmpStatus();
     void addFakeUmpEventRow(const struct UmpRawEvent& event);
-
+    
 private:
     void setupUi();
     void logMessage(const QString& msg);
@@ -139,6 +141,8 @@ private:
     
     QString getUmpStatusLabel(uint8_t status) const;
     QString getUmpSizeLabel(uint8_t messageType) const;
+    QString csvEscape(const QString& value) const;
+    QString csvTextCellForSpreadsheet(const QString& value) const;
 
     QString m_currentFile;
     QString m_lastOperation;

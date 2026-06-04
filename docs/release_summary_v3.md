@@ -22,3 +22,9 @@ A linha `v3.x` surge com o propósito de avançar a infraestrutura construída n
 - Added richer parsed fields using UmpParser intelligently.
 - Implemented fast bit-shifting heuristics in the UI layer.
 - No real UMP backend implementation yet.
+
+### v3.4.0 - Experimental UMP backend export
+- Added TXT/CSV export for Experimental UMP Backend table.
+- Export includes timestamp, backend, port, UMP words, MT, Group, Status, Channel, Size and Description.
+- Export remains fake/prototype-only.
+- No real UMP backend implementation yet.

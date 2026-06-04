@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v3.4.0 - Experimental UMP backend export
+- Added TXT export for Experimental UMP Backend table.
+- Added CSV export for Experimental UMP Backend table.
+- Preserved separation from Offline UMP Analyzer, Live MIDI Monitor and Session Recording exports.
+- No Windows MIDI Services, ALSA UMP or real MIDI 2.0 backend yet.
+
 ## v3.3.0 - Experimental UMP backend parser integration
 - Improved Experimental UMP Backend table with richer parsed fields.
 - Added MT, Group, Status, Channel and Size columns.

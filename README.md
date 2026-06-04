@@ -90,7 +90,7 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [Final Review Checklist](docs/final_review_checklist.md)
 
 ## v3.x Experimental UMP Backend Research
-> **Status:** v3.3.0 adds Experimental UMP backend parser integration. The "Experimental UMP Backend" UI tab leverages a prototype fake backend to enrich parsed data. Real hardware UMP capture is not implemented yet.
+> **Status:** v3.4.0 adds TXT and CSV export for the Experimental UMP Backend table. Real hardware UMP capture is not implemented yet.
 - [Experimental UMP Backend Research](docs/ump_backend_research.md)
 - [UMP Backend Architecture Plan](docs/ump_backend_architecture_plan.md)
 - [Windows MIDI Services Notes](docs/windows_midi_services_notes.md)
