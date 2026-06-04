@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v3.1.0 - Define UMP backend interfaces
+- Added UmpRawEvent structure.
+- Added IUmpInputBackend interface.
+- Added FakeUmpInputBackend for hardware-free testing.
+- Added tests for fake UMP backend behavior.
+- No Windows MIDI Services, ALSA UMP or real MIDI 2.0 backend yet.
+
 ## v3.0.0 - Experimental MIDI 2.0/UMP backend research
 - Added experimental UMP backend research documentation.
 - Added future IumpInputBackend architecture plan.

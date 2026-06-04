@@ -5,6 +5,7 @@
 #include "../src/UmpParser.h"
 #include "../src/midi/Midi1LiveDecoder.h"
 #include "../src/midi/Midi1ToUmpPreviewConverter.h"
+#include "../src/midi/FakeUmpInputBackend.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -218,6 +219,42 @@ int main() {
         assertTest("Converter System RT Unsupported", !res.supported);
     }
 
+
+    std::cout << "\nStarting FakeUmpInputBackend Tests\n" << std::endl;
+
+    {
+        FakeUmpInputBackend fakeBackend;
+        
+        // 1. Name Check
+        assertTest("FakeUmpBackend Name", fakeBackend.backendName() == "Fake UMP Backend");
+        
+        // 2. Ports listing
+        QStringList ports = fakeBackend.listInputPorts();
+        assertTest("FakeUmpBackend Lists Port", ports.size() == 1 && ports[0] == "Fake UMP Port 1");
+        
+        // 3. Open invalid port
+        assertTest("FakeUmpBackend Open Invalid Port", !fakeBackend.openInputPort(999));
+        
+        // 4. Default state
+        assertTest("FakeUmpBackend Initially Closed", !fakeBackend.isOpen());
+        assertTest("FakeUmpBackend Empty when Closed", fakeBackend.pollUmpEvents().empty());
+        
+        // 5. Open valid port
+        assertTest("FakeUmpBackend Open Valid Port", fakeBackend.openInputPort(0));
+        assertTest("FakeUmpBackend is Open", fakeBackend.isOpen());
+        
+        // 6. Polling UMP words
+        std::vector<UmpRawEvent> events = fakeBackend.pollUmpEvents();
+        assertTest("FakeUmpBackend Poll Event Array Size", events.size() == 1);
+        if (!events.empty()) {
+            assertTest("FakeUmpBackend Poll Word MT 0x2", events[0].umpWords.size() == 1 && events[0].umpWords[0] == 0x20903C7F);
+        }
+        
+        // 7. Closing port
+        fakeBackend.closeInputPort();
+        assertTest("FakeUmpBackend Closes Successfully", !fakeBackend.isOpen());
+        assertTest("FakeUmpBackend Empty after Close", fakeBackend.pollUmpEvents().empty());
+    }
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 
