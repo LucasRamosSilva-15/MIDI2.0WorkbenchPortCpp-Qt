@@ -73,3 +73,6 @@ A `v3.5.0` materializou a etapa abstrata de `Session Recording / Export` desenha
 
 ## Evoluções da v3.6.0 (Session Summary Report)
 A versão `v3.6.0` adiciona um relatório de resumo da sessão UMP fake. O resumo varre a memória transiente do gravador independente (`m_fakeUmpRecording`), agrupa matematicamente totais e eventos por tipo, canal, e formato, elaborando uma exportação TXT com amostras forenses (`Representative Examples`). Este sistema puramente lógico funciona à base do *Fake UMP Backend* sem intervir no pipeline legado ou alocar buffer em discos lentos.
+
+## v3.7.0 Documentation and demo polish
+A versão `v3.7.0` encerra as preparações de *software* ao estender guias didáticos para as bancas acadêmicas, deixando claro e explícito que a interface interage com um **software mock** (*FakeUmpInputBackend*). O próximo salto técnico real projetado para a linha `v4.x` seria a construção nativa de um backend conectado a *Windows MIDI Services* ou *ALSA UMP*.

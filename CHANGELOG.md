@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v3.7.0 - Experimental UMP backend documentation and demo polish
+- Added documentation for demonstrating the Experimental UMP Backend.
+- Added TCC-oriented explanation of the fake UMP backend pipeline.
+- Added limitations document for fake backend, UMP preview and real UMP capture.
+- Added evidence checklist for academic presentation.
+- Updated About/Help text to clarify the experimental/fake nature of the UMP backend.
+- No parser, backend, converter, export or polling logic changes.
+
 ## v3.6.0 - Fake UMP session summary report
 - Added TXT summary report for Fake UMP Session Recording.
 - Added counts by Message Type, Group, Status and Channel.

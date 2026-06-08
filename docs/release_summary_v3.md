@@ -40,3 +40,9 @@ A linha `v3.x` surge com o propósito de avançar a infraestrutura construída n
 - Summary includes event totals, Message Type counts, Group counts, Status counts, Channel counts and representative examples.
 - Report is generated from recorded fake UMP session data.
 - No real UMP backend implementation yet.
+
+### v3.7.0 - Experimental UMP backend documentation and demo polish
+- Documentation polish release.
+- Added demo guide, limitations, TCC explanation and evidence checklist.
+- Clarifies that FakeUmpInputBackend is a prototype/simulation.
+- No real UMP backend implementation yet.

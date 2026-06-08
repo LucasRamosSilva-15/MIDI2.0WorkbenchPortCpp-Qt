@@ -64,6 +64,13 @@
 - [ ] Profiles are not implemented
 - [ ] Offline UmpParser lacks unit test for MT 0x1 System Real-Time messages
 
+## Experimental UMP Backend Review
+- [ ] Verificar se a documentação deixa claro que Fake UMP não é captura real.
+- [ ] Verificar se prints/evidências foram gerados.
+- [ ] Verificar se testes passaram.
+- [ ] Verificar se exports funcionam.
+- [ ] Verificar se About/Help não promete UMP real.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

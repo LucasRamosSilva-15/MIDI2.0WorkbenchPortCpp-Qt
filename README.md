@@ -3,8 +3,7 @@
 ![CI](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
-![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Versão:** v3.6.0 - Fake UMP session summary report
+![Qt](https://img.shields.io/badge/Framework-Qt6-green)**Versão:** v3.7.0 - Experimental UMP backend documentation and demo polish
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
@@ -89,7 +88,15 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [Final Review Checklist](docs/final_review_checklist.md)
 
 ## v3.x Experimental UMP Backend Research
-> **Status:** v3.6.0 introduces Fake UMP Session Summary Report (mathematical TXT summary from independent memory-based synthetic UMP events). Real hardware UMP capture is not implemented yet.
+> **Status:** v3.7.0 introduces Documentation and Demo Polish for the Fake UMP Session. Real hardware UMP capture is not implemented yet.
+
+**Experimental UMP Backend (v3.x series)**
+- Fake backend for simulation.
+- Tabela experimental para polling contínuo.
+- Exportação dinâmica TXT/CSV.
+- Gravação perene em memória paralela (Fake Session).
+- Resumo acadêmico contábil da sessão.
+- **Limitação Crítica:** Ainda não é captura real de UMP, o backend simula os pacotes em RAM.
 - [Experimental UMP Backend Research](docs/ump_backend_research.md)
 - [UMP Backend Architecture Plan](docs/ump_backend_architecture_plan.md)
 - [Windows MIDI Services Notes](docs/windows_midi_services_notes.md)
