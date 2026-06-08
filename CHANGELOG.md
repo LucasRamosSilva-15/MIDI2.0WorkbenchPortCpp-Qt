@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v3.4.1 - Fix experimental export and add MT 0x1 tests
+- Fixed experimental backend CSV export to enforce `="val"` spreadsheet-safe strings, preventing hex values from being parsed as scientific notation.
+- Injected default temporal filenames (`experimental_ump_export_YYYYMMDD_HHMMSS`) in export dialogues.
+- Enforced standard BOM UTF-8 bytes to CSV generation.
+- Added explicit test routines for MT 0x1 System Real-Time inside the offline parser (`10F80000`, `10FA0000`, `10FC0000`).
+- Clarified that MIDI 2.0 MT 0x4 *Velocity 0* maps implicitly to Note On, unlike MT 0x2.
+
 ## v3.4.0 - Experimental UMP backend export
 - Added TXT export for Experimental UMP Backend table.
 - Added CSV export for Experimental UMP Backend table.

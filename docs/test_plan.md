@@ -5,9 +5,10 @@ O projeto MIDI 2.0 Workbench Port mantém alta cobertura de código por meio do 
 ## Testes Automatizados C++ (`run_tests.ps1`)
 Todos os testes são compilados de forma independente da interface gráfica sob o target test runner `UmpParserTests`. A invocação é feita através da chamada `powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1`.
 
-- **Testes do UmpParser**: Verificação estática e forense contra caracteres de quebra, bytes insuficientes, blocos quebrados e validação lógica dos message types vitais (`MT 0x2`, `MT 0x4`, `SysEx7`, `SysEx8`, e propriedades de descobrimento `UMP Stream`).
+- **Testes do UmpParser**: Verificação estática e forense contra caracteres de quebra, bytes insuficientes, blocos quebrados e validação lógica dos message types vitais (`MT 0x2`, `MT 0x4`, `SysEx7`, `SysEx8`, e propriedades de descobrimento `UMP Stream`). *Nota técnica (Auditoria M2-104-UM): Pendente a inclusão do Message Type 0x1 (System Common/Real-Time).*
 - **Testes do Midi1LiveDecoder**: Garantia de assertividade do string output. Avalia se bytes de Status limitados ou com limites dinâmicos de dados 1 (como Velocities em Note Off gerados por `90 3C 00` vel=0) são validados firmemente pelas lógicas modulares.
-- **Testes do Midi1ToUmpPreviewConverter**: Cobertura profunda dos cálculos lógicos e bitwise. Comprova que inserções simuladas geram as Words finais exatas para leitura sem deslocamentos ilegais na memória.
+- **Testes do Midi1ToUmpPreviewConverter**: Cobertura profunda dos cálculos lógicos e bitwise. Comprova que inserções simuladas geram as Words finais exatas para leitura sem deslocamentos ilegais na memória (incluindo *padding* de zeros para Program Change e Pitch Bend, conforme M2-104-UM 4.1).
+- **Testes do FakeUmpInputBackend**: Certifica que a simulação de pooling experimental provê pacotes estáveis (MT 0x2 artificiais) sem atrelar APIs irreais ou criar ilusão de MIDI 2.0 de hardware.
 
 ### Exemplos Esperados de UMP Preview em TDD:
 - **Note On:** Byte original (`90 3C 7F`) → Resultado (`20903C7F`)

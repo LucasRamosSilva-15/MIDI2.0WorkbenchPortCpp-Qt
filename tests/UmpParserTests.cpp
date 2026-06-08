@@ -23,7 +23,24 @@ void assertTest(const std::string& testName, bool condition) {
 int main() {
     std::cout << "Starting UMP Parser Tests (v0.8.0)\n" << std::endl;
 
-    // 1. MIDI 1.0 Channel Voice (MT 0x2)
+    // 1. System Common / Real-Time (MT 0x1)
+    {
+        ValidationResult result = UmpParser::validateAndExtractWords("10F80000");
+        assertTest("MT 0x1 valid Timing Clock", result.success && result.extractedMessages.size() == 1);
+        if (result.success) {
+            ParsedUmp parsed = UmpParser::parseMessage(result.extractedMessages[0]);
+            assertTest("MT 0x1 MT check", parsed.messageType == 0x1);
+            assertTest("MT 0x1 Size check", parsed.sizeBits == 32);
+        }
+
+        ValidationResult resultStart = UmpParser::validateAndExtractWords("10FA0000");
+        assertTest("MT 0x1 valid Start", resultStart.success);
+        
+        ValidationResult resultStop = UmpParser::validateAndExtractWords("10FC0000");
+        assertTest("MT 0x1 valid Stop", resultStop.success);
+    }
+
+    // 2. MIDI 1.0 Channel Voice (MT 0x2)
     {
         ValidationResult result = UmpParser::validateAndExtractWords("20904000");
         assertTest("MIDI 1.0 CV valid", result.success && result.extractedMessages.size() == 1);

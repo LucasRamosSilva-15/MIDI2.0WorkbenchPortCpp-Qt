@@ -11,6 +11,7 @@
 - [ ] UmpParser tests pass
 - [ ] Midi1LiveDecoder tests pass
 - [ ] Midi1ToUmpPreviewConverter tests pass
+- [ ] FakeUmpInputBackend tests pass
 
 ## Offline UMP Analyzer
 - [ ] Opens sample files
@@ -61,6 +62,7 @@
 - [ ] MIDI-CI is not implemented
 - [ ] Property Exchange is not implemented
 - [ ] Profiles are not implemented
+- [ ] Offline UmpParser lacks unit test for MT 0x1 System Real-Time messages
 
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
