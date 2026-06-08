@@ -71,6 +71,16 @@
 - [ ] Verificar se exports funcionam.
 - [ ] Verificar se About/Help não promete UMP real.
 
+## TCC final demo readiness
+- [ ] Documentação pronta e revisada
+- [ ] Demo guide / script prático redigidos
+- [ ] Perguntas de arguição da banca testadas
+- [ ] Screenshots de TDD definidos
+- [ ] Exports WYSIWYG testados limpos em planilhas
+- [ ] Limitações e mock da API explícitos no About
+- [ ] Bateria de testes automatizados passou 100%
+- [ ] Pacotes distributivos zips gerados e indexados
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

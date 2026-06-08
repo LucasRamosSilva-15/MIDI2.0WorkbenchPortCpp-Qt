@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v3.8.0 - TCC final demo readiness review
+- Added final TCC demo script.
+- Added final demo checklist.
+- Added expected defense questions and answers.
+- Added final release notes for v1/v2/v3 project evolution.
+- Reviewed documentation to avoid claiming real UMP hardware capture.
+- No parser, backend, converter, polling, export, recording or summary logic changes.
+
 ## v3.7.0 - Experimental UMP backend documentation and demo polish
 - Added documentation for demonstrating the Experimental UMP Backend.
 - Added TCC-oriented explanation of the fake UMP backend pipeline.

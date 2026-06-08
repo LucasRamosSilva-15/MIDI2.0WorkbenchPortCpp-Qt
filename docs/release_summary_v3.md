@@ -46,3 +46,9 @@ A linha `v3.x` surge com o propósito de avançar a infraestrutura construída n
 - Added demo guide, limitations, TCC explanation and evidence checklist.
 - Clarifies that FakeUmpInputBackend is a prototype/simulation.
 - No real UMP backend implementation yet.
+
+### v3.8.0 - TCC final demo readiness review
+- Final documentation review for academic demonstration.
+- Added demo script, checklist, defense Q&A and final release notes.
+- No real UMP backend implementation yet.
+- No C++ logic changes.

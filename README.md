@@ -3,7 +3,7 @@
 ![CI](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
-![Qt](https://img.shields.io/badge/Framework-Qt6-green)**Versão:** v3.7.0 - Experimental UMP backend documentation and demo polish
+![Qt](https://img.shields.io/badge/Framework-Qt6-green)**Versão:** v3.8.0 - TCC final demo readiness review
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
@@ -101,6 +101,13 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [UMP Backend Architecture Plan](docs/ump_backend_architecture_plan.md)
 - [Windows MIDI Services Notes](docs/windows_midi_services_notes.md)
 - [Release Summary v3](docs/release_summary_v3.md)
+
+## TCC Final Demo Readiness
+O aplicativo atinge o congelamento estático (**feature freeze**) e encontra-se certificado para a defesa acadêmica, focado na robustez contábil das conversões algorítmicas e emulação *in-memory* do modelo *Universal MIDI Packet*.
+- **Estado atual:** Operante e submetido às 54 métricas implacáveis do CTest.
+- **O que demonstrar:** Imunidade do compilador aos blocos truncados, o roteador `FakeUmpInputBackend` e os Exports periciais de Auditoria TXT.
+- **Limitações:** O arcabouço C++ é autossuficiente mas as interfaces de kernel/API (*WinRT*, MIDI-CI) não compõem a grade.
+- **Arquivos Finais:** Leia as [Evidências de Demonstração](docs/experimental_ump_backend_evidence_checklist.md), [Limitações Acadêmicas](docs/experimental_ump_backend_limitations.md) e o [Plano/Roteiro de Fala](docs/tcc_final_demo_script.md).
 
 ## Roadmap
 O que esperar para as próximas evoluções (*Pós-MVP*):

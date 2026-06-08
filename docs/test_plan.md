@@ -10,6 +10,8 @@ Todos os testes são compilados de forma independente da interface gráfica sob 
 - **Testes do Midi1ToUmpPreviewConverter**: Cobertura profunda dos cálculos lógicos e bitwise. Comprova que inserções simuladas geram as Words finais exatas para leitura sem deslocamentos ilegais na memória (incluindo *padding* de zeros para Program Change e Pitch Bend, conforme M2-104-UM 4.1).
 - **Testes do FakeUmpInputBackend**: Certifica que a simulação de pooling experimental provê pacotes estáveis (MT 0x2 artificiais) sem atrelar APIs irreais ou criar ilusão de MIDI 2.0 de hardware.
 
+> **Nota de Demonstração (v3.8.0):** Embora os testes automatizados garantam o comportamento matemático (C++) robusto dos parsers, conversores e motores fake isolados, a demonstração acadêmica final de TCC também demanda execução pericial humana (GUI) para provar o *WYSIWYG* e a legibilidade nativa nas exportações *TXT/CSV* do resumo.
+
 ### Exemplos Esperados de UMP Preview em TDD:
 - **Note On:** Byte original (`90 3C 7F`) → Resultado (`20903C7F`)
 - **Note Off:** Byte original (`80 3C 40`) → Resultado (`20803C40`)
