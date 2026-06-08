@@ -70,3 +70,6 @@ A versão v3.2.0 materializou o fluxo visual: a interface Qt agora instancia o `
 
 ## Evoluções da v3.5.0 (Session Recording)
 A `v3.5.0` materializou a etapa abstrata de `Session Recording / Export` desenhada na arquitetura acima. Agora, a aplicação suporta "Fake UMP Session Recording", implementando uma camada robusta de gravação em memória independente da tabela visual (`QTableWidget`). Eventos UMP recebidos continuam sendo guardados mesmo se a interface for obliterada, possuindo exportação CSV/TXT separada que imita uma transação densa perene. Importante: tudo atua sob a mecânica do *FakeUmpInputBackend* e ainda não processa hardware *MIDI 2.0* real.
+
+## Evoluções da v3.6.0 (Session Summary Report)
+A versão `v3.6.0` adiciona um relatório de resumo da sessão UMP fake. O resumo varre a memória transiente do gravador independente (`m_fakeUmpRecording`), agrupa matematicamente totais e eventos por tipo, canal, e formato, elaborando uma exportação TXT com amostras forenses (`Representative Examples`). Este sistema puramente lógico funciona à base do *Fake UMP Backend* sem intervir no pipeline legado ou alocar buffer em discos lentos.

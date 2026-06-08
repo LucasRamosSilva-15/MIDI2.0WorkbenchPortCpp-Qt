@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.5.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.6.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -385,12 +385,14 @@ void MainWindow::setupUi() {
   QPushButton *clearFakeSessionBtn = new QPushButton("Limpar Sessão UMP", this);
   QPushButton *exportFakeSessionTxtBtn = new QPushButton("Exportar Sessão TXT", this);
   QPushButton *exportFakeSessionCsvBtn = new QPushButton("Exportar Sessão CSV", this);
+  QPushButton *exportFakeSessionSummaryBtn = new QPushButton("Exportar Resumo da Sessão UMP", this);
   
   fakeRecordingControlsLayout->addWidget(startFakeRecordingBtn);
   fakeRecordingControlsLayout->addWidget(stopFakeRecordingBtn);
   fakeRecordingControlsLayout->addWidget(clearFakeSessionBtn);
   fakeRecordingControlsLayout->addWidget(exportFakeSessionTxtBtn);
   fakeRecordingControlsLayout->addWidget(exportFakeSessionCsvBtn);
+  fakeRecordingControlsLayout->addWidget(exportFakeSessionSummaryBtn);
   fakeRecordingControlsLayout->addStretch();
   
   fakeRecordingLayout->addLayout(fakeRecordingStatusLayout);
@@ -427,7 +429,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v3.5.0</p>"
+      "<p><b>Versão:</b> v3.6.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
@@ -521,6 +523,7 @@ void MainWindow::setupUi() {
   connect(clearFakeSessionBtn, &QPushButton::clicked, this, &MainWindow::clearFakeUmpSessionClicked);
   connect(exportFakeSessionTxtBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionTxtClicked);
   connect(exportFakeSessionCsvBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionCsvClicked);
+  connect(exportFakeSessionSummaryBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionSummaryClicked);
 
   auto filterChangedLog = [this]() {
     logMessage("Filtros do Live MIDI atualizados.");
@@ -1562,7 +1565,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v3.5.0\n";
+  stream << "Version: v3.6.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
@@ -2036,7 +2039,7 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Experimental UMP Backend Export\n";
-    out << "Version: v3.5.0\n";
+    out << "Version: v3.6.0\n";
     out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Source: FakeUmpInputBackend\n";
     out << "Important note: This export uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n\n";
@@ -2167,7 +2170,7 @@ void MainWindow::exportFakeUmpSessionTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Fake UMP Session Recording Export\n";
-    out << "Version: v3.5.0\n";
+    out << "Version: v3.6.0\n";
     out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Source: FakeUmpInputBackend\n";
     out << "Important note: This session uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n";
@@ -2234,4 +2237,164 @@ void MainWindow::exportFakeUmpSessionCsvClicked() {
     }
     file.close();
     logFakeUmpMessage("Sessão UMP experimental CSV exportada com sucesso.");
+}
+
+FakeUmpSessionSummary MainWindow::buildFakeUmpSessionSummary() const {
+    FakeUmpSessionSummary summary;
+    summary.totalEvents = m_fakeUmpRecording.size();
+    if (summary.totalEvents > 0) {
+        summary.firstTimestamp = m_fakeUmpRecording.first().timestamp;
+        summary.lastTimestamp = m_fakeUmpRecording.last().timestamp;
+        summary.hasFirstEvent = true;
+        summary.hasLastEvent = true;
+        summary.firstEvent = m_fakeUmpRecording.first();
+        summary.lastEvent = m_fakeUmpRecording.last();
+        
+        for (const auto& ev : m_fakeUmpRecording) {
+            summary.byMessageType[ev.messageType]++;
+            summary.byGroup[ev.group]++;
+            summary.byStatus[ev.status]++;
+            summary.byChannel[ev.channel]++;
+            
+            if (ev.channel != "-" && ev.channel != "?") {
+                summary.channelMessages++;
+            } else {
+                summary.nonChannelMessages++;
+            }
+            
+            if (!summary.firstExampleByMessageType.contains(ev.messageType)) {
+                summary.firstExampleByMessageType[ev.messageType] = ev;
+            }
+        }
+    }
+    return summary;
+}
+
+QString MainWindow::formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummary& summary) const {
+    QString out;
+    QTextStream stream(&out);
+
+    stream << "MidiUmpAnalyzer - Fake UMP Session Summary Report\n";
+    stream << "Version: v3.6.0\n";
+    stream << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    stream << "Source: FakeUmpInputBackend\n";
+    stream << "Important note: This report summarizes fake UMP backend events only.\n";
+    stream << "It does not represent real MIDI 2.0 hardware capture.\n\n";
+
+    stream << "=== Session Overview ===\n";
+    stream << "Total recorded events: " << summary.totalEvents << "\n";
+    stream << "First event timestamp: " << (summary.hasFirstEvent ? summary.firstTimestamp : "N/A") << "\n";
+    stream << "Last event timestamp: " << (summary.hasLastEvent ? summary.lastTimestamp : "N/A") << "\n";
+    stream << "Recording status: " << (m_isFakeUmpRecording ? "Active" : "Stopped") << "\n";
+    stream << "Source backend: FakeUmpInputBackend\n\n";
+
+    stream << "=== Message Type Summary ===\n";
+    if (summary.byMessageType.isEmpty()) {
+        stream << "No messages recorded.\n";
+    } else {
+        for (auto it = summary.byMessageType.constBegin(); it != summary.byMessageType.constEnd(); ++it) {
+            stream << it.key() << ": " << it.value() << "\n";
+        }
+    }
+    stream << "\n";
+
+    stream << "=== Group Summary ===\n";
+    if (summary.byGroup.isEmpty()) {
+        stream << "No messages recorded.\n";
+    } else {
+        for (auto it = summary.byGroup.constBegin(); it != summary.byGroup.constEnd(); ++it) {
+            stream << "Group " << it.key() << ": " << it.value() << "\n";
+        }
+    }
+    stream << "\n";
+
+    stream << "=== Status Summary ===\n";
+    if (summary.byStatus.isEmpty()) {
+        stream << "No messages recorded.\n";
+    } else {
+        for (auto it = summary.byStatus.constBegin(); it != summary.byStatus.constEnd(); ++it) {
+            stream << it.key() << ": " << it.value() << "\n";
+        }
+    }
+    stream << "\n";
+
+    stream << "=== Channel Summary ===\n";
+    if (summary.byChannel.isEmpty()) {
+        stream << "No messages recorded.\n";
+    } else {
+        for (auto it = summary.byChannel.constBegin(); it != summary.byChannel.constEnd(); ++it) {
+            if (it.key() != "-" && it.key() != "?") {
+                stream << "Channel " << it.key() << ": " << it.value() << "\n";
+            }
+        }
+        stream << "Non-channel / N/A: " << summary.nonChannelMessages << "\n";
+    }
+    stream << "\n";
+
+    stream << "=== Representative Examples ===\n";
+    if (summary.firstExampleByMessageType.isEmpty()) {
+        stream << "No examples available.\n";
+    } else {
+        for (auto it = summary.firstExampleByMessageType.constBegin(); it != summary.firstExampleByMessageType.constEnd(); ++it) {
+            stream << "First " << it.key() << " Event:\n";
+            stream << "  Timestamp: " << it.value().timestamp << "\n";
+            stream << "  Backend: " << it.value().backend << "\n";
+            stream << "  Port: " << it.value().port << "\n";
+            stream << "  UMP Words: " << it.value().umpWords << "\n";
+            stream << "  MT: " << it.value().messageType << "\n";
+            stream << "  Group: " << it.value().group << "\n";
+            stream << "  Status: " << it.value().status << "\n";
+            stream << "  Channel: " << it.value().channel << "\n";
+            stream << "  Description: " << it.value().description << "\n\n";
+        }
+    }
+
+    stream << "=== Technical Notes ===\n";
+    stream << "- This report is generated from m_fakeUmpRecording.\n";
+    stream << "- The Experimental UMP table may be cleared without clearing the recorded session.\n";
+    stream << "- FakeUmpInputBackend generates artificial UMP words for testing the UI and parser pipeline.\n";
+    stream << "- This report does not prove operating system UMP capture.\n";
+    stream << "- Windows MIDI Services, ALSA UMP, libremidi and JUCE are not implemented in this version.\n";
+    stream << "- MIDI-CI and Property Exchange are not implemented.\n";
+
+    return out;
+}
+
+void MainWindow::exportFakeUmpSessionSummaryClicked() {
+    if (m_fakeUmpRecording.isEmpty()) {
+        QMessageBox::information(this, "Aviso", "Não há sessão UMP gravada para exportar.");
+        logFakeUmpMessage("Resumo da sessão UMP experimental não exportado: sessão vazia.");
+        return;
+    }
+
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    QString defaultName = QString("fake_ump_session_summary_%1.txt").arg(timestamp);
+    QString defaultPath = QDir::homePath() + "/" + defaultName;
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Exportar Resumo da Sessão UMP (TXT)", defaultPath, "Text Files (*.txt);;All Files (*)");
+    if (fileName.isEmpty()) {
+        logFakeUmpMessage("Exportação do resumo da sessão UMP experimental cancelada.");
+        return;
+    }
+
+    if (!fileName.endsWith(".txt", Qt::CaseInsensitive)) {
+        fileName += ".txt";
+    }
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        logFakeUmpMessage("Erro ao exportar resumo da sessão UMP experimental.");
+        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo de resumo TXT.");
+        return;
+    }
+
+    FakeUmpSessionSummary summary = buildFakeUmpSessionSummary();
+    QString reportContent = formatFakeUmpSessionSummaryReport(summary);
+
+    QTextStream out(&file);
+    out.setEncoding(QStringConverter::Utf8);
+    out << reportContent;
+    file.close();
+
+    logFakeUmpMessage("Resumo da sessão UMP experimental exportado com sucesso.");
 }

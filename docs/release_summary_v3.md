@@ -29,8 +29,14 @@ A linha `v3.x` surge com o propósito de avançar a infraestrutura construída n
 - Conducted exhaustive test audits validating MT 0x1, 0x2, 0x4 limits.
 - No real UMP backend implementation yet.
 
-### v3.5.0 - Fake UMP backend session recording
+### v3.5.0 / v3.5.1 - Fake UMP backend session recording
 - Added fake UMP session recording.
 - Added TXT/CSV export for recorded fake UMP sessions.
 - Recording is independent from the experimental table view.
+- No real UMP backend implementation yet.
+
+### v3.6.0 - Fake UMP session summary report
+- Added summary report export for Fake UMP Session Recording.
+- Summary includes event totals, Message Type counts, Group counts, Status counts, Channel counts and representative examples.
+- Report is generated from recorded fake UMP session data.
 - No real UMP backend implementation yet.

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v3.6.0 - Fake UMP session summary report
+- Added TXT summary report for Fake UMP Session Recording.
+- Added counts by Message Type, Group, Status and Channel.
+- Added representative examples from recorded fake UMP events.
+- Preserved separation from table export, session export, Offline UMP Analyzer and Live MIDI Monitor.
+- No Windows MIDI Services, ALSA UMP or real MIDI 2.0 backend yet.
+
+## v3.5.1 - Fix fake UMP session recording buttons
+- Fixed scope omission for Qt connects, making session UI recording buttons fully operational.
+
 ## v3.5.0 - Fake UMP backend session recording
 - Added session recording for Experimental UMP Backend.
 - Added TXT/CSV export for fake UMP recorded sessions.

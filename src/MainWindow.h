@@ -93,6 +93,23 @@ struct FakeUmpRecordedEvent {
     QString description;
 };
 
+struct FakeUmpSessionSummary {
+    int totalEvents = 0;
+    QMap<QString, int> byMessageType;
+    QMap<QString, int> byGroup;
+    QMap<QString, int> byStatus;
+    QMap<QString, int> byChannel;
+    int channelMessages = 0;
+    int nonChannelMessages = 0;
+    QString firstTimestamp;
+    QString lastTimestamp;
+    bool hasFirstEvent = false;
+    bool hasLastEvent = false;
+    FakeUmpRecordedEvent firstEvent;
+    FakeUmpRecordedEvent lastEvent;
+    QMap<QString, FakeUmpRecordedEvent> firstExampleByMessageType;
+};
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -137,6 +154,7 @@ private slots:
     void clearFakeUmpSessionClicked();
     void exportFakeUmpSessionTxtClicked();
     void exportFakeUmpSessionCsvClicked();
+    void exportFakeUmpSessionSummaryClicked();
 
     void pollFakeUmpBackend();
     void logFakeUmpMessage(const QString& message);
@@ -159,6 +177,9 @@ private:
     LiveMidiSessionSummary buildLiveMidiSessionSummary() const;
     QString formatLiveMidiSessionSummaryReport(const LiveMidiSessionSummary& summary) const;
     QString formatRecordedExample(const QString& title, bool hasEvent, const LiveMidiRecordedEvent& event) const;
+    
+    FakeUmpSessionSummary buildFakeUmpSessionSummary() const;
+    QString formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummary& summary) const;
     
     QString getUmpStatusLabel(uint8_t status) const;
     QString getUmpSizeLabel(uint8_t messageType) const;
