@@ -516,6 +516,12 @@ void MainWindow::setupUi() {
   connect(exportFakeUmpTxtBtn, &QPushButton::clicked, this, &MainWindow::exportExperimentalUmpTxtClicked);
   connect(exportFakeUmpCsvBtn, &QPushButton::clicked, this, &MainWindow::exportExperimentalUmpCsvClicked);
 
+  connect(startFakeRecordingBtn, &QPushButton::clicked, this, &MainWindow::startFakeUmpRecordingClicked);
+  connect(stopFakeRecordingBtn, &QPushButton::clicked, this, &MainWindow::stopFakeUmpRecordingClicked);
+  connect(clearFakeSessionBtn, &QPushButton::clicked, this, &MainWindow::clearFakeUmpSessionClicked);
+  connect(exportFakeSessionTxtBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionTxtClicked);
+  connect(exportFakeSessionCsvBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionCsvClicked);
+
   auto filterChangedLog = [this]() {
     logMessage("Filtros do Live MIDI atualizados.");
   };
