@@ -67,3 +67,6 @@ O *Backend* deve se limitar a copiar os pacotes em um cache isolado e silencioso
 ## Entregas da v3.1.0 e v3.2.0
 A versão v3.1.0 consolidou materialmente as classes propostas: criação do `UmpRawEvent`, da interface `IUmpInputBackend` e do simulador `FakeUmpInputBackend` para CTest.
 A versão v3.2.0 materializou o fluxo visual: a interface Qt agora instancia o `FakeUmpInputBackend`, executa polling passivo (500ms~1000ms via `QTimer`), decodifica o cabeçalho (*MT/Group/Size*) localmente e submete o *hexadecimal derivado* para o `UmpParser` resolver, preservando os motores legados intocados.
+
+## Evoluções da v3.5.0 (Session Recording)
+A `v3.5.0` materializou a etapa abstrata de `Session Recording / Export` desenhada na arquitetura acima. Agora, a aplicação suporta "Fake UMP Session Recording", implementando uma camada robusta de gravação em memória independente da tabela visual (`QTableWidget`). Eventos UMP recebidos continuam sendo guardados mesmo se a interface for obliterada, possuindo exportação CSV/TXT separada que imita uma transação densa perene. Importante: tudo atua sob a mecânica do *FakeUmpInputBackend* e ainda não processa hardware *MIDI 2.0* real.

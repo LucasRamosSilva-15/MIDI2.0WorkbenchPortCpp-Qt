@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v3.5.0 - Fake UMP backend session recording
+- Added session recording for Experimental UMP Backend.
+- Added TXT/CSV export for fake UMP recorded sessions.
+- Preserved separation from table export, Offline UMP Analyzer and Live MIDI Monitor.
+- No Windows MIDI Services, ALSA UMP or real MIDI 2.0 backend yet.
+
 ## v3.4.1 - Fix experimental export and add MT 0x1 tests
 - Fixed experimental backend CSV export to enforce `="val"` spreadsheet-safe strings, preventing hex values from being parsed as scientific notation.
 - Injected default temporal filenames (`experimental_ump_export_YYYYMMDD_HHMMSS`) in export dialogues.

@@ -5,7 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
 
-**Versão:** v3.4.1 - Experimental UMP backend fixes and MT 0x1 unit tests
+**Versão:** v3.5.0 - Fake UMP backend session recording
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
@@ -90,7 +90,7 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [Final Review Checklist](docs/final_review_checklist.md)
 
 ## v3.x Experimental UMP Backend Research
-> **Status:** v3.4.1 fixes experimental export formats (Spreadsheet notation protection) and adds MT 0x1 offline parser tests. Real hardware UMP capture is not implemented yet.
+> **Status:** v3.5.0 introduces Fake UMP Session Recording (independent memory-based recording of synthetic UMP events). Real hardware UMP capture is not implemented yet.
 - [Experimental UMP Backend Research](docs/ump_backend_research.md)
 - [UMP Backend Architecture Plan](docs/ump_backend_architecture_plan.md)
 - [Windows MIDI Services Notes](docs/windows_midi_services_notes.md)

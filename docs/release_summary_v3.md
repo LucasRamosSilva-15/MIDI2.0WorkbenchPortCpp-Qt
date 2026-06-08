@@ -23,8 +23,14 @@ A linha `v3.x` surge com o propósito de avançar a infraestrutura construída n
 - Implemented fast bit-shifting heuristics in the UI layer.
 - No real UMP backend implementation yet.
 
-### v3.4.0 - Experimental UMP backend export
+### v3.4.0 / v3.4.1 - Experimental UMP backend export & Auditing
 - Added TXT/CSV export for Experimental UMP Backend table.
-- Export includes timestamp, backend, port, UMP words, MT, Group, Status, Channel, Size and Description.
-- Export remains fake/prototype-only.
+- Fixed experimental backend CSV export spreadsheet notation logic.
+- Conducted exhaustive test audits validating MT 0x1, 0x2, 0x4 limits.
+- No real UMP backend implementation yet.
+
+### v3.5.0 - Fake UMP backend session recording
+- Added fake UMP session recording.
+- Added TXT/CSV export for recorded fake UMP sessions.
+- Recording is independent from the experimental table view.
 - No real UMP backend implementation yet.

@@ -79,6 +79,20 @@ struct LiveMidiSessionSummary {
     LiveMidiRecordedEvent firstPitchBend;
 };
 
+struct FakeUmpRecordedEvent {
+    QString timestamp;
+    QString backend;
+    QString port;
+    QString umpWords;
+    QString bits;
+    QString messageType;
+    QString group;
+    QString status;
+    QString channel;
+    QString size;
+    QString description;
+};
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -117,6 +131,13 @@ private slots:
     void clearFakeUmpClicked();
     void exportExperimentalUmpTxtClicked();
     void exportExperimentalUmpCsvClicked();
+    
+    void startFakeUmpRecordingClicked();
+    void stopFakeUmpRecordingClicked();
+    void clearFakeUmpSessionClicked();
+    void exportFakeUmpSessionTxtClicked();
+    void exportFakeUmpSessionCsvClicked();
+
     void pollFakeUmpBackend();
     void logFakeUmpMessage(const QString& message);
     void updateFakeUmpStatus();
@@ -219,4 +240,10 @@ private:
     QTableWidget* m_fakeUmpTable = nullptr;
     QTextEdit* m_fakeUmpLog = nullptr;
     quint64 m_fakeUmpReceivedCount = 0;
+    
+    QVector<FakeUmpRecordedEvent> m_fakeUmpRecording;
+    bool m_isFakeUmpRecording = false;
+    quint64 m_fakeUmpRecordedCount = 0;
+    QLabel* m_fakeUmpRecordingStatusLabel = nullptr;
+    QLabel* m_fakeUmpRecordingCounterLabel = nullptr;
 };

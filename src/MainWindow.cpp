@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.4.1)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.5.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -369,8 +369,36 @@ void MainWindow::setupUi() {
   fakeStreamLayout->addWidget(new QLabel("Log experimental:", this));
   fakeStreamLayout->addWidget(m_fakeUmpLog);
 
+  QGroupBox *fakeRecordingGroup = new QGroupBox("Fake UMP Session Recording", this);
+  QVBoxLayout *fakeRecordingLayout = new QVBoxLayout(fakeRecordingGroup);
+  
+  QHBoxLayout *fakeRecordingStatusLayout = new QHBoxLayout();
+  m_fakeUmpRecordingStatusLabel = new QLabel("Status: Parada", this);
+  m_fakeUmpRecordingCounterLabel = new QLabel("Eventos gravados: 0", this);
+  fakeRecordingStatusLayout->addWidget(m_fakeUmpRecordingStatusLabel);
+  fakeRecordingStatusLayout->addWidget(m_fakeUmpRecordingCounterLabel);
+  fakeRecordingStatusLayout->addStretch();
+  
+  QHBoxLayout *fakeRecordingControlsLayout = new QHBoxLayout();
+  QPushButton *startFakeRecordingBtn = new QPushButton("Iniciar Gravação UMP", this);
+  QPushButton *stopFakeRecordingBtn = new QPushButton("Parar Gravação UMP", this);
+  QPushButton *clearFakeSessionBtn = new QPushButton("Limpar Sessão UMP", this);
+  QPushButton *exportFakeSessionTxtBtn = new QPushButton("Exportar Sessão TXT", this);
+  QPushButton *exportFakeSessionCsvBtn = new QPushButton("Exportar Sessão CSV", this);
+  
+  fakeRecordingControlsLayout->addWidget(startFakeRecordingBtn);
+  fakeRecordingControlsLayout->addWidget(stopFakeRecordingBtn);
+  fakeRecordingControlsLayout->addWidget(clearFakeSessionBtn);
+  fakeRecordingControlsLayout->addWidget(exportFakeSessionTxtBtn);
+  fakeRecordingControlsLayout->addWidget(exportFakeSessionCsvBtn);
+  fakeRecordingControlsLayout->addStretch();
+  
+  fakeRecordingLayout->addLayout(fakeRecordingStatusLayout);
+  fakeRecordingLayout->addLayout(fakeRecordingControlsLayout);
+
   fakeUmpLayout->addWidget(fakeBackendGroup);
   fakeUmpLayout->addWidget(fakeStreamGroup, 1);
+  fakeUmpLayout->addWidget(fakeRecordingGroup);
 
   tabWidget->addTab(tabFakeUmp, "Experimental UMP Backend");
 
@@ -399,7 +427,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v3.4.1</p>"
+      "<p><b>Versão:</b> v3.5.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
@@ -1528,7 +1556,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v3.4.1\n";
+  stream << "Version: v3.5.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
@@ -1738,6 +1766,9 @@ void MainWindow::closeFakeUmpPortClicked() {
       logFakeUmpMessage("Porta fechada.");
   }
   updateFakeUmpStatus();
+  if (m_isFakeUmpRecording) {
+      stopFakeUmpRecordingClicked();
+  }
 }
 
 void MainWindow::startFakeUmpPollingClicked() {
@@ -1776,8 +1807,66 @@ void MainWindow::pollFakeUmpBackend() {
   for (const auto& ev : events) {
       addFakeUmpEventRow(ev);
       m_fakeUmpReceivedCount++;
+
+      if (m_isFakeUmpRecording) {
+          FakeUmpRecordedEvent rev;
+          rev.timestamp = QString::number(ev.timestampMs, 'f', 2) + " ms";
+          rev.backend = ev.backendName;
+          rev.port = ev.portName;
+
+          QString wordsHex;
+          for (uint32_t w : ev.umpWords) {
+              if (!wordsHex.isEmpty()) wordsHex += " ";
+              wordsHex += QString("%1").arg(w, 8, 16, QChar('0')).toUpper();
+          }
+          rev.umpWords = wordsHex;
+          
+          rev.bits = "?";
+          rev.messageType = "Unknown";
+          rev.group = "?";
+          rev.status = "-";
+          rev.channel = "-";
+          rev.size = "?";
+
+          if (!ev.umpWords.empty()) {
+              uint32_t first = ev.umpWords[0];
+              uint8_t mt = (first >> 28) & 0xF;
+              uint8_t group = (first >> 24) & 0xF;
+              
+              rev.messageType = QString("0x%1").arg(mt, 1, 16, QChar('0')).toUpper();
+              rev.group = QString::number(group + 1);
+              
+              rev.bits = QString::number(ev.umpWords.size() * 32);
+              rev.size = getUmpSizeLabel(mt);
+
+              if (mt == 0x2 || mt == 0x4) {
+                  uint8_t statusByte = (first >> 16) & 0xFF;
+                  uint8_t statusNibble = statusByte & 0xF0;
+                  uint8_t channel = (statusByte & 0x0F) + 1;
+                  
+                  rev.status = QString("0x%1 %2").arg(statusNibble, 2, 16, QChar('0')).toUpper().arg(getUmpStatusLabel(statusNibble));
+                  rev.channel = QString::number(channel);
+              }
+          }
+
+          QString desc = "Fake UMP Event";
+          auto result = UmpParser::validateAndExtractWords(wordsHex);
+          if (result.success && !result.extractedMessages.empty()) {
+              auto parsed = UmpParser::parseMessage(result.extractedMessages[0]);
+              desc = parsed.description;
+              desc.replace('\n', " | ");
+          }
+          rev.description = desc;
+
+          m_fakeUmpRecording.append(rev);
+          m_fakeUmpRecordedCount++;
+      }
   }
   m_fakeUmpCounterLabel->setText(QString("Eventos: %1").arg(m_fakeUmpReceivedCount));
+  
+  if (m_isFakeUmpRecording) {
+      m_fakeUmpRecordingCounterLabel->setText(QString("Eventos gravados: %1").arg(m_fakeUmpRecordedCount));
+  }
 }
 
 void MainWindow::logFakeUmpMessage(const QString& message) {
@@ -1941,7 +2030,7 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Experimental UMP Backend Export\n";
-    out << "Version: v3.4.1\n";
+    out << "Version: v3.5.0\n";
     out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Source: FakeUmpInputBackend\n";
     out << "Important note: This export uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n\n";
@@ -2016,4 +2105,127 @@ void MainWindow::exportExperimentalUmpCsvClicked() {
 
     file.close();
     logFakeUmpMessage("Exportação UMP experimental CSV concluída.");
+}
+
+void MainWindow::startFakeUmpRecordingClicked() {
+    m_fakeUmpRecording.clear();
+    m_fakeUmpRecordedCount = 0;
+    m_isFakeUmpRecording = true;
+    m_fakeUmpRecordingStatusLabel->setText("Status: Gravando");
+    m_fakeUmpRecordingStatusLabel->setStyleSheet("color: red; font-weight: bold;");
+    m_fakeUmpRecordingCounterLabel->setText("Eventos gravados: 0");
+    logFakeUmpMessage("Gravação UMP experimental iniciada.");
+}
+
+void MainWindow::stopFakeUmpRecordingClicked() {
+    m_isFakeUmpRecording = false;
+    m_fakeUmpRecordingStatusLabel->setText("Status: Parada");
+    m_fakeUmpRecordingStatusLabel->setStyleSheet("");
+    logFakeUmpMessage("Gravação UMP experimental parada.");
+}
+
+void MainWindow::clearFakeUmpSessionClicked() {
+    m_fakeUmpRecording.clear();
+    m_fakeUmpRecordedCount = 0;
+    m_fakeUmpRecordingStatusLabel->setText("Status: Parada");
+    m_fakeUmpRecordingStatusLabel->setStyleSheet("");
+    m_isFakeUmpRecording = false;
+    m_fakeUmpRecordingCounterLabel->setText("Eventos gravados: 0");
+    logFakeUmpMessage("Sessão UMP experimental limpa.");
+}
+
+void MainWindow::exportFakeUmpSessionTxtClicked() {
+    if (m_fakeUmpRecording.isEmpty()) {
+        QMessageBox::information(this, "Aviso", "Não há sessão UMP gravada para exportar.");
+        return;
+    }
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    QString defaultName = QString("fake_ump_session_%1.txt").arg(timestamp);
+    QString defaultPath = QDir::homePath() + "/" + defaultName;
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Exportar Sessão UMP Fake (TXT)", defaultPath, "Text Files (*.txt);;All Files (*)");
+    if (fileName.isEmpty()) {
+        logFakeUmpMessage("Exportação da sessão UMP experimental cancelada.");
+        return;
+    }
+    if (!fileName.endsWith(".txt", Qt::CaseInsensitive)) {
+        fileName += ".txt";
+    }
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        logFakeUmpMessage("Erro ao exportar TXT da sessão.");
+        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo TXT.");
+        return;
+    }
+    QTextStream out(&file);
+    out.setEncoding(QStringConverter::Utf8);
+
+    out << "MidiUmpAnalyzer - Fake UMP Session Recording Export\n";
+    out << "Version: v3.5.0\n";
+    out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    out << "Source: FakeUmpInputBackend\n";
+    out << "Important note: This session uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n";
+    out << "Recorded events: " << m_fakeUmpRecordedCount << "\n\n";
+
+    for (const auto& ev : m_fakeUmpRecording) {
+        out << "[" << ev.timestamp << "] "
+            << "Backend: " << ev.backend << " | "
+            << "Port: " << ev.port << " | "
+            << "UMP: " << ev.umpWords << " | "
+            << "Bits: " << ev.bits << " | "
+            << "MT: " << ev.messageType << " | "
+            << "Group: " << ev.group << " | "
+            << "Status: " << ev.status << " | "
+            << "Channel: " << ev.channel << " | "
+            << "Size: " << ev.size << " | "
+            << "Description: " << ev.description << "\n";
+    }
+    file.close();
+    logFakeUmpMessage("Sessão UMP experimental TXT exportada com sucesso.");
+}
+
+void MainWindow::exportFakeUmpSessionCsvClicked() {
+    if (m_fakeUmpRecording.isEmpty()) {
+        QMessageBox::information(this, "Aviso", "Não há sessão UMP gravada para exportar.");
+        return;
+    }
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    QString defaultName = QString("fake_ump_session_%1.csv").arg(timestamp);
+    QString defaultPath = QDir::homePath() + "/" + defaultName;
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Exportar Sessão UMP Fake (CSV)", defaultPath, "CSV Files (*.csv);;All Files (*)");
+    if (fileName.isEmpty()) {
+        logFakeUmpMessage("Exportação da sessão UMP experimental cancelada.");
+        return;
+    }
+    if (!fileName.endsWith(".csv", Qt::CaseInsensitive)) {
+        fileName += ".csv";
+    }
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        logFakeUmpMessage("Erro ao exportar CSV da sessão.");
+        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo CSV.");
+        return;
+    }
+    QTextStream out(&file);
+    out.setEncoding(QStringConverter::Utf8);
+    out.setGenerateByteOrderMark(true);
+
+    out << "timestamp;backend;port;ump_words;bits;mt;group;status;channel;size;description\n";
+
+    for (const auto& ev : m_fakeUmpRecording) {
+        out << csvEscape(ev.timestamp) << ";"
+            << csvEscape(ev.backend) << ";"
+            << csvEscape(ev.port) << ";"
+            << csvTextCellForSpreadsheet(ev.umpWords) << ";"
+            << csvEscape(ev.bits) << ";"
+            << csvEscape(ev.messageType) << ";"
+            << csvEscape(ev.group) << ";"
+            << csvEscape(ev.status) << ";"
+            << csvEscape(ev.channel) << ";"
+            << csvEscape(ev.size) << ";"
+            << csvEscape(ev.description) << "\n";
+    }
+    file.close();
+    logFakeUmpMessage("Sessão UMP experimental CSV exportada com sucesso.");
 }
