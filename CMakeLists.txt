@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 option(ENABLE_RTMIDI "Habilitar dependência opcional do RtMidi" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES "Enable experimental Windows MIDI Services backend skeleton" OFF)
 
 if(ENABLE_RTMIDI)
     include(FetchContent)
@@ -45,9 +46,15 @@ add_executable(MidiUmpAnalyzer WIN32
     src/midi/IUmpInputBackend.h
     src/midi/FakeUmpInputBackend.h
     src/midi/FakeUmpInputBackend.cpp
+    src/midi/WindowsMidiServicesBackend.h
+    src/midi/WindowsMidiServicesBackend.cpp
 )
 
 target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+
+if(ENABLE_WINDOWS_MIDI_SERVICES)
+    target_compile_definitions(MidiUmpAnalyzer PRIVATE USE_WINDOWS_MIDI_SERVICES)
+endif()
 
 if(ENABLE_RTMIDI)
     target_compile_definitions(MidiUmpAnalyzer PRIVATE USE_RTMIDI)
@@ -67,9 +74,15 @@ add_executable(UmpParserTests
     src/midi/IUmpInputBackend.h
     src/midi/FakeUmpInputBackend.h
     src/midi/FakeUmpInputBackend.cpp
+    src/midi/WindowsMidiServicesBackend.h
+    src/midi/WindowsMidiServicesBackend.cpp
 )
 
 target_link_libraries(UmpParserTests PRIVATE Qt6::Core)
+
+if(ENABLE_WINDOWS_MIDI_SERVICES)
+    target_compile_definitions(UmpParserTests PRIVATE USE_WINDOWS_MIDI_SERVICES)
+endif()
 
 if(WIN32)
     get_target_property(QT_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)

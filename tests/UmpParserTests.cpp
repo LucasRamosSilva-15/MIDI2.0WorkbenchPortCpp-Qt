@@ -6,6 +6,7 @@
 #include "../src/midi/Midi1LiveDecoder.h"
 #include "../src/midi/Midi1ToUmpPreviewConverter.h"
 #include "../src/midi/FakeUmpInputBackend.h"
+#include "../src/midi/WindowsMidiServicesBackend.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -18,6 +19,12 @@ void assertTest(const std::string& testName, bool condition) {
     } else {
         std::cout << "[FAIL] " << testName << std::endl;
     }
+}
+
+void testWmsBackend_SkeletonBasics() {
+    WindowsMidiServicesBackend wms;
+    assertTest("WMS Backend Name", wms.backendName().contains("Windows MIDI Services"));
+    assertTest("WMS Initially Closed", !wms.isOpen());
 }
 
 int main() {
@@ -272,6 +279,9 @@ int main() {
         assertTest("FakeUmpBackend Closes Successfully", !fakeBackend.isOpen());
         assertTest("FakeUmpBackend Empty after Close", fakeBackend.pollUmpEvents().empty());
     }
+
+    std::cout << "\nStarting WindowsMidiServicesBackend Skeleton Tests\n\n";
+    testWmsBackend_SkeletonBasics();
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 

@@ -5,7 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
 
-**Versão:** v4.0.0 - Native UMP backend feasibility research
+**Versão:** v4.1.0 - Windows MIDI Services backend skeleton
 
 ## Visão Geral do MVP
 
@@ -18,7 +18,6 @@ Temos duas versões disponíveis na [página de Releases](../../releases):
 
 1. **Pacote Padrão** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64.zip`): Offline puro, seguro e com dependências mínimas.
 2. **Pacote Experimental RtMidi** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64-rtmidi.zip`): Permite listar portas de hardware e testar conexões. Interpreta pacotes nativos MIDI 1.0 (Note On/Off, Control Change, etc.) logando essas decodificações em um painel isolado de tempo-real. Ainda não faz tradução ou exibição de pacotes UMP na tabela principal.
-
 **O que este projeto FAZ:**
 
 - Ingestão passiva de registros textuais UMP brutos (aceita blocos hexadecimais colados na interface ou leitura de arquivos `.txt`).
@@ -30,9 +29,7 @@ Temos duas versões disponíveis na [página de Releases](../../releases):
   - MT 0xD (Flex Data - Cabeçalho Parcial)
   - MT 0xF (UMP Stream - Descobertas Endpoint, Função e Dispositivo)
 - Sanitização de dados robusta, rastreando lixo textual, letras inválidas, arquivos obesos ou contagem de bytes quebrada no vetor sem travar.
-
 **O que este projeto NÃO FAZ (Limitações Conhecidas):**
-
 - **NÃO é um MIDI Host real.** Ele não conecta, não envia e não ouve dispositivos MIDI 1.0 / 2.0 físicos pelo Windows.
 - **NÃO suporta Windows MIDI Services ou Drivers USB.**
 - **NÃO implementa MIDI-CI** (Property Exchange, Profile Configuration, Protocol Negotiation). As interpretações de payload são brutas ou estáticas.
@@ -107,7 +104,6 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 ## v3.x Experimental UMP Backend Research
 >
 > **Status:** v3.7.0 introduces Documentation and Demo Polish for the Fake UMP Session. Real hardware UMP capture is not implemented yet.
-
 **Experimental UMP Backend (v3.x series)**
 
 - Fake backend for simulation.
@@ -131,6 +127,7 @@ O aplicativo atinge o congelamento estático (**feature freeze**) e encontra-se 
 - **Arquivos Finais:** Leia as [Evidências de Demonstração](docs/experimental_ump_backend_evidence_checklist.md), [Limitações Acadêmicas](docs/experimental_ump_backend_limitations.md) e o [Plano/Roteiro de Fala](docs/tcc_final_demo_script.md)
 
 ## v4.x Native UMP Backend Research
+
 - **v4.0.0** inicia a pesquisa documental em busca de acoplamento real de um UMP Backend Nativo para a máquina host.
 - *Nenhuma captura* física real fora implementada ainda.
 - Os futuros estudos estão concentrados majoritariamente na implementação gradativa das APIs de kernel em **Windows MIDI Services** como o candidato primário de OS.

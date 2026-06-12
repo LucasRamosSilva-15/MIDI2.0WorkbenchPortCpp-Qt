@@ -16,16 +16,16 @@ Para que a orquestração do C++ abrace a API da Microsoft sem causar explosões
 5. Construir a "tradução", movendo um evento do driver Microsoft para a nossa `struct UmpRawEvent`.
 
 ## Proposed integration path
-1. Criar um esqueleto atômico chamado `WindowsMidiServicesBackend` preenchendo as promessas da *interface* `IUmpInputBackend`.
-2. Proteger as chamadas do CMakeLists.txt com `ENABLE_WINDOWS_MIDI_SERVICES=OFF`.
-3. O build nativo do TCC, livre de SDKs de aúdio, nunca deve quebrar para um compilador iniciante.
-4. **Primeiro Marco Futuro:** Listar o nome de um endpoint UMP conectado no dropdown (ComboBox).
+1. **[v4.1.0 - Feito]** Criar um esqueleto atômico chamado `WindowsMidiServicesBackend` preenchendo as promessas da *interface* `IUmpInputBackend`.
+2. **[v4.1.0 - Feito]** Proteger as chamadas do CMakeLists.txt com `ENABLE_WINDOWS_MIDI_SERVICES=OFF`.
+3. **[v4.1.0 - Feito]** A compilação é estéril. Não quebra o build legível do MSVC purista.
+4. **Primeiro Marco Futuro (v4.2.0):** Listar o nome de um endpoint UMP conectado no dropdown (ComboBox).
 5. **Segundo Marco Futuro:** Garantir acesso de hardware a porta (Open endpoint).
 6. **Terceiro Marco Futuro:** Estourar um pacote MT 0x4 UMP advindo do Windows no console C++.
 7. **Quarto Marco Futuro:** Enviar esse pacote para o canal da UI Experimental nativa do Workbench para validação visual pericial.
 
-## Not implemented in v4.0.0
-A versão v4.0.0 é **estritamente bibliográfica/pesquisa**. Portanto, esta *release* está limpa de:
+## State in v4.1.0
+A versão v4.1.0 instanciou o **Skeleton**, consolidando arquiteturalmente a árvore. Não obstante, o projeto recusa a captura real até segunda ordem. Ela está bloqueada contra:
 - Headers da Microsoft (`<winrt/...>`).
 - Bibliotecas do Windows SDK embutidas no sistema.
 - Listagem real e captura física de pacotes UMP interativos.

@@ -2,6 +2,13 @@
 
 A árvore de versões `v4.x` tem como manifesto principal a migração e exploração orgânica rumo à captação em altíssima resolução de protocolos reais UMP 2.0 pelo Sistema Operacional primário (Windows).
 
+## v4.1.0 - Windows MIDI Services backend skeleton
+- Added WindowsMidiServicesBackend skeleton.
+- Added ENABLE_WINDOWS_MIDI_SERVICES CMake option, OFF by default.
+- Backend does not list endpoints or capture real UMP yet.
+- No Windows MIDI Services SDK dependency added.
+- CI workflow updated to run on v4-experimental branch.
+
 ## v4.0.0 - Native UMP backend feasibility research
 - **Documentation-only feasibility release.** (Não adicionou nem encerrou C++ novo, apenas relatórios prospectivos).
 - Investigou massivamente o cenário futuro sobre `Windows MIDI Services`, `ALSA UMP`, `libremidi` e `JUCE` enquanto possíveis motores paralelos de escuta de porta.

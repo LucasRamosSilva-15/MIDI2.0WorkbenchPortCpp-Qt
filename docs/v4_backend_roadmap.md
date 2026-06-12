@@ -6,8 +6,8 @@ Native UMP backend feasibility research.
 
 ## v4.1.0
 Windows MIDI Services backend skeleton.
-- Estruturação estéril dos arquivos `.h` e `.cpp` com injeção segura por flag de compilação CMake.
-- Nenhum link efetivo com SDKs Microsoft ou execução obrigatória nas dependências diárias (mantido OFF por padrão).
+- Cimento arquitetural estruturado em `.h` e `.cpp` na malha de compilação protegido pela CMake flag `ENABLE_WINDOWS_MIDI_SERVICES`.
+- Nenhum link efetivo com SDK Microsoft executado nesta etapa; retornando coleções de endpoints vazias (mock de segurança).
 
 ## v4.2.0
 Windows MIDI Services endpoint listing prototype.

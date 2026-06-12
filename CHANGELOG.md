@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.1.0 - Windows MIDI Services backend skeleton
+- Added initial WindowsMidiServicesBackend skeleton.
+- Added optional ENABLE_WINDOWS_MIDI_SERVICES flag, OFF by default.
+- Preserved FakeUmpInputBackend as the working test backend.
+- No real Windows MIDI Services SDK integration yet.
+- No real UMP endpoint listing or capture yet.
+- Updated CI workflow to run on v4-experimental branch.
+
 ## v4.0.0 - Native UMP backend feasibility research
 - Started v4.x research line for native UMP backend feasibility.
 - Added Windows MIDI Services feasibility notes.
