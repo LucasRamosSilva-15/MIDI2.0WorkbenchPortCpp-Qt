@@ -3,7 +3,9 @@
 ![CI](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
-![Qt](https://img.shields.io/badge/Framework-Qt6-green)**Versão:** v3.8.0 - TCC final demo readiness review
+![Qt](https://img.shields.io/badge/Framework-Qt6-green)
+
+**Versão:** v3.8.0 - TCC final demo readiness review
 
 ## Visão Geral do MVP
 O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
