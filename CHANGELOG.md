@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v4.2.0 - Windows MIDI Services endpoint listing research
+- Updated README to reflect current v4.x project state.
+- Added endpoint listing research notes for Windows MIDI Services.
+- Prepared WindowsMidiServicesBackend skeleton for future endpoint enumeration.
+- Preserved build stability without Windows MIDI Services SDK dependency.
+- No real endpoint listing or UMP capture yet.
+
 ## v4.1.0 - Windows MIDI Services backend skeleton
 - Added initial WindowsMidiServicesBackend skeleton.
 - Added optional ENABLE_WINDOWS_MIDI_SERVICES flag, OFF by default.

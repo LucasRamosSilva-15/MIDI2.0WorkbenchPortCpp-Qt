@@ -19,10 +19,16 @@ Para que a orquestração do C++ abrace a API da Microsoft sem causar explosões
 1. **[v4.1.0 - Feito]** Criar um esqueleto atômico chamado `WindowsMidiServicesBackend` preenchendo as promessas da *interface* `IUmpInputBackend`.
 2. **[v4.1.0 - Feito]** Proteger as chamadas do CMakeLists.txt com `ENABLE_WINDOWS_MIDI_SERVICES=OFF`.
 3. **[v4.1.0 - Feito]** A compilação é estéril. Não quebra o build legível do MSVC purista.
-4. **Primeiro Marco Futuro (v4.2.0):** Listar o nome de um endpoint UMP conectado no dropdown (ComboBox).
+4. **[v4.2.0 - Feito (Stub)]** Listar o nome de um endpoint UMP conectado no dropdown (ComboBox).
 5. **Segundo Marco Futuro:** Garantir acesso de hardware a porta (Open endpoint).
 6. **Terceiro Marco Futuro:** Estourar um pacote MT 0x4 UMP advindo do Windows no console C++.
 7. **Quarto Marco Futuro:** Enviar esse pacote para o canal da UI Experimental nativa do Workbench para validação visual pericial.
+
+## Endpoint Listing Research - v4.2.0
+- O objetivo futuro real (via kernel) é listar de forma dinâmica os *endpoints* MIDI/UMP nativos do Windows MIDI Services conectados por USB.
+- A listagem (*endpoint listing*) é o primeiro batismo de fogo para testar o acesso à biblioteca antes de tentar um *Open Session* e receber dados UMP.
+- A classe de esqueleto `WindowsMidiServicesBackend` está blindada nesta versão. O método C++ devolve rigorosamente uma lista vazia, apenas alocando a chamada na função privada `queryAvailableEndpoints()`.
+- O passo final em `v4.x` exigirá explicitamente o **SDK Runtime / Tools** do Windows e seus headers interativos, sob ameaça de não compilar se as condicionais do CMake não forem precisas. Falhas de ausência do Runtime não devem quebrar o pipeline Offline.
 
 ## State in v4.1.0
 A versão v4.1.0 instanciou o **Skeleton**, consolidando arquiteturalmente a árvore. Não obstante, o projeto recusa a captura real até segunda ordem. Ela está bloqueada contra:

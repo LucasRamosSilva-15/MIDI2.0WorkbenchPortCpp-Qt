@@ -1,143 +1,83 @@
-# MIDI 2.0 Workbench Port (C++ / Qt6)
+# MidiUmpAnalyzer / MIDI2.0WorkbenchPortCpp-Qt
 
 ![CI](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
+**Current version:** v4.2.0
 
-**Versão:** v4.1.0 - Windows MIDI Services backend skeleton
-
-## Visão Geral do MVP
-
-O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6.
+## Descrição curta
+Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
 Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por MCUs embarcados (como Raspberry Pi Pico) antes do transporte USB final.
 
-## Downloads e Pacotes
+## Estado atual
+- **Offline UMP Analyzer**: funcional.
+- **Live MIDI Monitor via RtMidi**: opcional, MIDI 1.0 bytes crus.
+- **MIDI 1.0 to UMP Preview**: funcional como MT 0x2.
+- **Experimental UMP Backend**: funcional com FakeUmpInputBackend.
+- **Fake UMP Session Recording/Summary**: funcional.
+- **WindowsMidiServicesBackend**: skeleton/research only.
+- **Real Windows MIDI Services endpoint listing**: ainda não implementado.
+- **Real UMP capture**: ainda não implementado.
 
-Temos duas versões disponíveis na [página de Releases](../../releases):
+## Important limitations
+- O componente RtMidi **não é** um backend UMP real.
+- O UMP Preview do Live MIDI usa MT 0x2, não realiza conversão completa para propriedades MT 0x4 de alta resolução.
+- O `FakeUmpInputBackend` não captura hardware real. Ele injeta arrays hexadecimais in-memory para validação da Interface Gráfica.
+- O `WindowsMidiServicesBackend` ainda é um *skeleton* puramente acadêmico sem comunicação com kernel.
+- Protocolos MIDI-CI (Property Exchange, Profile Configuration, Protocol Negotiation) não estão implementados ativamente.
+- O Windows MIDI Services SDK **não é** uma dependência obrigatória nesta versão, o *build* permanece independente.
 
-1. **Pacote Padrão** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64.zip`): Offline puro, seguro e com dependências mínimas.
-2. **Pacote Experimental RtMidi** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64-rtmidi.zip`): Permite listar portas de hardware e testar conexões. Interpreta pacotes nativos MIDI 1.0 (Note On/Off, Control Change, etc.) logando essas decodificações em um painel isolado de tempo-real. Ainda não faz tradução ou exibição de pacotes UMP na tabela principal.
-**O que este projeto FAZ:**
-
-- Ingestão passiva de registros textuais UMP brutos (aceita blocos hexadecimais colados na interface ou leitura de arquivos `.txt`).
-- Desmembramento matemático e detalhamento estático dos cabeçalhos dos Message Types:
-  - MT 0x2 (MIDI 1.0 Channel Voice)
-  - MT 0x4 (MIDI 2.0 Channel Voice)
-  - MT 0x3 (SysEx7 - Cabeçalho Parcial)
-  - MT 0x5 (SysEx8/MDS - Cabeçalho Parcial)
-  - MT 0xD (Flex Data - Cabeçalho Parcial)
-  - MT 0xF (UMP Stream - Descobertas Endpoint, Função e Dispositivo)
-- Sanitização de dados robusta, rastreando lixo textual, letras inválidas, arquivos obesos ou contagem de bytes quebrada no vetor sem travar.
-**O que este projeto NÃO FAZ (Limitações Conhecidas):**
-- **NÃO é um MIDI Host real.** Ele não conecta, não envia e não ouve dispositivos MIDI 1.0 / 2.0 físicos pelo Windows.
-- **NÃO suporta Windows MIDI Services ou Drivers USB.**
-- **NÃO implementa MIDI-CI** (Property Exchange, Profile Configuration, Protocol Negotiation). As interpretações de payload são brutas ou estáticas.
-- **NÃO reconstrói fragmentação UMP**. Pacotes SysEx ou Flex partidos em pacotes menores (Start/Continue/End) são avaliados isoladamente pacote por pacote de forma forense, sem concatenação temporária de estado (buffer state).
-
-## Download
-
-Para testar a aplicação sem precisar compilar o código fonte, acesse a aba lateral [**Releases**](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/releases) aqui no GitHub.
-Lá você poderá baixar o pacote `.zip` compactado (ex: `MidiUmpAnalyzer-v1.1.0-windows-x64.zip`) gerado e empacotado automaticamente pelos servidores da Microsoft, contendo o executável livre de vírus e todas as DLLs necessárias para rodar no seu Windows.
+## Version lines
+- **v1.x:** Offline UMP Analyzer.
+- **v2.x:** Live MIDI + UMP Preview.
+- **v3.x:** Experimental Fake UMP Backend, recording, exports, summary, TCC-ready.
+- **v4.x:** Native UMP backend research, Windows MIDI Services skeleton/endpoint listing research.
 
 ## Screenshots
-
 - ![Interface Principal](docs/screenshots/Screenshot3.png)
 - ![Filtragem SysEx](docs/screenshots/Screenshot4.png)
 
-## Como Usar
+## Build
+Para compilar localmente na sua máquina Windows utilizando MSVC 2022.
 
-O analisador é projetado para aceitar registros hexadecimais brutos e dissecá-los de forma imediata:
+**Build Padrão (Offline / Fake Backend):**
+```powershell
+cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64"
+cmake --build build --config Release
+```
 
-1. **Entrada Manual**: Cole seus pacotes UMP hexadecimais diretamente na caixa de texto superior. Letras e espaços perdidos serão higienizados de forma inteligente.
-2. **Entrada de Arquivos**: Se preferir, clique no botão `Load .txt` e carregue um arquivo de log da sua máquina contendo pacotes brutos.
-3. **Analisar**: Pressione o botão `Interpret` para que a tabela preencha as traduções descritivas instantaneamente.
-4. **Filtrar**: Utilize a barra de **Filter** para pesquisar pacotes específicos (ex: digite "SysEx" e a tabela mostrará apenas mensagens SysEx).
-5. **Copiar Dados**: Clique no botão `Copy Table` para transportar toda a grade decodificada para o seu Excel/Bloco de notas em um formato perfeitamente tabulado.
-6. **Extrair o Log**: Pressione `Save Log` para guardar os relatórios e logs de erro (truncamentos, arquivos inválidos) em um arquivo `.txt` na sua máquina.
+**Build RtMidi (Live MIDI 1.0):**
+```powershell
+cmake -B build-rtmidi -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_RTMIDI=ON
+cmake --build build-rtmidi --config Release
+```
 
-## Infraestrutura Tecnológica (Testes e CI)
+**Build Skeleton Windows MIDI Services:**
+*(Nota: a flag ENABLE_WINDOWS_MIDI_SERVICES=ON ainda não ativa SDK real, apenas compila a casca skeleton protegida).*
+```powershell
+cmake -B build-wms -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON
+cmake --build build-wms --config Release
+```
 
-A versão `v1.1.0` suporta testes nativos puramente C++, desacoplados da interface gráfica Qt:
-
-- **Automação de Testes Local (`UmpParserTests`)**: Cobertura paramétrica contra pacotes mentirosos, sujeira alfanumérica e validação semântica de MT.
-- **GitHub Actions (CI / CD)**:
-  - A cada *commit/push* normal, a nuvem Windows analisa a robustez binária usando testes automáticos.
-  - A cada *Tag* postada na branch (`v*`), a nuvem engatilha o **Release Worklflow**, empacotando o executável estático junto das DLLs requeridas via `windeployqt` e gerando automaticamente o pacote `.zip` de lançamento na aba de Releases.
-
-## Instruções de Build Local
-
-Para compilar manualmente na sua máquina Windows utilizando MSVC 2022:
-
-1. Tenha o Qt6 configurado e exposto na sua variável `CMAKE_PREFIX_PATH`.
-2. Em um terminal / PowerShell na raiz, digite:
-
-   ```powershell
-   cmake -B build -DCMAKE_BUILD_TYPE=Release
-   cmake --build build --config Release
-   ```
-
-3. Execute o app em: `build\Release\MidiUmpAnalyzer.exe`
-
-## Instruções de Testes Locais
-
-Rode os testes passivos independentes via PowerShell:
-
+## Tests
+Automação unitária nativa em terminal (não requer interface):
 ```powershell
 powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 ```
 
-*(Você pode usar a flag opcional `-SkipBuild` caso já tenha rodado o CMake antes e queira apenas os resultados do binário).*
+## Packaging
+Zips de lançamento podem ser empacotados com scripts locais acoplados nativamente:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version v4.2.0
+powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version v4.2.0 -EnableRtMidi
+```
 
-## TCC Demo
-
-- [TCC Demo Guide](docs/tcc_demo_guide.md)
-- [TCC Demo Script](docs/demo_script_short.md)
-- [TCC Screenshots Guide](docs/screenshots_guide.md)
-- [Live MIDI to UMP Explanation](docs/live_midi_to_ump_explanation.md)
-- [Known Limitations](docs/known_limitations.md)
-- [Project Architecture Overview](docs/project_architecture_overview.md)
-- [Test Plan](docs/test_plan.md)
-- [Release Summary v2](docs/release_summary_v2.md)
-- [Final Review Checklist](docs/final_review_checklist.md)
-
-## v3.x Experimental UMP Backend Research
->
-> **Status:** v3.7.0 introduces Documentation and Demo Polish for the Fake UMP Session. Real hardware UMP capture is not implemented yet.
-**Experimental UMP Backend (v3.x series)**
-
-- Fake backend for simulation.
-- Tabela experimental para polling contínuo.
-- Exportação dinâmica TXT/CSV.
-- Gravação perene em memória paralela (Fake Session).
-- Resumo acadêmico contábil da sessão.
-- **Limitação Crítica:** Ainda não é captura real de UMP, o backend simula os pacotes em RAM.
-- [Experimental UMP Backend Research](docs/ump_backend_research.md)
-- [UMP Backend Architecture Plan](docs/ump_backend_architecture_plan.md)
-- [Windows MIDI Services Notes](docs/windows_midi_services_notes.md)
-- [Release Summary v3](docs/release_summary_v3.md)
-
-## TCC Final Demo Readiness
-
-O aplicativo atinge o congelamento estático (**feature freeze**) e encontra-se certificado para a defesa acadêmica, focado na robustez contábil das conversões algorítmicas e emulação *in-memory* do modelo *Universal MIDI Packet*.
-
-- **Estado atual:** Operante e submetido às 54 métricas implacáveis do CTest.
-- **O que demonstrar:** Imunidade do compilador aos blocos truncados, o roteador `FakeUmpInputBackend` e os Exports periciais de Auditoria TXT.
-- **Limitações:** O arcabouço C++ é autossuficiente mas as interfaces de kernel/API (*WinRT*, MIDI-CI) não compõem a grade.
-- **Arquivos Finais:** Leia as [Evidências de Demonstração](docs/experimental_ump_backend_evidence_checklist.md), [Limitações Acadêmicas](docs/experimental_ump_backend_limitations.md) e o [Plano/Roteiro de Fala](docs/tcc_final_demo_script.md)
-
-## v4.x Native UMP Backend Research
-
-- **v4.0.0** inicia a pesquisa documental em busca de acoplamento real de um UMP Backend Nativo para a máquina host.
-- *Nenhuma captura* física real fora implementada ainda.
-- Os futuros estudos estão concentrados majoritariamente na implementação gradativa das APIs de kernel em **Windows MIDI Services** como o candidato primário de OS.
-- O atual validador `FakeUmpInputBackend` não será deletado; ele permanece firmemente como base de *Fallback* essencial em hardware desprovido da atualização.
-- **Relatórios Exclusivos V4:** [Decision Matrix](docs/native_ump_backend_decision_matrix.md) | [Windows Feasibility](docs/windows_midi_services_feasibility.md) | [V4 Roadmap](docs/v4_backend_roadmap.md)
-
-## Roadmap
-
-O que esperar para as próximas evoluções (*Pós-MVP*):
-
-- Investigação controlada para integração com interfaces UMP MIDI via OS (Windows MIDI Services).
-- Injeção de estado isolado para reconstrução *stateless* em tempo real de mensagens UMP fragmentadas (SysEx, Flex).
-- Parser avançado de dados proprietários sem corromper a leitura bruta existente.
+## Docs
+Manuais oficiais e cadernos de auditoria dispostos no repositório:
+- [docs/tcc_final_demo_script.md](docs/tcc_final_demo_script.md)
+- [docs/experimental_ump_backend_demo_guide.md](docs/experimental_ump_backend_demo_guide.md)
+- [docs/native_ump_backend_feasibility.md](docs/native_ump_backend_feasibility.md)
+- [docs/windows_midi_services_feasibility.md](docs/windows_midi_services_feasibility.md)
+- [docs/v4_backend_roadmap.md](docs/v4_backend_roadmap.md)
+- [docs/release_summary_v4.md](docs/release_summary_v4.md)

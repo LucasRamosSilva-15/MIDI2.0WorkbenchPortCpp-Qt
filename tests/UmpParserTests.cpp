@@ -25,6 +25,7 @@ void testWmsBackend_SkeletonBasics() {
     WindowsMidiServicesBackend wms;
     assertTest("WMS Backend Name", wms.backendName().contains("Windows MIDI Services"));
     assertTest("WMS Initially Closed", !wms.isOpen());
+    assertTest("WMS Backend queryAvailableEndpoints returns empty via listInputPorts", wms.listInputPorts().isEmpty());
 }
 
 int main() {

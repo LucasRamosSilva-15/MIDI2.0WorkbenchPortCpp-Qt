@@ -86,6 +86,13 @@
 - [ ] Assegurar a compilação fluida sem pacotes bizarros na aba normal e RtMidi.
 - [ ] Confirmar que a matriz de fallback v3.x Fake Backend continua preservada e testada.
 
+## v4.2.0 feasibility review
+- [ ] README atualizado e coerente com v4.2.0.
+- [ ] WindowsMidiServicesBackend ainda não promete captura real.
+- [ ] ENABLE_WINDOWS_MIDI_SERVICES=ON compila skeleton sem SDK.
+- [ ] CI roda em main e v4-experimental.
+- [ ] Release por tag v* preservado.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

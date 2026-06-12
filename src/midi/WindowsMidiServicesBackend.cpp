@@ -17,14 +17,19 @@ QString WindowsMidiServicesBackend::backendName() const {
 }
 
 QStringList WindowsMidiServicesBackend::listInputPorts() {
-    QStringList ports;
+    // (v4.2.0) Encaminha para o stub privado de pesquisa
+    return queryAvailableEndpoints();
+}
+
+QStringList WindowsMidiServicesBackend::queryAvailableEndpoints() const {
+    QStringList endpoints;
     
 #ifdef USE_WINDOWS_MIDI_SERVICES
-    // Futuro (v4.2.0): Listagem real de endpoints usando winrt::Windows::Devices::Midi2
-    // Por enquanto, retorna vazio e documenta.
+    // Futuro (v4.x): Listagem real usando winrt::Windows::Devices::Midi2
+    // Por enquanto, retorna vazio blindando o sistema.
 #endif
 
-    return ports;
+    return endpoints;
 }
 
 bool WindowsMidiServicesBackend::openInputPort(int portIndex) {

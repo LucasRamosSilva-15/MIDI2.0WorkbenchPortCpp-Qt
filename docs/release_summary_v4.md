@@ -2,6 +2,13 @@
 
 A árvore de versões `v4.x` tem como manifesto principal a migração e exploração orgânica rumo à captação em altíssima resolução de protocolos reais UMP 2.0 pelo Sistema Operacional primário (Windows).
 
+## v4.2.0 - Windows MIDI Services endpoint listing research
+- Added endpoint listing research documentation.
+- Updated README to reflect current project state.
+- Prepared WindowsMidiServicesBackend skeleton with endpoint query stub.
+- Real endpoint listing and UMP capture are not implemented yet.
+- No Windows MIDI Services SDK dependency added.
+
 ## v4.1.0 - Windows MIDI Services backend skeleton
 - Added WindowsMidiServicesBackend skeleton.
 - Added ENABLE_WINDOWS_MIDI_SERVICES CMake option, OFF by default.

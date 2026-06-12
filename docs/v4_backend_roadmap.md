@@ -9,18 +9,24 @@ Windows MIDI Services backend skeleton.
 - Cimento arquitetural estruturado em `.h` e `.cpp` na malha de compilação protegido pela CMake flag `ENABLE_WINDOWS_MIDI_SERVICES`.
 - Nenhum link efetivo com SDK Microsoft executado nesta etapa; retornando coleções de endpoints vazias (mock de segurança).
 
-## v4.2.0
-Windows MIDI Services endpoint listing prototype.
-- Prova de conceito funcional (se a máquina host permitir SDK e ferramentas). A janela interativa do C++ deverá rastrear os dispositivos de hardware UMP no computador. O Fallback (`FakeUmpInputBackend`) continuará garantindo suporte para desenvolvedores órfãos do SDK.
+## v4.2.0 - Windows MIDI Services endpoint listing research
+- Endpoint listing researched and documented na base textual `windows_midi_services_feasibility.md`.
+- Esqueleto preparado com um *endpoint query stub* privado puramente virtual/isolado.
+- Listagem nativa e real no kernel postergada por segurança.
+- UI backend selector postergado.
 
 ## v4.3.0
-Experimental UMP receive prototype.
-- O coração do projeto: Uma *Callback/Thread* conectando as interrupções Microsoft à nossa ponte atômica, mastigando arrays brutos e encapsulando todos de forma segura contra falhas no motor `UmpRawEvent`.
+Windows MIDI Services SDK build experiment.
+- Avaliação da linkagem verdadeira no MSVC contra a suíte de cabeçalhos de Kernel (`<winrt/Windows...`) sem estourar dependências quebra-galho.
 
 ## v4.4.0
-UI backend selector.
-- Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware do mundo real (WindowsMidiServicesBackend) pela interface do QWidget.
+Endpoint listing prototype with SDK.
+- Retorno dos verdadeiros hardwares pela malha C++. Funcionalidade opcional travada pelo CMake.
 
 ## v4.5.0
-Documentation and validation against real device.
-- Avaliação com periférico validado de altíssima fidelidade, varrendo bugs marginais, documentando reações e confirmando o suporte ao TCC como analisador universal prático e pericial.
+UI backend selector.
+- Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware (WindowsMidiServicesBackend) pela interface QWidget, caso a API de leitura se mostre blindada.
+
+## v4.6.0
+Experimental UMP receive prototype.
+- Receber pacotes reais injetando eventos físicos na *Thread* de callback. Avaliação final com periférico UMP validado.

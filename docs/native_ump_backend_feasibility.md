@@ -3,9 +3,9 @@
 ## Goal
 O objetivo desta pesquisa é estudar a transição suave do protótipo simulado (`FakeUmpInputBackend`) para um backend UMP nativo e funcional com hardwares conectados à máquina.
 
-## Current State (v4.1.0)
-Neste momento (linha evolutiva v4.1.0):
-- Foi forjado o **Esqueleto Arquitetural (Skeleton)** do motor WindowsMidiServicesBackend C++, provando a estabilidade da interface IUmpInputBackend. 
+## Current State (v4.2.0)
+Neste momento (linha evolutiva v4.2.0):
+- Foi forjado o **Esqueleto Arquitetural (Skeleton)** do motor WindowsMidiServicesBackend C++, provando a estabilidade da interface IUmpInputBackend. Um stub de *endpoint query* aguarda injeção.
 - A compilação é estéril; retorna falsos/vazios e o hardware não é acessado. Flag isolada `ENABLE_WINDOWS_MIDI_SERVICES=OFF`.
 - O componente de áudio real do projeto baseia-se unicamente no `RtMidiBackend`, que por sua natureza restrita capta apenas MIDI 1.0 (bytes crus de 8-bits).
 - A interface exibe pacotes UMP em demonstrações live via `Midi1ToUmpPreviewConverter` (convertendo o fluxo real 1.0 para o contêiner UMP MT 0x2).

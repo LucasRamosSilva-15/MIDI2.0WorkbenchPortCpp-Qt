@@ -25,6 +25,9 @@ public:
     std::vector<UmpRawEvent> pollUmpEvents() override;
 
 private:
+    // Stub de pesquisa: simula a listagem real sem engatilhar o SDK ainda.
+    QStringList queryAvailableEndpoints() const;
+
     bool m_isOpen;
     std::mutex m_mutex;
     // Futuro: ponteiros nativos de IMidiEndpointConnection, sessões, etc.
