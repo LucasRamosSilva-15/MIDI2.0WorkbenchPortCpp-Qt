@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v4.3.0 - Windows MIDI Services SDK build experiment
+- Added optional ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT build flag.
+- Added documentation for future Windows MIDI Services SDK integration.
+- Preserved stable builds without SDK dependency.
+- No real Windows MIDI Services endpoint listing or UMP capture yet.
+- No UI backend selector yet.
+
 ## v4.2.0 - Windows MIDI Services endpoint listing research
 - Updated README to reflect current v4.x project state.
 - Added endpoint listing research notes for Windows MIDI Services.

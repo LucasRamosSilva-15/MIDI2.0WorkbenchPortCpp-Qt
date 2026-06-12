@@ -8,6 +8,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 option(ENABLE_RTMIDI "Habilitar dependência opcional do RtMidi" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES "Enable experimental Windows MIDI Services backend skeleton" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT "Enable experimental Windows MIDI Services SDK build path" OFF)
 
 if(ENABLE_RTMIDI)
     include(FetchContent)
@@ -48,12 +49,20 @@ add_executable(MidiUmpAnalyzer WIN32
     src/midi/FakeUmpInputBackend.cpp
     src/midi/WindowsMidiServicesBackend.h
     src/midi/WindowsMidiServicesBackend.cpp
+    src/midi/WindowsMidiServicesSdkProbe.h
+    src/midi/WindowsMidiServicesSdkProbe.cpp
 )
 
 target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
 
 if(ENABLE_WINDOWS_MIDI_SERVICES)
     target_compile_definitions(MidiUmpAnalyzer PRIVATE USE_WINDOWS_MIDI_SERVICES)
+endif()
+
+if(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT)
+    message(STATUS "Windows MIDI Services SDK experiment enabled")
+    message(WARNING "This build path is experimental and may require Windows MIDI Services SDK Runtime/Tools and C++/WinRT configuration.")
+    target_compile_definitions(MidiUmpAnalyzer PRIVATE USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT)
 endif()
 
 if(ENABLE_RTMIDI)
@@ -76,12 +85,18 @@ add_executable(UmpParserTests
     src/midi/FakeUmpInputBackend.cpp
     src/midi/WindowsMidiServicesBackend.h
     src/midi/WindowsMidiServicesBackend.cpp
+    src/midi/WindowsMidiServicesSdkProbe.h
+    src/midi/WindowsMidiServicesSdkProbe.cpp
 )
 
 target_link_libraries(UmpParserTests PRIVATE Qt6::Core)
 
 if(ENABLE_WINDOWS_MIDI_SERVICES)
     target_compile_definitions(UmpParserTests PRIVATE USE_WINDOWS_MIDI_SERVICES)
+endif()
+
+if(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT)
+    target_compile_definitions(UmpParserTests PRIVATE USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT)
 endif()
 
 if(WIN32)

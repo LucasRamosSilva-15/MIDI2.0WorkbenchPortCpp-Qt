@@ -7,6 +7,7 @@
 #include "../src/midi/Midi1ToUmpPreviewConverter.h"
 #include "../src/midi/FakeUmpInputBackend.h"
 #include "../src/midi/WindowsMidiServicesBackend.h"
+#include "../src/midi/WindowsMidiServicesSdkProbe.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -26,6 +27,18 @@ void testWmsBackend_SkeletonBasics() {
     assertTest("WMS Backend Name", wms.backendName().contains("Windows MIDI Services"));
     assertTest("WMS Initially Closed", !wms.isOpen());
     assertTest("WMS Backend queryAvailableEndpoints returns empty via listInputPorts", wms.listInputPorts().isEmpty());
+}
+
+void testWmsSdkProbe_Status() {
+    WindowsMidiServicesSdkProbe probe;
+    bool enabled = probe.isWindowsMidiServicesSdkExperimentEnabled();
+#ifdef USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT
+    assertTest("SDK Probe Experiment is ENABLED", enabled == true);
+    assertTest("SDK Probe Status Check", probe.windowsMidiServicesSdkExperimentStatus().contains("compile flag is enabled"));
+#else
+    assertTest("SDK Probe Experiment is DISABLED", enabled == false);
+    assertTest("SDK Probe Status Check", probe.windowsMidiServicesSdkExperimentStatus().contains("experiment is disabled"));
+#endif
 }
 
 int main() {
@@ -283,6 +296,7 @@ int main() {
 
     std::cout << "\nStarting WindowsMidiServicesBackend Skeleton Tests\n\n";
     testWmsBackend_SkeletonBasics();
+    testWmsSdkProbe_Status();
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 

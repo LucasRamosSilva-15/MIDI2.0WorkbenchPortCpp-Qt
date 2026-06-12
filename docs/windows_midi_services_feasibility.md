@@ -30,6 +30,11 @@ Para que a orquestração do C++ abrace a API da Microsoft sem causar explosões
 - A classe de esqueleto `WindowsMidiServicesBackend` está blindada nesta versão. O método C++ devolve rigorosamente uma lista vazia, apenas alocando a chamada na função privada `queryAvailableEndpoints()`.
 - O passo final em `v4.x` exigirá explicitamente o **SDK Runtime / Tools** do Windows e seus headers interativos, sob ameaça de não compilar se as condicionais do CMake não forem precisas. Falhas de ausência do Runtime não devem quebrar o pipeline Offline.
 
+## SDK Build Experiment - v4.3.0
+- Para não comprometer a imunidade do sistema host, a integração real do SDK ainda não foi selada. O projeto explora agora uma trilha de Build Opcional (`ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT`).
+- A flag opera separada do esqueleto (`ENABLE_WINDOWS_MIDI_SERVICES`) justamente porque engatilhar o SDK significa abrir os portões para exigências do C++/WinRT, NuGet/vcpkg ou o pacote nativo Windows.Devices.Midi2.
+- O endpoint listing real continua suspenso para não poluir o *stub* sem atestar primeiro que o compilador enxerga a API da Microsoft de modo seguro.
+
 ## State in v4.1.0
 A versão v4.1.0 instanciou o **Skeleton**, consolidando arquiteturalmente a árvore. Não obstante, o projeto recusa a captura real até segunda ordem. Ela está bloqueada contra:
 - Headers da Microsoft (`<winrt/...>`).

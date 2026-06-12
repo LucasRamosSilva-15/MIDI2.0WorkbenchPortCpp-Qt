@@ -93,6 +93,14 @@
 - [ ] CI roda em main e v4-experimental.
 - [ ] Release por tag v* preservado.
 
+## v4.3.0 SDK experiment review
+- [ ] ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT is OFF by default.
+- [ ] Normal build passes without SDK.
+- [ ] RtMidi build passes without SDK.
+- [ ] WMS skeleton build passes without SDK.
+- [ ] SDK experiment does not claim endpoint listing.
+- [ ] README does not claim real UMP capture.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

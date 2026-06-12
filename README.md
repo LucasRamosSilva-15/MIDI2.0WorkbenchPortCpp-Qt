@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.2.0
+**Current version:** v4.3.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -33,6 +33,12 @@ Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por M
 - **v2.x:** Live MIDI + UMP Preview.
 - **v3.x:** Experimental Fake UMP Backend, recording, exports, summary, TCC-ready.
 - **v4.x:** Native UMP backend research, Windows MIDI Services skeleton/endpoint listing research.
+
+## Windows MIDI Services SDK experiment
+- A versão **v4.3.0** adiciona a flag experimental CMake de *Build Opcional* (`ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT`).
+- A diretiva nasce **OFF** por padrão.
+- **Não** ativa captura de Kernel nem de Endpoint Listing real neste momento.
+- A compilação diária **não necessita** dessa rotina. Para fins avaliativos de TCC/Banca, a trilha estática e os pacotes *RtMidi/Fake backend* operam com autonomia absoluta.
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)
