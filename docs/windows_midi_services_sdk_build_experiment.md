@@ -56,7 +56,12 @@ cmake --build build-wms-sdk --config Release
 - It does not capture UMP (Thread serial não inicializada).
 - It does not require SDK yet (O build MSVC passará limpo).
 
+## v4.4.0 Detection Report
+- A versão `v4.4.0` adicionou o `WindowsMidiServicesSdkDetectionReport` que expele um diagnóstico textual em tempo de compilação atestando as capacidades do projeto.
+- O diagnóstico **ainda não** usa SDK real.
+- O diagnóstico **ainda não** detecta pacote real, focando na integridade da *Flag*.
+
 ## Future work
-- **v4.4.0**: real SDK detection or package integration experiment.
-- **v4.5.0**: endpoint listing prototype, optional build only.
-- **v4.6.0**: experimental UMP receive prototype.
+- **v4.5.0**: optional SDK package/header detection experiment.
+- **v4.6.0**: endpoint listing prototype.
+- **v4.7.0**: backend selector UI if endpoint listing stabilizes.

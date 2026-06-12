@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v4.4.0 - Windows MIDI Services SDK detection research
+- Added Windows MIDI Services SDK detection report structure.
+- Added formatted diagnostic output for SDK experiment status.
+- Added documentation for SDK detection research.
+- Preserved stable builds without SDK dependency.
+- No real SDK header probing, endpoint listing or UMP capture yet.
+
 ## v4.3.0 - Windows MIDI Services SDK build experiment
 - Added optional ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT build flag.
 - Added documentation for future Windows MIDI Services SDK integration.

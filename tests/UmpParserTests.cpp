@@ -30,14 +30,24 @@ void testWmsBackend_SkeletonBasics() {
 }
 
 void testWmsSdkProbe_Status() {
-    WindowsMidiServicesSdkProbe probe;
-    bool enabled = probe.isWindowsMidiServicesSdkExperimentEnabled();
+    bool enabled = WindowsMidiServicesSdkProbe::isSdkExperimentEnabled();
+    auto report = WindowsMidiServicesSdkProbe::buildDetectionReport();
+    QString formatted = WindowsMidiServicesSdkProbe::formatDetectionReport(report);
+
+    assertTest("SDK Probe Headers Used False", report.realSdkHeadersUsed == false);
+    assertTest("SDK Probe Endpoint Listing False", report.realEndpointListingAvailable == false);
+    assertTest("SDK Probe UMP Capture False", report.realUmpCaptureAvailable == false);
+
+    assertTest("SDK Probe Formatted contains Windows MIDI Services", formatted.contains("Windows MIDI Services"));
+    assertTest("SDK Probe Formatted contains Endpoint listing", formatted.contains("Endpoint listing"));
+    assertTest("SDK Probe Formatted contains UMP capture", formatted.contains("UMP capture"));
+
 #ifdef USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT
     assertTest("SDK Probe Experiment is ENABLED", enabled == true);
-    assertTest("SDK Probe Status Check", probe.windowsMidiServicesSdkExperimentStatus().contains("compile flag is enabled"));
+    assertTest("SDK Probe Report Flag True", report.experimentCompileFlagEnabled == true);
 #else
     assertTest("SDK Probe Experiment is DISABLED", enabled == false);
-    assertTest("SDK Probe Status Check", probe.windowsMidiServicesSdkExperimentStatus().contains("experiment is disabled"));
+    assertTest("SDK Probe Report Flag False", report.experimentCompileFlagEnabled == false);
 #endif
 }
 

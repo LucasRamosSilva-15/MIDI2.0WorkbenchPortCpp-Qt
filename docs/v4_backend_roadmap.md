@@ -21,18 +21,24 @@ Windows MIDI Services backend skeleton.
 - No SDK dependency enabled by default.
 - No endpoint listing or capture yet.
 
-## v4.4.0
-SDK detection/package integration research.
-- Avaliação da linkagem verdadeira no MSVC contra a suíte de cabeçalhos de Kernel (`<winrt/Windows...`) através do SDK oficial.
+## v4.4.0 - Windows MIDI Services SDK detection research
+- Added SDK detection report.
+- Added compile flag awareness.
+- No real SDK integration yet.
+- No endpoint listing or capture yet.
 
 ## v4.5.0
+Optional SDK package/header detection experiment.
+- Avaliação da linkagem verdadeira no MSVC contra a suíte de cabeçalhos de Kernel (`<winrt/Windows...`) através do SDK oficial.
+
+## v4.6.0
 Endpoint listing prototype.
 - Retorno dos verdadeiros hardwares pela malha C++. Funcionalidade opcional travada pelo CMake.
 
-## v4.6.0
+## v4.7.0
 Backend selector UI.
 - Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware (WindowsMidiServicesBackend) pela interface QWidget, only if endpoint listing is stable.
 
-## v4.7.0
+## v4.8.0
 Experimental UMP receive prototype.
 - Receber pacotes reais injetando eventos físicos na *Thread* de callback. Avaliação final com periférico UMP validado.

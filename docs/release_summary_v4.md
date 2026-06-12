@@ -2,6 +2,13 @@
 
 A árvore de versões `v4.x` tem como manifesto principal a migração e exploração orgânica rumo à captação em altíssima resolução de protocolos reais UMP 2.0 pelo Sistema Operacional primário (Windows).
 
+## v4.4.0 - Windows MIDI Services SDK detection research
+- Added WindowsMidiServicesSdkDetectionReport.
+- Added formatted SDK detection report.
+- Added detection research documentation.
+- Preserved normal builds without SDK dependency.
+- No real endpoint listing or UMP capture yet.
+
 ## v4.3.0 - Windows MIDI Services SDK build experiment
 - Added optional SDK experiment build flag.
 - Added SDK build experiment documentation.

@@ -35,6 +35,11 @@ Para que a orquestração do C++ abrace a API da Microsoft sem causar explosões
 - A flag opera separada do esqueleto (`ENABLE_WINDOWS_MIDI_SERVICES`) justamente porque engatilhar o SDK significa abrir os portões para exigências do C++/WinRT, NuGet/vcpkg ou o pacote nativo Windows.Devices.Midi2.
 - O endpoint listing real continua suspenso para não poluir o *stub* sem atestar primeiro que o compilador enxerga a API da Microsoft de modo seguro.
 
+## SDK Detection Research - v4.4.0
+- O projeto passa a prover diagnósticos formatados e não invasivos do ambiente de Kernel/SDK (`WindowsMidiServicesSdkDetectionReport`).
+- Essa pesquisa foca puramente em rastrear *Compile-Time Flags*, logo **não há leitura forçada de registro**, caça à `.DLL` obscura ou estouramento da lista nativa.
+- Trata-se de uma fase de auditoria preparatória, atestando de forma honesta que pacotes de hardware físico e headers nativos ainda repousam bloqueados.
+
 ## State in v4.1.0
 A versão v4.1.0 instanciou o **Skeleton**, consolidando arquiteturalmente a árvore. Não obstante, o projeto recusa a captura real até segunda ordem. Ela está bloqueada contra:
 - Headers da Microsoft (`<winrt/...>`).

@@ -101,6 +101,13 @@
 - [ ] SDK experiment does not claim endpoint listing.
 - [ ] README does not claim real UMP capture.
 
+## v4.4.0 Detection research review
+- [ ] Detection report confirms whether SDK experiment compile flag is enabled.
+- [ ] Detection report must not claim real endpoint listing.
+- [ ] Detection report must not claim real UMP capture.
+- [ ] Normal build remains SDK-free.
+- [ ] SDK experiment remains optional.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated
