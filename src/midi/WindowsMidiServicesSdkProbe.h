@@ -8,6 +8,15 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool realSdkHeadersUsed = false;
     bool realEndpointListingAvailable = false;
     bool realUmpCaptureAvailable = false;
+    
+    bool optionalPackageDetectionAttempted = false;
+    bool optionalPackageDetected = false;
+    bool optionalHeaderDetectionAttempted = false;
+    bool optionalHeadersDetected = false;
+    
+    QString packageDetectionStatus;
+    QString headerDetectionStatus;
+    
     QString compileMode;
     QString status;
     QStringList notes;

@@ -27,18 +27,25 @@ Windows MIDI Services backend skeleton.
 - No real SDK integration yet.
 - No endpoint listing or capture yet.
 
-## v4.5.0
-Optional SDK package/header detection experiment.
-- Avaliação da linkagem verdadeira no MSVC contra a suíte de cabeçalhos de Kernel (`<winrt/Windows...`) através do SDK oficial.
+## v4.5.0 - Windows MIDI Services optional package detection experiment
+- Separated Windows MIDI Services tests into their own test file (`WindowsMidiServicesBackendTests.cpp`).
+- Added package/header detection readiness fields in `WindowsMidiServicesSdkProbe`.
+- Documented optional package detection path.
+- No real package/header probing yet.
+- No endpoint listing or UMP capture yet.
 
 ## v4.6.0
-Endpoint listing prototype.
-- Retorno dos verdadeiros hardwares pela malha C++. Funcionalidade opcional travada pelo CMake.
+User-provided SDK root variable research.
+- Exploração para o CMake absorver raízes nativas através do usuário (evitando poluição do registro local).
 
 ## v4.7.0
-Backend selector UI.
-- Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware (WindowsMidiServicesBackend) pela interface QWidget, only if endpoint listing is stable.
+Optional header detection with find_path.
+- Pesquisa passiva sobre a existência dos Headers.
 
 ## v4.8.0
-Experimental UMP receive prototype.
-- Receber pacotes reais injetando eventos físicos na *Thread* de callback. Avaliação final com periférico UMP validado.
+Endpoint listing prototype if headers are detected.
+- Retorno dos verdadeiros hardwares pela malha C++.
+
+## v4.9.0
+Backend selector UI if endpoint listing stabilizes.
+- Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware pela interface QWidget.

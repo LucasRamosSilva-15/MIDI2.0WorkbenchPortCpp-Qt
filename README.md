@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.4.0
+**Current version:** v4.5.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -44,6 +44,11 @@ Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por M
 - Em **v4.4.0** expandimos o sistema acoplando um diagnóstico de detecção de ambiente.
 - O diagnóstico é *compile-time/report* e não realiza invasões locais (`vcpkg`, Registro Windows, Busca em Pastas).
 - O relatório não detecta o SDK físico nem acopla `<winrt>`. O projeto se resguarda focado 100% na segurança e estabilidade dos ambientes limitados em recursos.
+
+## Windows MIDI Services optional package detection
+- Na **v4.5.0** nós preparamos os campos e a documentação C++ para detectar pacotes/headers no futuro.
+- Ainda não detecta pacotes reais nem ativa a *projection* C++/WinRT ou `<winrt/Windows.Devices.Midi2.h>`.
+- Os testes experimentais em C++ da API da Microsoft foram separados num módulo isolado (`tests/WindowsMidiServicesBackendTests.cpp`).
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)

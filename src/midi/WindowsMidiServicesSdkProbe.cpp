@@ -16,6 +16,14 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
     report.realEndpointListingAvailable = false;
     report.realUmpCaptureAvailable = false;
     
+    report.optionalPackageDetectionAttempted = false;
+    report.optionalPackageDetected = false;
+    report.optionalHeaderDetectionAttempted = false;
+    report.optionalHeadersDetected = false;
+    
+    report.packageDetectionStatus = "Optional package detection is documented but not performed in v4.5.0.";
+    report.headerDetectionStatus = "Optional header detection is documented but not performed in v4.5.0.";
+    
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
         report.status = "SDK experiment flag is enabled, but real Windows MIDI Services SDK probing is not implemented in v4.4.0.";
@@ -46,6 +54,15 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "Headers Used: " + QString(report.realSdkHeadersUsed ? "Yes" : "No") + "\n";
     out += "Endpoint listing available: " + QString(report.realEndpointListingAvailable ? "Yes" : "No") + "\n";
     out += "UMP capture available: " + QString(report.realUmpCaptureAvailable ? "Yes" : "No") + "\n";
+    
+    out += "\n--- Optional Package Detection ---\n";
+    out += "Package Detection Attempted: " + QString(report.optionalPackageDetectionAttempted ? "Yes" : "No") + "\n";
+    out += "Package Detected: " + QString(report.optionalPackageDetected ? "Yes" : "No") + "\n";
+    out += "Header Detection Attempted: " + QString(report.optionalHeaderDetectionAttempted ? "Yes" : "No") + "\n";
+    out += "Headers Detected: " + QString(report.optionalHeadersDetected ? "Yes" : "No") + "\n";
+    out += "Package Status: " + report.packageDetectionStatus + "\n";
+    out += "Header Status: " + report.headerDetectionStatus + "\n";
+    
     out += "\nNotes:\n";
     for (const QString& note : report.notes) {
         out += "- " + note + "\n";

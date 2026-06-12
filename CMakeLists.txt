@@ -73,6 +73,9 @@ endif()
 # Criação do Executável de Testes
 add_executable(UmpParserTests
     tests/UmpParserTests.cpp
+    tests/WindowsMidiServicesBackendTests.cpp
+    tests/WindowsMidiServicesBackendTests.h
+    tests/TestUtils.h
     src/UmpParser.cpp
     src/UmpParser.h
     src/midi/Midi1LiveDecoder.cpp

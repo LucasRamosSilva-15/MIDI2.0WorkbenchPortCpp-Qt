@@ -46,6 +46,11 @@ cmake --build build-wms-sdk --config Release
 - Both report no real endpoint listing and no real UMP capture.
 
 ## Future work
-- **v4.5.0**: optional SDK package/header detection experiment.
-- **v4.6.0**: endpoint listing prototype.
-- **v4.7.0**: backend selector UI if endpoint listing stabilizes.
+- **v4.6.0**: user-provided SDK root variable research.
+- **v4.7.0**: optional header detection with find_path.
+- **v4.8.0**: endpoint listing prototype only when headers are detected.
+
+## Optional Package Detection - v4.5.0
+- O relatório em `v4.5.0` ganhou campos específicos para *Package/Header*.
+- Todos os campos são preparatórios (nascem configurados para `false`).
+- A detecção invasiva foi deliberadamente adiada em favor da estabilidade.

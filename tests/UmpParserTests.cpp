@@ -9,47 +9,13 @@
 #include "../src/midi/WindowsMidiServicesBackend.h"
 #include "../src/midi/WindowsMidiServicesSdkProbe.h"
 
+#include "TestUtils.h"
+#include "WindowsMidiServicesBackendTests.h"
+
 int testsRun = 0;
 int testsPassed = 0;
 
-void assertTest(const std::string& testName, bool condition) {
-    testsRun++;
-    if (condition) {
-        std::cout << "[PASS] " << testName << std::endl;
-        testsPassed++;
-    } else {
-        std::cout << "[FAIL] " << testName << std::endl;
-    }
-}
 
-void testWmsBackend_SkeletonBasics() {
-    WindowsMidiServicesBackend wms;
-    assertTest("WMS Backend Name", wms.backendName().contains("Windows MIDI Services"));
-    assertTest("WMS Initially Closed", !wms.isOpen());
-    assertTest("WMS Backend queryAvailableEndpoints returns empty via listInputPorts", wms.listInputPorts().isEmpty());
-}
-
-void testWmsSdkProbe_Status() {
-    bool enabled = WindowsMidiServicesSdkProbe::isSdkExperimentEnabled();
-    auto report = WindowsMidiServicesSdkProbe::buildDetectionReport();
-    QString formatted = WindowsMidiServicesSdkProbe::formatDetectionReport(report);
-
-    assertTest("SDK Probe Headers Used False", report.realSdkHeadersUsed == false);
-    assertTest("SDK Probe Endpoint Listing False", report.realEndpointListingAvailable == false);
-    assertTest("SDK Probe UMP Capture False", report.realUmpCaptureAvailable == false);
-
-    assertTest("SDK Probe Formatted contains Windows MIDI Services", formatted.contains("Windows MIDI Services"));
-    assertTest("SDK Probe Formatted contains Endpoint listing", formatted.contains("Endpoint listing"));
-    assertTest("SDK Probe Formatted contains UMP capture", formatted.contains("UMP capture"));
-
-#ifdef USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT
-    assertTest("SDK Probe Experiment is ENABLED", enabled == true);
-    assertTest("SDK Probe Report Flag True", report.experimentCompileFlagEnabled == true);
-#else
-    assertTest("SDK Probe Experiment is DISABLED", enabled == false);
-    assertTest("SDK Probe Report Flag False", report.experimentCompileFlagEnabled == false);
-#endif
-}
 
 int main() {
     std::cout << "Starting UMP Parser Tests (v0.8.0)\n" << std::endl;
@@ -304,9 +270,7 @@ int main() {
         assertTest("FakeUmpBackend Empty after Close", fakeBackend.pollUmpEvents().empty());
     }
 
-    std::cout << "\nStarting WindowsMidiServicesBackend Skeleton Tests\n\n";
-    testWmsBackend_SkeletonBasics();
-    testWmsSdkProbe_Status();
+    runWindowsMidiServicesBackendTests();
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 

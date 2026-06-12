@@ -108,6 +108,13 @@
 - [ ] Normal build remains SDK-free.
 - [ ] SDK experiment remains optional.
 
+## v4.5.0 Optional package detection review
+- [ ] Windows MIDI Services tests are separated from parser tests.
+- [ ] Optional package/header detection fields do not claim real detection.
+- [ ] Normal build remains SDK-free.
+- [ ] SDK experiment remains optional.
+- [ ] README accurately states no real endpoint listing or UMP capture yet.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

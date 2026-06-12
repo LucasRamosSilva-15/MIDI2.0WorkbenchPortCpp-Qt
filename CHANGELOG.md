@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v4.5.0 - Windows MIDI Services optional package detection experiment
+- Added optional package/header detection readiness fields to WindowsMidiServicesSdkProbe.
+- Added documentation for future non-invasive SDK package/header detection.
+- Created dedicated WindowsMidiServicesBackendTests test file.
+- Kept Windows MIDI Services SDK dependency optional and non-required.
+- No real endpoint listing or UMP capture yet.
+
 ## v4.4.0 - Windows MIDI Services SDK detection research
 - Added Windows MIDI Services SDK detection report structure.
 - Added formatted diagnostic output for SDK experiment status.

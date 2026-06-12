@@ -62,6 +62,11 @@ cmake --build build-wms-sdk --config Release
 - O diagnóstico **ainda não** detecta pacote real, focando na integridade da *Flag*.
 
 ## Future work
-- **v4.5.0**: optional SDK package/header detection experiment.
-- **v4.6.0**: endpoint listing prototype.
-- **v4.7.0**: backend selector UI if endpoint listing stabilizes.
+- **v4.6.0**: user-provided SDK root variable research.
+- **v4.7.0**: optional header detection with find_path.
+- **v4.8.0**: endpoint listing prototype if headers are detected.
+
+## Relationship to optional package detection
+- O *build experiment* atual atesta a tolerância nativa à *flag* de compilação.
+- A *package detection* futura deverá testar a integridade dos cabeçalhos do SDK instalados na máquina.
+- A versão `v4.5.0` instanciou essa malha de aferição passiva, atestando em relatório que a caça local ainda não está ativa.
