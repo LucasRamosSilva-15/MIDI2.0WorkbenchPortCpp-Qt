@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.0.0 - Native UMP backend feasibility research
+- Started v4.x research line for native UMP backend feasibility.
+- Added Windows MIDI Services feasibility notes.
+- Added native UMP backend roadmap.
+- Added backend decision matrix.
+- Clarified that no real UMP capture is implemented yet.
+- No parser, backend, converter, UI polling, export, recording or summary logic changes.
+
 ## v3.8.0 - TCC final demo readiness review
 - Added final TCC demo script.
 - Added final demo checklist.

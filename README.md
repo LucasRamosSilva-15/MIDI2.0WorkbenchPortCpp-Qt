@@ -3,18 +3,24 @@
 ![CI](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
-![Qt](https://img.shields.io/badge/Framework-Qt6-green)**Versão:** v3.8.0 - TCC final demo readiness review
+![Qt](https://img.shields.io/badge/Framework-Qt6-green)
+
+**Versão:** v4.0.0 - Native UMP backend feasibility research
 
 ## Visão Geral do MVP
-O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6. 
+
+O **MIDI 2.0 Workbench Port** é um **Analisador Offline Estático de Universal MIDI Packets (UMP)** construído em C++ e interface nativa Qt6.
 Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por MCUs embarcados (como Raspberry Pi Pico) antes do transporte USB final.
 
 ## Downloads e Pacotes
+
 Temos duas versões disponíveis na [página de Releases](../../releases):
+
 1. **Pacote Padrão** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64.zip`): Offline puro, seguro e com dependências mínimas.
 2. **Pacote Experimental RtMidi** (`MidiUmpAnalyzer-vX.Y.Z-windows-x64-rtmidi.zip`): Permite listar portas de hardware e testar conexões. Interpreta pacotes nativos MIDI 1.0 (Note On/Off, Control Change, etc.) logando essas decodificações em um painel isolado de tempo-real. Ainda não faz tradução ou exibição de pacotes UMP na tabela principal.
 
 **O que este projeto FAZ:**
+
 - Ingestão passiva de registros textuais UMP brutos (aceita blocos hexadecimais colados na interface ou leitura de arquivos `.txt`).
 - Desmembramento matemático e detalhamento estático dos cabeçalhos dos Message Types:
   - MT 0x2 (MIDI 1.0 Channel Voice)
@@ -26,12 +32,14 @@ Temos duas versões disponíveis na [página de Releases](../../releases):
 - Sanitização de dados robusta, rastreando lixo textual, letras inválidas, arquivos obesos ou contagem de bytes quebrada no vetor sem travar.
 
 **O que este projeto NÃO FAZ (Limitações Conhecidas):**
+
 - **NÃO é um MIDI Host real.** Ele não conecta, não envia e não ouve dispositivos MIDI 1.0 / 2.0 físicos pelo Windows.
 - **NÃO suporta Windows MIDI Services ou Drivers USB.**
 - **NÃO implementa MIDI-CI** (Property Exchange, Profile Configuration, Protocol Negotiation). As interpretações de payload são brutas ou estáticas.
 - **NÃO reconstrói fragmentação UMP**. Pacotes SysEx ou Flex partidos em pacotes menores (Start/Continue/End) são avaliados isoladamente pacote por pacote de forma forense, sem concatenação temporária de estado (buffer state).
 
 ## Download
+
 Para testar a aplicação sem precisar compilar o código fonte, acesse a aba lateral [**Releases**](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/releases) aqui no GitHub.
 Lá você poderá baixar o pacote `.zip` compactado (ex: `MidiUmpAnalyzer-v1.1.0-windows-x64.zip`) gerado e empacotado automaticamente pelos servidores da Microsoft, contendo o executável livre de vírus e todas as DLLs necessárias para rodar no seu Windows.
 
@@ -43,6 +51,7 @@ Lá você poderá baixar o pacote `.zip` compactado (ex: `MidiUmpAnalyzer-v1.1.0
 ## Como Usar
 
 O analisador é projetado para aceitar registros hexadecimais brutos e dissecá-los de forma imediata:
+
 1. **Entrada Manual**: Cole seus pacotes UMP hexadecimais diretamente na caixa de texto superior. Letras e espaços perdidos serão higienizados de forma inteligente.
 2. **Entrada de Arquivos**: Se preferir, clique no botão `Load .txt` e carregue um arquivo de log da sua máquina contendo pacotes brutos.
 3. **Analisar**: Pressione o botão `Interpret` para que a tabela preencha as traduções descritivas instantaneamente.
@@ -51,7 +60,9 @@ O analisador é projetado para aceitar registros hexadecimais brutos e dissecá-
 6. **Extrair o Log**: Pressione `Save Log` para guardar os relatórios e logs de erro (truncamentos, arquivos inválidos) em um arquivo `.txt` na sua máquina.
 
 ## Infraestrutura Tecnológica (Testes e CI)
+
 A versão `v1.1.0` suporta testes nativos puramente C++, desacoplados da interface gráfica Qt:
+
 - **Automação de Testes Local (`UmpParserTests`)**: Cobertura paramétrica contra pacotes mentirosos, sujeira alfanumérica e validação semântica de MT.
 - **GitHub Actions (CI / CD)**:
   - A cada *commit/push* normal, a nuvem Windows analisa a robustez binária usando testes automáticos.
@@ -60,23 +71,29 @@ A versão `v1.1.0` suporta testes nativos puramente C++, desacoplados da interfa
 ## Instruções de Build Local
 
 Para compilar manualmente na sua máquina Windows utilizando MSVC 2022:
+
 1. Tenha o Qt6 configurado e exposto na sua variável `CMAKE_PREFIX_PATH`.
 2. Em um terminal / PowerShell na raiz, digite:
+
    ```powershell
    cmake -B build -DCMAKE_BUILD_TYPE=Release
    cmake --build build --config Release
    ```
+
 3. Execute o app em: `build\Release\MidiUmpAnalyzer.exe`
 
 ## Instruções de Testes Locais
 
 Rode os testes passivos independentes via PowerShell:
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 ```
+
 *(Você pode usar a flag opcional `-SkipBuild` caso já tenha rodado o CMake antes e queira apenas os resultados do binário).*
 
 ## TCC Demo
+
 - [TCC Demo Guide](docs/tcc_demo_guide.md)
 - [TCC Demo Script](docs/demo_script_short.md)
 - [TCC Screenshots Guide](docs/screenshots_guide.md)
@@ -88,9 +105,11 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [Final Review Checklist](docs/final_review_checklist.md)
 
 ## v3.x Experimental UMP Backend Research
+>
 > **Status:** v3.7.0 introduces Documentation and Demo Polish for the Fake UMP Session. Real hardware UMP capture is not implemented yet.
 
 **Experimental UMP Backend (v3.x series)**
+
 - Fake backend for simulation.
 - Tabela experimental para polling contínuo.
 - Exportação dinâmica TXT/CSV.
@@ -103,14 +122,25 @@ powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1
 - [Release Summary v3](docs/release_summary_v3.md)
 
 ## TCC Final Demo Readiness
+
 O aplicativo atinge o congelamento estático (**feature freeze**) e encontra-se certificado para a defesa acadêmica, focado na robustez contábil das conversões algorítmicas e emulação *in-memory* do modelo *Universal MIDI Packet*.
+
 - **Estado atual:** Operante e submetido às 54 métricas implacáveis do CTest.
 - **O que demonstrar:** Imunidade do compilador aos blocos truncados, o roteador `FakeUmpInputBackend` e os Exports periciais de Auditoria TXT.
 - **Limitações:** O arcabouço C++ é autossuficiente mas as interfaces de kernel/API (*WinRT*, MIDI-CI) não compõem a grade.
-- **Arquivos Finais:** Leia as [Evidências de Demonstração](docs/experimental_ump_backend_evidence_checklist.md), [Limitações Acadêmicas](docs/experimental_ump_backend_limitations.md) e o [Plano/Roteiro de Fala](docs/tcc_final_demo_script.md).
+- **Arquivos Finais:** Leia as [Evidências de Demonstração](docs/experimental_ump_backend_evidence_checklist.md), [Limitações Acadêmicas](docs/experimental_ump_backend_limitations.md) e o [Plano/Roteiro de Fala](docs/tcc_final_demo_script.md)
+
+## v4.x Native UMP Backend Research
+- **v4.0.0** inicia a pesquisa documental em busca de acoplamento real de um UMP Backend Nativo para a máquina host.
+- *Nenhuma captura* física real fora implementada ainda.
+- Os futuros estudos estão concentrados majoritariamente na implementação gradativa das APIs de kernel em **Windows MIDI Services** como o candidato primário de OS.
+- O atual validador `FakeUmpInputBackend` não será deletado; ele permanece firmemente como base de *Fallback* essencial em hardware desprovido da atualização.
+- **Relatórios Exclusivos V4:** [Decision Matrix](docs/native_ump_backend_decision_matrix.md) | [Windows Feasibility](docs/windows_midi_services_feasibility.md) | [V4 Roadmap](docs/v4_backend_roadmap.md)
 
 ## Roadmap
+
 O que esperar para as próximas evoluções (*Pós-MVP*):
+
 - Investigação controlada para integração com interfaces UMP MIDI via OS (Windows MIDI Services).
 - Injeção de estado isolado para reconstrução *stateless* em tempo real de mensagens UMP fragmentadas (SysEx, Flex).
 - Parser avançado de dados proprietários sem corromper a leitura bruta existente.

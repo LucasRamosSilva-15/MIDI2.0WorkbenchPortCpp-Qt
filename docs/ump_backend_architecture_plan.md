@@ -76,3 +76,21 @@ A versão `v3.6.0` adiciona um relatório de resumo da sessão UMP fake. O resum
 
 ## v3.7.0 Documentation and demo polish
 A versão `v3.7.0` encerra as preparações de *software* ao estender guias didáticos para as bancas acadêmicas, deixando claro e explícito que a interface interage com um **software mock** (*FakeUmpInputBackend*). O próximo salto técnico real projetado para a linha `v4.x` seria a construção nativa de um backend conectado a *Windows MIDI Services* ou *ALSA UMP*.
+
+## v4.x Native UMP backend direction
+Esta espinha dorsal puramente arquitetural arrasta o projeto de encontro ao Hardware real.
+A linha `v4.x` tem caráter **estritamente de pesquisa e viabilidade**. Nenhum acoplamento é implementado de surpresa, testando o peso e o impacto na compilação host.
+A arquitetura Polimórfica C++ futura abraçará de maneira modular os desdobramentos:
+
+```text
+[ IUmpInputBackend ] (Interface Absoluta Mestra)
+    |
+    ├── [ FakeUmpInputBackend ] (O Fallback Eterno e Testador TDD, existente)
+    |
+    ├── [ WindowsMidiServicesBackend ] (Foco da Linha v4.x - Microsoft OS Kernel, futuro)
+    |
+    ├── [ AlsaUmpBackend ] (Alvo Linus secundário para portabilidade futura)
+    |
+    └── [ LibremidiBackend ] (Dependência externa híbrida futura, a avaliar se benéfica)
+```
+A fundação teórica desta migração se inicia pacificamente na Release **v4.0.0**.

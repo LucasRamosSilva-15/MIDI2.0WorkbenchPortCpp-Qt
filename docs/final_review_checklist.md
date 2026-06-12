@@ -81,6 +81,11 @@
 - [ ] Bateria de testes automatizados passou 100%
 - [ ] Pacotes distributivos zips gerados e indexados
 
+## v4.0.0 feasibility review
+- [ ] Confirmar que nenhum código de terceiros C++/dependência SDK cruzou os portões do Main.
+- [ ] Assegurar a compilação fluida sem pacotes bizarros na aba normal e RtMidi.
+- [ ] Confirmar que a matriz de fallback v3.x Fake Backend continua preservada e testada.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated
