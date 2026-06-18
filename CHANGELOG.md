@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.6.0 - Windows MIDI Services user-provided SDK root research
+- Added optional `WINDOWS_MIDI_SERVICES_SDK_ROOT` CMake variable.
+- Added SDK root readiness fields to WindowsMidiServicesSdkProbe.
+- Added formatted SDK root diagnostics.
+- Documented manual SDK root research workflow.
+- Kept SDK usage optional and non-fatal.
+- No real SDK headers, endpoint listing or UMP capture yet.
+
 ## v4.5.0 - Windows MIDI Services optional package detection experiment
 - Added optional package/header detection readiness fields to WindowsMidiServicesSdkProbe.
 - Added documentation for future non-invasive SDK package/header detection.

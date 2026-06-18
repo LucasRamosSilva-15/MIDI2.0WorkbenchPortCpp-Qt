@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.5.0
+**Current version:** v4.6.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -49,6 +49,16 @@ Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por M
 - Na **v4.5.0** nós preparamos os campos e a documentação C++ para detectar pacotes/headers no futuro.
 - Ainda não detecta pacotes reais nem ativa a *projection* C++/WinRT ou `<winrt/Windows.Devices.Midi2.h>`.
 - Os testes experimentais em C++ da API da Microsoft foram separados num módulo isolado (`tests/WindowsMidiServicesBackendTests.cpp`).
+
+## Windows MIDI Services user-provided SDK root research
+- A **v4.6.0** adiciona a variável opcional `WINDOWS_MIDI_SERVICES_SDK_ROOT`.
+- Esse caminho não ativa o SDK real, tampouco realiza endpoint listing ou captura de UMP.
+- A build normal continua limpa e blindada sem SDK.
+- Exemplo experimental:
+```powershell
+cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\Path\To\WindowsMidiServicesSdk"
+cmake --build build-wms-sdk-root --config Release
+```
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)

@@ -115,6 +115,14 @@
 - [ ] SDK experiment remains optional.
 - [ ] README accurately states no real endpoint listing or UMP capture yet.
 
+## v4.6.0 User-provided SDK root research review
+- [ ] `WINDOWS_MIDI_SERVICES_SDK_ROOT` is optional.
+- [ ] Missing SDK root is non-fatal.
+- [ ] SDK root does not imply real header detection.
+- [ ] SDK root does not imply endpoint listing.
+- [ ] SDK root does not imply UMP capture.
+- [ ] Normal build remains SDK-free.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

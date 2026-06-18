@@ -32,6 +32,24 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
         report.status = "SDK experiment is disabled. Normal build path does not require Windows MIDI Services SDK.";
     }
     
+#ifdef WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED
+    report.userProvidedSdkRootConfigured = true;
+#ifdef WINDOWS_MIDI_SERVICES_SDK_ROOT_MISSING
+    report.userProvidedSdkRootMissing = true;
+    report.userProvidedSdkRootAcceptedForResearch = false;
+    report.sdkRootStatus = "A user-provided Windows MIDI Services SDK root was configured but the path was reported missing by CMake. This is non-fatal in v4.6.0.";
+#else
+    report.userProvidedSdkRootMissing = false;
+    report.userProvidedSdkRootAcceptedForResearch = true;
+    report.sdkRootStatus = "A user-provided Windows MIDI Services SDK root was configured for research. No headers or libraries are consumed in v4.6.0.";
+#endif
+#else
+    report.userProvidedSdkRootConfigured = false;
+    report.userProvidedSdkRootMissing = false;
+    report.userProvidedSdkRootAcceptedForResearch = false;
+    report.sdkRootStatus = "No user-provided Windows MIDI Services SDK root is configured.";
+#endif
+    
     report.notes << "No real Windows MIDI Services SDK headers are included in this build."
                  << "No Microsoft.Windows.Devices.Midi2 package is required in this version."
                  << "No C++/WinRT projection is required in this version."
@@ -62,6 +80,12 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "Headers Detected: " + QString(report.optionalHeadersDetected ? "Yes" : "No") + "\n";
     out += "Package Status: " + report.packageDetectionStatus + "\n";
     out += "Header Status: " + report.headerDetectionStatus + "\n";
+    
+    out += "\n--- User-Provided SDK Root Research ---\n";
+    out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";
+    out += "SDK Root Missing: " + QString(report.userProvidedSdkRootMissing ? "Yes" : "No") + "\n";
+    out += "SDK Root Accepted For Research: " + QString(report.userProvidedSdkRootAcceptedForResearch ? "Yes" : "No") + "\n";
+    out += "SDK Root Status: " + report.sdkRootStatus + "\n";
     
     out += "\nNotes:\n";
     for (const QString& note : report.notes) {

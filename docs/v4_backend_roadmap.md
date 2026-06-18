@@ -34,12 +34,15 @@ Windows MIDI Services backend skeleton.
 - No real package/header probing yet.
 - No endpoint listing or UMP capture yet.
 
-## v4.6.0
-User-provided SDK root variable research.
-- Exploração para o CMake absorver raízes nativas através do usuário (evitando poluição do registro local).
+## v4.6.0 - Windows MIDI Services user-provided SDK root research
+- Added optional CMake variable `WINDOWS_MIDI_SERVICES_SDK_ROOT`.
+- Added SDK root readiness fields to the detection report.
+- Accepted user-provided SDK root for research only.
+- No header detection yet.
+- No endpoint listing or UMP capture yet.
 
 ## v4.7.0
-Optional header detection with find_path.
+Optional header detection with find_path using SDK root.
 - Pesquisa passiva sobre a existência dos Headers.
 
 ## v4.8.0
@@ -49,3 +52,7 @@ Endpoint listing prototype if headers are detected.
 ## v4.9.0
 Backend selector UI if endpoint listing stabilizes.
 - Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware pela interface QWidget.
+
+## v4.10.0
+Experimental UMP receive prototype.
+- Cativar pacotes UMP em C++ com MSVC puro.

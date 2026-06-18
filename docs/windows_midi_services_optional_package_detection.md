@@ -34,3 +34,8 @@ Explicar que a versão `v4.5.0` organiza e estrutura a etapa de detecção opcio
 - **v4.6.0**: User-provided SDK root variable research.
 - **v4.7.0**: Optional header detection with `find_path`.
 - **v4.8.0**: Endpoint listing prototype only when headers are detected.
+
+## User-Provided SDK Root - v4.6.0
+- A versão `v4.6.0` introduz o caminho de SDK estritamente manual pelo Desenvolvedor.
+- A detecção real dos headers ainda é adiada propositalmente.
+- O caminho ausente ou quebrado não aciona um fatal error no Build.

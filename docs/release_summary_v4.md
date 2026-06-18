@@ -2,6 +2,13 @@
 
 A árvore de versões `v4.x` tem como manifesto principal a migração e exploração orgânica rumo à captação em altíssima resolução de protocolos reais UMP 2.0 pelo Sistema Operacional primário (Windows).
 
+## v4.6.0 - Windows MIDI Services user-provided SDK root research
+- Added `WINDOWS_MIDI_SERVICES_SDK_ROOT` CMake cache variable.
+- Added SDK root status fields to `WindowsMidiServicesSdkDetectionReport`.
+- Added documentation for manual SDK root research.
+- Kept SDK root non-fatal and research-only.
+- No real header detection, endpoint listing or UMP capture yet.
+
 ## v4.5.0 - Windows MIDI Services optional package detection experiment
 - Added optional package/header detection readiness fields.
 - Added documentation for future package/header detection.

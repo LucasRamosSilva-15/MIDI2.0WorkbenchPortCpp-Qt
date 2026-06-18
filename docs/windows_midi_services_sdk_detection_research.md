@@ -54,3 +54,8 @@ cmake --build build-wms-sdk --config Release
 - O relatório em `v4.5.0` ganhou campos específicos para *Package/Header*.
 - Todos os campos são preparatórios (nascem configurados para `false`).
 - A detecção invasiva foi deliberadamente adiada em favor da estabilidade.
+
+## User-Provided SDK Root Research - v4.6.0
+- Adicionou-se campos de escopo para reportar caminhos de diretório de SDK injetados ativamente por variáveis de usuário no CMake.
+- O caminho propriamente dito não é impresso no relatório a fim de blindar metadados do Desenvolvedor.
+- Não existem varreduras de disco feitas a partir do C++ (todas as validações ocorrem passivamente durante a formatação CMake).

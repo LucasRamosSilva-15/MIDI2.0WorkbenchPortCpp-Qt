@@ -27,6 +27,17 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Optional Package Detected False", report.optionalPackageDetected == false);
     assertTest("SDK Probe Optional Header Detection Attempted False", report.optionalHeaderDetectionAttempted == false);
     assertTest("SDK Probe Optional Headers Detected False", report.optionalHeadersDetected == false);
+    
+    assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
+    assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
+    assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));
+    assertTest("SDK Probe sdkRootStatus not empty", !report.sdkRootStatus.isEmpty());
+    
+#ifdef WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED
+    assertTest("SDK Probe SDK Root Configured True", report.userProvidedSdkRootConfigured == true);
+#else
+    assertTest("SDK Probe SDK Root Configured False", report.userProvidedSdkRootConfigured == false);
+#endif
 
 #ifdef USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT
     assertTest("SDK Probe Experiment is ENABLED", enabled == true);

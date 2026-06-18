@@ -14,8 +14,13 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool optionalHeaderDetectionAttempted = false;
     bool optionalHeadersDetected = false;
     
+    bool userProvidedSdkRootConfigured = false;
+    bool userProvidedSdkRootMissing = false;
+    bool userProvidedSdkRootAcceptedForResearch = false;
+    
     QString packageDetectionStatus;
     QString headerDetectionStatus;
+    QString sdkRootStatus;
     
     QString compileMode;
     QString status;
