@@ -123,6 +123,15 @@
 - [ ] SDK root does not imply UMP capture.
 - [ ] Normal build remains SDK-free.
 
+## v4.7.0 Optional header detection review
+- [ ] Header detection runs only when `WINDOWS_MIDI_SERVICES_SDK_ROOT` is provided.
+- [ ] Header detection uses `NO_DEFAULT_PATH`.
+- [ ] Missing headers are non-fatal.
+- [ ] Detected headers are not consumed by C++ yet.
+- [ ] `realSdkHeadersUsed` remains false.
+- [ ] No endpoint listing or UMP capture is claimed.
+- [ ] Normal build remains SDK-free.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

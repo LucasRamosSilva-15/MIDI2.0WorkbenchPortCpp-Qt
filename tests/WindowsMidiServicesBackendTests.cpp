@@ -25,8 +25,24 @@ void testWmsSdkProbe_Status() {
     
     assertTest("SDK Probe Optional Package Detection Attempted False", report.optionalPackageDetectionAttempted == false);
     assertTest("SDK Probe Optional Package Detected False", report.optionalPackageDetected == false);
+    
+    assertTest("SDK Probe Formatted contains Optional Header Detection", formatted.contains("Optional Header Detection"));
+    assertTest("SDK Probe Formatted contains Header Detection Attempted", formatted.contains("Header Detection Attempted"));
+    assertTest("SDK Probe Formatted contains Candidate Headers Detected", formatted.contains("Candidate Headers Detected"));
+    assertTest("SDK Probe Formatted contains Real Headers Used", formatted.contains("Real Headers Used"));
+    assertTest("SDK Probe headerDetectionStatus not empty", !report.headerDetectionStatus.isEmpty());
+    
+#ifdef WINDOWS_MIDI_SERVICES_OPTIONAL_HEADER_DETECTION_ATTEMPTED
+    assertTest("SDK Probe Optional Header Detection Attempted True", report.optionalHeaderDetectionAttempted == true);
+#else
     assertTest("SDK Probe Optional Header Detection Attempted False", report.optionalHeaderDetectionAttempted == false);
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED
+    assertTest("SDK Probe Optional Headers Detected True", report.optionalHeadersDetected == true);
+#else
     assertTest("SDK Probe Optional Headers Detected False", report.optionalHeadersDetected == false);
+#endif
     
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));

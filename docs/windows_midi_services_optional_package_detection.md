@@ -35,7 +35,7 @@ Explicar que a versão `v4.5.0` organiza e estrutura a etapa de detecção opcio
 - **v4.7.0**: Optional header detection with `find_path`.
 - **v4.8.0**: Endpoint listing prototype only when headers are detected.
 
-## User-Provided SDK Root - v4.6.0
-- A versão `v4.6.0` introduz o caminho de SDK estritamente manual pelo Desenvolvedor.
-- A detecção real dos headers ainda é adiada propositalmente.
-- O caminho ausente ou quebrado não aciona um fatal error no Build.
+## Optional Header Detection - v4.7.0
+- O pacote CMake engatilha pela primeira vez um teste de verificação opcional cruzado em ambiente real, tentando parear e atestar a veracidade da pasta injetada pelo usuário através da existência de Headers essenciais.
+- Ainda não há pacote real exigido.
+- Ainda não há endpoint listing ativo.

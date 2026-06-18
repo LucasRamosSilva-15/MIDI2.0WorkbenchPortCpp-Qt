@@ -72,10 +72,33 @@ if(WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
 else()
     message(STATUS "Windows MIDI Services SDK root provided: ${WINDOWS_MIDI_SERVICES_SDK_ROOT}")
     if(EXISTS "${WINDOWS_MIDI_SERVICES_SDK_ROOT}")
-        message(STATUS "Windows MIDI Services SDK root path exists. No headers or libraries are consumed in v4.6.0.")
+        message(STATUS "Windows MIDI Services SDK root path exists. No headers or libraries are consumed in v4.7.0.")
         target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED)
+        
+        # Optional Header Detection
+        set(WINDOWS_MIDI_SERVICES_HEADER_CANDIDATES
+            "winrt/Windows.Devices.Midi2.h"
+            "Windows.Devices.Midi2.h"
+        )
+        
+        find_path(
+            WINDOWS_MIDI_SERVICES_HEADER_DIR
+            NAMES ${WINDOWS_MIDI_SERVICES_HEADER_CANDIDATES}
+            PATHS "${WINDOWS_MIDI_SERVICES_SDK_ROOT}"
+            PATH_SUFFIXES include Include sdk/include SDK/include generated Generated
+            NO_DEFAULT_PATH
+        )
+        
+        target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADER_DETECTION_ATTEMPTED)
+        if(WINDOWS_MIDI_SERVICES_HEADER_DIR)
+            message(STATUS "Windows MIDI Services candidate header detected inside user-provided SDK root.")
+            target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED)
+        else()
+            message(WARNING "Windows MIDI Services candidate headers were not found inside the user-provided SDK root. This is non-fatal in v4.7.0.")
+        endif()
+        
     else()
-        message(WARNING "Windows MIDI Services SDK root was provided but does not exist. This is non-fatal in v4.6.0 research mode.")
+        message(WARNING "Windows MIDI Services SDK root was provided but does not exist. This is non-fatal in v4.7.0 research mode.")
         target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED WINDOWS_MIDI_SERVICES_SDK_ROOT_MISSING)
     endif()
 endif()
@@ -120,6 +143,11 @@ endif()
 if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
     if(EXISTS "${WINDOWS_MIDI_SERVICES_SDK_ROOT}")
         target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED)
+        
+        target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADER_DETECTION_ATTEMPTED)
+        if(WINDOWS_MIDI_SERVICES_HEADER_DIR)
+            target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED)
+        endif()
     else()
         target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED WINDOWS_MIDI_SERVICES_SDK_ROOT_MISSING)
     endif()

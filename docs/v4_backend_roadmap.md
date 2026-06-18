@@ -41,18 +41,25 @@ Windows MIDI Services backend skeleton.
 - No header detection yet.
 - No endpoint listing or UMP capture yet.
 
-## v4.7.0
-Optional header detection with find_path using SDK root.
-- Pesquisa passiva sobre a existência dos Headers.
+## v4.7.0 - Windows MIDI Services optional header detection with SDK root
+- Added optional `find_path`-based header detection using user-provided SDK root.
+- Restricted search to `WINDOWS_MIDI_SERVICES_SDK_ROOT` with `NO_DEFAULT_PATH`.
+- Kept detection non-fatal.
+- Did not include or consume headers.
+- No endpoint listing or UMP capture yet.
 
 ## v4.8.0
-Endpoint listing prototype if headers are detected.
-- Retorno dos verdadeiros hardwares pela malha C++.
+Optional header include compile experiment.
+- Iniciar os estudos de amarração C++ x Headers WinRT.
 
 ## v4.9.0
+Endpoint listing prototype if compile experiment succeeds.
+- Retorno dos verdadeiros hardwares pela malha C++.
+
+## v4.10.0
 Backend selector UI if endpoint listing stabilizes.
 - Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware pela interface QWidget.
 
-## v4.10.0
+## v4.11.0
 Experimental UMP receive prototype.
 - Cativar pacotes UMP em C++ com MSVC puro.

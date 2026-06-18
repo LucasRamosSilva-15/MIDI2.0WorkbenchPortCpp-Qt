@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v4.7.0 - Windows MIDI Services optional header detection with SDK root
+- Added optional `find_path`-based header detection using `WINDOWS_MIDI_SERVICES_SDK_ROOT`.
+- Restricted header search to the user-provided SDK root.
+- Added formatted header detection diagnostics.
+- Kept detection non-fatal and SDK-free for normal builds.
+- No real header consumption, endpoint listing or UMP capture yet.
+
 ## v4.6.0 - Windows MIDI Services user-provided SDK root research
 - Added optional `WINDOWS_MIDI_SERVICES_SDK_ROOT` CMake variable.
 - Added SDK root readiness fields to WindowsMidiServicesSdkProbe.

@@ -18,11 +18,23 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
     
     report.optionalPackageDetectionAttempted = false;
     report.optionalPackageDetected = false;
+    
+#ifdef WINDOWS_MIDI_SERVICES_OPTIONAL_HEADER_DETECTION_ATTEMPTED
+    report.optionalHeaderDetectionAttempted = true;
+#ifdef WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED
+    report.optionalHeadersDetected = true;
+    report.headerDetectionStatus = "Candidate Windows MIDI Services headers were detected inside the user-provided SDK root. Headers are not included or consumed in v4.7.0.";
+#else
+    report.optionalHeadersDetected = false;
+    report.headerDetectionStatus = "Candidate Windows MIDI Services headers were not detected inside the user-provided SDK root. This is non-fatal in v4.7.0.";
+#endif
+#else
     report.optionalHeaderDetectionAttempted = false;
     report.optionalHeadersDetected = false;
+    report.headerDetectionStatus = "Optional header detection was not attempted because no user-provided SDK root was configured.";
+#endif
     
-    report.packageDetectionStatus = "Optional package detection is documented but not performed in v4.5.0.";
-    report.headerDetectionStatus = "Optional header detection is documented but not performed in v4.5.0.";
+    report.packageDetectionStatus = "Optional package detection is documented but not performed in v4.7.0.";
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -41,7 +53,7 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
 #else
     report.userProvidedSdkRootMissing = false;
     report.userProvidedSdkRootAcceptedForResearch = true;
-    report.sdkRootStatus = "A user-provided Windows MIDI Services SDK root was configured for research. No headers or libraries are consumed in v4.6.0.";
+    report.sdkRootStatus = "A user-provided Windows MIDI Services SDK root was configured for research. No headers or libraries are consumed in v4.7.0.";
 #endif
 #else
     report.userProvidedSdkRootConfigured = false;
@@ -76,10 +88,11 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "\n--- Optional Package Detection ---\n";
     out += "Package Detection Attempted: " + QString(report.optionalPackageDetectionAttempted ? "Yes" : "No") + "\n";
     out += "Package Detected: " + QString(report.optionalPackageDetected ? "Yes" : "No") + "\n";
+    out += "\n--- Optional Header Detection ---\n";
     out += "Header Detection Attempted: " + QString(report.optionalHeaderDetectionAttempted ? "Yes" : "No") + "\n";
-    out += "Headers Detected: " + QString(report.optionalHeadersDetected ? "Yes" : "No") + "\n";
-    out += "Package Status: " + report.packageDetectionStatus + "\n";
-    out += "Header Status: " + report.headerDetectionStatus + "\n";
+    out += "Candidate Headers Detected: " + QString(report.optionalHeadersDetected ? "Yes" : "No") + "\n";
+    out += "Real Headers Used: No\n";
+    out += "Header Detection Status: " + report.headerDetectionStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

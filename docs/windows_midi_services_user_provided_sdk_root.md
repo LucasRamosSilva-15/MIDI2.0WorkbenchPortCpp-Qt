@@ -52,6 +52,12 @@ cmake --build build-wms-sdk-root --config Release
 - No endpoint listing;
 - No UMP capture.
 
+## Optional Header Detection - v4.7.0
+- A partir da `v4.7.0`, o caminho manual é repassado ao `find_path` no CMake.
+- A restrição `NO_DEFAULT_PATH` garante que somente essa raiz manual é varrida.
+- A condicionalidade do processo refuta crashes sistêmicos caso o diretório fique obsoleto ou falhe (Non-fatal).
+- Nativos identificados na raiz ainda não são `#included` pela compilação.
+
 ## Future work
 - **v4.7.0**: optional header detection with `find_path` using SDK root.
 - **v4.8.0**: endpoint listing prototype only if headers are detected.
