@@ -7,8 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 option(ENABLE_RTMIDI "Habilitar dependência opcional do RtMidi" OFF)
-option(ENABLE_WINDOWS_MIDI_SERVICES "Enable experimental Windows MIDI Services backend skeleton" OFF)
-option(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT "Enable experimental Windows MIDI Services SDK build path" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES "Enable Windows MIDI Services native backend (Windows 10+)" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT "Enable Windows MIDI Services SDK detection and experimental features" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT "Enable Windows MIDI Services optional header include compile experiment" OFF)
 
 if(ENABLE_RTMIDI)
     include(FetchContent)
@@ -51,6 +52,7 @@ add_executable(MidiUmpAnalyzer WIN32
     src/midi/WindowsMidiServicesBackend.cpp
     src/midi/WindowsMidiServicesSdkProbe.h
     src/midi/WindowsMidiServicesSdkProbe.cpp
+    src/midi/WindowsMidiServicesHeaderIncludeProbe.cpp
 )
 
 target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
@@ -93,6 +95,10 @@ else()
         if(WINDOWS_MIDI_SERVICES_HEADER_DIR)
             message(STATUS "Windows MIDI Services candidate header detected inside user-provided SDK root.")
             target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED)
+            
+            if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
+                target_include_directories(MidiUmpAnalyzer PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
+            endif()
         else()
             message(WARNING "Windows MIDI Services candidate headers were not found inside the user-provided SDK root. This is non-fatal in v4.7.0.")
         endif()
@@ -101,6 +107,11 @@ else()
         message(WARNING "Windows MIDI Services SDK root was provided but does not exist. This is non-fatal in v4.7.0 research mode.")
         target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED WINDOWS_MIDI_SERVICES_SDK_ROOT_MISSING)
     endif()
+endif()
+
+if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
+    message(STATUS "Windows MIDI Services header include experiment is ENABLED.")
+    target_compile_definitions(MidiUmpAnalyzer PRIVATE USE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
 endif()
 
 if(ENABLE_RTMIDI)
@@ -128,6 +139,7 @@ add_executable(UmpParserTests
     src/midi/WindowsMidiServicesBackend.cpp
     src/midi/WindowsMidiServicesSdkProbe.h
     src/midi/WindowsMidiServicesSdkProbe.cpp
+    src/midi/WindowsMidiServicesHeaderIncludeProbe.cpp
 )
 
 target_link_libraries(UmpParserTests PRIVATE Qt6::Core)
@@ -147,10 +159,17 @@ if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
         target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADER_DETECTION_ATTEMPTED)
         if(WINDOWS_MIDI_SERVICES_HEADER_DIR)
             target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED)
+            if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
+                target_include_directories(UmpParserTests PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
+            endif()
         endif()
     else()
         target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED WINDOWS_MIDI_SERVICES_SDK_ROOT_MISSING)
     endif()
+endif()
+
+if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
+    target_compile_definitions(UmpParserTests PRIVATE USE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
 endif()
 
 if(WIN32)

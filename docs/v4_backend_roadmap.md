@@ -48,9 +48,11 @@ Windows MIDI Services backend skeleton.
 - Did not include or consume headers.
 - No endpoint listing or UMP capture yet.
 
-## v4.8.0
-Optional header include compile experiment.
-- Iniciar os estudos de amarração C++ x Headers WinRT.
+## v4.8.0 - Windows MIDI Services optional header include compile experiment
+- Added isolated include experiment flag `ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT`.
+- Created isolated `WindowsMidiServicesHeaderIncludeProbe` logic.
+- Included headers conditionally strictly without side-effects or API calls.
+- Preserved stability without real UMP capture or Endpoint mapping.
 
 ## v4.9.0
 Endpoint listing prototype if compile experiment succeeds.

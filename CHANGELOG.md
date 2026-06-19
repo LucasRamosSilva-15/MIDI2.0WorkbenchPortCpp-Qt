@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.8.0 - Windows MIDI Services optional header include compile experiment
+- Introduced `ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT`.
+- Created `WindowsMidiServicesHeaderIncludeProbe` to run `#include` checks completely isolated from core system.
+- Kept UI untouched. Main functionality untouched.
+- No real Native API calls are made.
+
 ## v4.7.0 - Windows MIDI Services optional header detection with SDK root
 - Added optional `find_path`-based header detection using `WINDOWS_MIDI_SERVICES_SDK_ROOT`.
 - Restricted header search to the user-provided SDK root.

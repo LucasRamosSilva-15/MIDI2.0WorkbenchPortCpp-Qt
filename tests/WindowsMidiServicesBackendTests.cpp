@@ -2,6 +2,7 @@
 #include "TestUtils.h"
 #include "../src/midi/WindowsMidiServicesBackend.h"
 #include "../src/midi/WindowsMidiServicesSdkProbe.h"
+#include "../src/midi/WindowsMidiServicesHeaderIncludeProbe.h"
 
 void testWmsBackend_SkeletonBasics() {
     WindowsMidiServicesBackend wms;
@@ -64,8 +65,30 @@ void testWmsSdkProbe_Status() {
 #endif
 }
 
+void testWmsHeaderIncludeProbe() {
+    auto report = WindowsMidiServicesHeaderIncludeProbe::runProbe();
+    QString formatted = WindowsMidiServicesHeaderIncludeProbe::formatIncludeReport(report);
+    
+    assertTest("Include Probe Formatted contains Header Include Compile Experiment", formatted.contains("Header Include Compile Experiment"));
+    assertTest("Include Probe Formatted contains Include Experiment Attempted", formatted.contains("Include Experiment Attempted"));
+    assertTest("Include Probe Formatted contains Headers Included Successfully", formatted.contains("Headers Included Successfully"));
+    
+#ifdef USE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT
+    assertTest("Include Probe Attempted True", report.includeExperimentAttempted == true);
+#ifdef WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED
+    assertTest("Include Probe Included Successfully True", report.headersIncludedSuccessfully == true);
+#else
+    assertTest("Include Probe Included Successfully False (No Headers)", report.headersIncludedSuccessfully == false);
+#endif
+#else
+    assertTest("Include Probe Attempted False", report.includeExperimentAttempted == false);
+    assertTest("Include Probe Included Successfully False (Experiment Disabled)", report.headersIncludedSuccessfully == false);
+#endif
+}
+
 void runWindowsMidiServicesBackendTests() {
     std::cout << "\nStarting WindowsMidiServicesBackend Skeleton Tests\n\n";
     testWmsBackend_SkeletonBasics();
     testWmsSdkProbe_Status();
+    testWmsHeaderIncludeProbe();
 }

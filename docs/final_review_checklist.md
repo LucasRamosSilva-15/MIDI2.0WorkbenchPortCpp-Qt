@@ -132,6 +132,13 @@
 - [ ] No endpoint listing or UMP capture is claimed.
 - [ ] Normal build remains SDK-free.
 
+## v4.8.0 Header include experiment review
+- [ ] `ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT` is OFF by default.
+- [ ] The isolated probe only attempts `#include` if detected.
+- [ ] No real Windows MIDI APIs are invoked.
+- [ ] Endpoints are not listed. UMP capture is not attempted.
+- [ ] Non-experimental compilation tracks are unaffected.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated
