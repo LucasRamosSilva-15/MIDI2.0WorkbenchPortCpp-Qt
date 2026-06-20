@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.9.0 - Windows MIDI Services SDK candidate discovery correction
+- Corrected Windows MIDI Services SDK candidate discovery.
+- Added detection for `Microsoft.Windows.Devices.Midi2` WinMD metadata candidates.
+- Added detection for `Microsoft.Windows.Devices.Midi2` header candidates.
+- Kept detection restricted to `WINDOWS_MIDI_SERVICES_SDK_ROOT` with `NO_DEFAULT_PATH`.
+- Kept discovery non-fatal and research-only.
+- No real API calls, endpoint listing or UMP capture yet.
+
 ## v4.8.0 - Windows MIDI Services optional header include compile experiment
 - Introduced `ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT`.
 - Created `WindowsMidiServicesHeaderIncludeProbe` to run `#include` checks completely isolated from core system.

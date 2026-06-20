@@ -34,7 +34,39 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
     report.headerDetectionStatus = "Optional header detection was not attempted because no user-provided SDK root was configured.";
 #endif
     
-    report.packageDetectionStatus = "Optional package detection is documented but not performed in v4.7.0.";
+    report.packageDetectionStatus = "Optional package detection is documented but not performed in v4.9.0.";
+    
+#ifdef WINDOWS_MIDI_SERVICES_SDK_CANDIDATE_DISCOVERY_ATTEMPTED
+    report.sdkCandidateDiscoveryAttempted = true;
+#else
+    report.sdkCandidateDiscoveryAttempted = false;
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_HEADER_CANDIDATE_DETECTED
+    report.headerCandidateDetected = true;
+#else
+    report.headerCandidateDetected = false;
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_WINMD_CANDIDATE_DETECTED
+    report.winmdCandidateDetected = true;
+#else
+    report.winmdCandidateDetected = false;
+#endif
+
+    if (report.sdkCandidateDiscoveryAttempted) {
+        if (report.headerCandidateDetected && report.winmdCandidateDetected) {
+            report.sdkCandidateDiscoveryStatus = "Header and WinMD candidates were detected inside the user-provided SDK root. No API calls are made in v4.9.0.";
+        } else if (report.headerCandidateDetected) {
+            report.sdkCandidateDiscoveryStatus = "Header candidates were detected inside the user-provided SDK root. No API calls are made in v4.9.0.";
+        } else if (report.winmdCandidateDetected) {
+            report.sdkCandidateDiscoveryStatus = "WinMD metadata candidate was detected inside the user-provided SDK root. Header include compilation is still not attempted without a header candidate.";
+        } else {
+            report.sdkCandidateDiscoveryStatus = "SDK candidate discovery was attempted, but no header or WinMD candidates were detected inside the user-provided SDK root. This is non-fatal in v4.9.0.";
+        }
+    } else {
+        report.sdkCandidateDiscoveryStatus = "SDK candidate discovery was not attempted because no user-provided SDK root was configured.";
+    }
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -93,6 +125,12 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "Candidate Headers Detected: " + QString(report.optionalHeadersDetected ? "Yes" : "No") + "\n";
     out += "Real Headers Used: No\n";
     out += "Header Detection Status: " + report.headerDetectionStatus + "\n";
+    
+    out += "\n--- SDK Candidate Discovery ---\n";
+    out += "Discovery Attempted: " + QString(report.sdkCandidateDiscoveryAttempted ? "Yes" : "No") + "\n";
+    out += "Header Candidate Detected: " + QString(report.headerCandidateDetected ? "Yes" : "No") + "\n";
+    out += "WinMD Candidate Detected: " + QString(report.winmdCandidateDetected ? "Yes" : "No") + "\n";
+    out += "Discovery Status: " + report.sdkCandidateDiscoveryStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

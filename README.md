@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.8.0
+**Current version:** v4.9.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -64,9 +64,20 @@ Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por M
 - Na **v4.8.0**, se um caminho válido foi passado na detecção, é testada a compilação cruzada do `__has_include(<Windows.Devices.Midi2.h>)`.
 - A API da MS nunca é chamada de fato; testamos unicamente o link pré-processador do C++.
 - A UI não foi plugada aos resultados nativos, mantendo a estabilidade.
+
+## Windows MIDI Services SDK candidate discovery correction
+- Na **v4.9.0** procuramos nomes mais realistas fornecidos pelo pacote `vcpkg`:
+  - `Microsoft.Windows.Devices.Midi2.winmd`
+  - `Microsoft.Windows.Devices.Midi2.h`
+  - `winrt/Microsoft.Windows.Devices.Midi2.h`
+- A busca continua restrita ao `WINDOWS_MIDI_SERVICES_SDK_ROOT`;
+- O resultado é *non-fatal*;
+- WinMD detectado não ativa endpoint listing;
+- Header detectado não ativa API real;
+- A build normal continua limpa (*SDK-free*).
 - Exemplo experimental:
 ```powershell
-cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\Path\To\WindowsMidiServicesSdk"
+cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\vcpkg\installed\x64-windows"
 cmake --build build-wms-sdk-root --config Release
 ```
 

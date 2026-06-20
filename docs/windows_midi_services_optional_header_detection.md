@@ -30,6 +30,8 @@ cmake --build build-wms-sdk-root --config Release
 - Se os headers *não* forem encontrados: o diagnóstico acusará `Candidate Headers Detected: No`.
 - Nos dois casos absolutos: a *tag* `Real Headers Used` confirmará `No`.
 
+**Nota (v4.9.0):** A busca por candidatos foi estendida para considerar também os metadados `Microsoft.Windows.Devices.Midi2.winmd` de forma dissociada. A detecção passiva ainda é mantida em ambiente estritamente não-hostil (Non-fatal e restrita a raiz).
+
 ## What is still not implemented
 - Endpoint listing real;
 - UMP capture real;

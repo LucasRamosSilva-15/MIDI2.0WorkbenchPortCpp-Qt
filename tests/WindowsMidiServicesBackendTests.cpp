@@ -44,6 +44,30 @@ void testWmsSdkProbe_Status() {
 #else
     assertTest("SDK Probe Optional Headers Detected False", report.optionalHeadersDetected == false);
 #endif
+
+    assertTest("SDK Probe sdkCandidateDiscoveryStatus not empty", !report.sdkCandidateDiscoveryStatus.isEmpty());
+    assertTest("SDK Probe Formatted contains SDK Candidate Discovery", formatted.contains("SDK Candidate Discovery"));
+    assertTest("SDK Probe Formatted contains Discovery Attempted", formatted.contains("Discovery Attempted"));
+    assertTest("SDK Probe Formatted contains Header Candidate Detected", formatted.contains("Header Candidate Detected"));
+    assertTest("SDK Probe Formatted contains WinMD Candidate Detected", formatted.contains("WinMD Candidate Detected"));
+    
+#ifdef WINDOWS_MIDI_SERVICES_SDK_CANDIDATE_DISCOVERY_ATTEMPTED
+    assertTest("SDK Probe Discovery Attempted True", report.sdkCandidateDiscoveryAttempted == true);
+#else
+    assertTest("SDK Probe Discovery Attempted False", report.sdkCandidateDiscoveryAttempted == false);
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_HEADER_CANDIDATE_DETECTED
+    assertTest("SDK Probe Header Candidate Detected True", report.headerCandidateDetected == true);
+#else
+    assertTest("SDK Probe Header Candidate Detected False", report.headerCandidateDetected == false);
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_WINMD_CANDIDATE_DETECTED
+    assertTest("SDK Probe WinMD Candidate Detected True", report.winmdCandidateDetected == true);
+#else
+    assertTest("SDK Probe WinMD Candidate Detected False", report.winmdCandidateDetected == false);
+#endif
     
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));

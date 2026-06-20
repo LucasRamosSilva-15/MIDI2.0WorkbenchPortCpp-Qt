@@ -77,34 +77,64 @@ else()
         message(STATUS "Windows MIDI Services SDK root path exists. No headers or libraries are consumed in v4.7.0.")
         target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED)
         
-        # Optional Header Detection
+        # Candidate Discovery Attempted
+        target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_SDK_CANDIDATE_DISCOVERY_ATTEMPTED)
+
+        # Header Candidate Detection
         set(WINDOWS_MIDI_SERVICES_HEADER_CANDIDATES
-            "winrt/Windows.Devices.Midi2.h"
+            "Microsoft.Windows.Devices.Midi2.h"
+            "winrt/Microsoft.Windows.Devices.Midi2.h"
             "Windows.Devices.Midi2.h"
+            "winrt/Windows.Devices.Midi2.h"
         )
         
         find_path(
             WINDOWS_MIDI_SERVICES_HEADER_DIR
             NAMES ${WINDOWS_MIDI_SERVICES_HEADER_CANDIDATES}
             PATHS "${WINDOWS_MIDI_SERVICES_SDK_ROOT}"
-            PATH_SUFFIXES include Include sdk/include SDK/include generated Generated
+            PATH_SUFFIXES include Include include/winrt Include/winrt winrt generated Generated share tools
+            NO_DEFAULT_PATH
+        )
+        
+        # WinMD/Metadata Candidate Detection
+        set(WINDOWS_MIDI_SERVICES_WINMD_CANDIDATES
+            "Microsoft.Windows.Devices.Midi2.winmd"
+            "Windows.Devices.Midi2.winmd"
+        )
+        
+        find_file(
+            WINDOWS_MIDI_SERVICES_WINMD_FILE
+            NAMES ${WINDOWS_MIDI_SERVICES_WINMD_CANDIDATES}
+            PATHS "${WINDOWS_MIDI_SERVICES_SDK_ROOT}"
+            PATH_SUFFIXES include Include metadata Metadata winmd WinMD share tools "Desktop App SDK Runtime"
             NO_DEFAULT_PATH
         )
         
         target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADER_DETECTION_ATTEMPTED)
+        
         if(WINDOWS_MIDI_SERVICES_HEADER_DIR)
-            message(STATUS "Windows MIDI Services candidate header detected inside user-provided SDK root.")
-            target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED)
+            message(STATUS "Windows MIDI Services SDK candidate header detected.")
+            target_compile_definitions(MidiUmpAnalyzer PRIVATE 
+                WINDOWS_MIDI_SERVICES_HEADER_CANDIDATE_DETECTED
+                WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED
+            )
             
             if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
                 target_include_directories(MidiUmpAnalyzer PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
             endif()
-        else()
-            message(WARNING "Windows MIDI Services candidate headers were not found inside the user-provided SDK root. This is non-fatal in v4.7.0.")
+        endif()
+        
+        if(WINDOWS_MIDI_SERVICES_WINMD_FILE)
+            message(STATUS "Windows MIDI Services SDK candidate WinMD metadata detected.")
+            target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_WINMD_CANDIDATE_DETECTED)
+        endif()
+        
+        if(NOT WINDOWS_MIDI_SERVICES_HEADER_DIR AND NOT WINDOWS_MIDI_SERVICES_WINMD_FILE)
+            message(WARNING "Windows MIDI Services SDK candidates (headers or WinMD) were not found inside the user-provided SDK root. This is non-fatal in v4.9.0.")
         endif()
         
     else()
-        message(WARNING "Windows MIDI Services SDK root was provided but does not exist. This is non-fatal in v4.7.0 research mode.")
+        message(WARNING "Windows MIDI Services SDK root was provided but does not exist. This is non-fatal in v4.9.0 research mode.")
         target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED WINDOWS_MIDI_SERVICES_SDK_ROOT_MISSING)
     endif()
 endif()
@@ -156,12 +186,21 @@ if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
     if(EXISTS "${WINDOWS_MIDI_SERVICES_SDK_ROOT}")
         target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED)
         
+        target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_SDK_CANDIDATE_DISCOVERY_ATTEMPTED)
         target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADER_DETECTION_ATTEMPTED)
+        
         if(WINDOWS_MIDI_SERVICES_HEADER_DIR)
-            target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED)
+            target_compile_definitions(UmpParserTests PRIVATE 
+                WINDOWS_MIDI_SERVICES_HEADER_CANDIDATE_DETECTED
+                WINDOWS_MIDI_SERVICES_OPTIONAL_HEADERS_DETECTED
+            )
             if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
                 target_include_directories(UmpParserTests PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
             endif()
+        endif()
+        
+        if(WINDOWS_MIDI_SERVICES_WINMD_FILE)
+            target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_WINMD_CANDIDATE_DETECTED)
         endif()
     else()
         target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_SDK_ROOT_PROVIDED WINDOWS_MIDI_SERVICES_SDK_ROOT_MISSING)

@@ -139,6 +139,13 @@
 - [ ] Endpoints are not listed. UMP capture is not attempted.
 - [ ] Non-experimental compilation tracks are unaffected.
 
+## v4.9.0 SDK candidate discovery review
+- [ ] `Microsoft.Windows.Devices.Midi2` header names are prioritized.
+- [ ] `Microsoft.Windows.Devices.Midi2` WinMD names are prioritized.
+- [ ] Header detection does not imply Endpoint Listing.
+- [ ] WinMD detection does not imply Endpoint Listing.
+- [ ] Real API calls are still strictly forbidden.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

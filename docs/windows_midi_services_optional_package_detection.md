@@ -39,3 +39,5 @@ Explicar que a versão `v4.5.0` organiza e estrutura a etapa de detecção opcio
 - O pacote CMake engatilha pela primeira vez um teste de verificação opcional cruzado em ambiente real, tentando parear e atestar a veracidade da pasta injetada pelo usuário através da existência de Headers essenciais.
 - Ainda não há pacote real exigido.
 - Ainda não há endpoint listing ativo.
+
+**Nota (v4.9.0):** Essa diretiva de Header Detection foi corrigida para assimilar os novos padrões contidos no pacote Microsoft (`Microsoft.Windows.Devices.Midi2.winmd`), isolando perfeitamente a varredura entre headers C++ e Metadados WinMD puros.

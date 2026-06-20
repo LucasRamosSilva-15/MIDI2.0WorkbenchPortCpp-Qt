@@ -59,3 +59,5 @@ cmake --build build-wms-sdk --config Release
 - Com a injeção do caminho fixo em `v4.6.0`, a `v4.7.0` agora ativa os campos `optionalHeaderDetectionAttempted` e `optionalHeadersDetected`.
 - Se o diretório alvo conter assinaturas de Headers Microsoft (Ex: `winrt/Windows.Devices.Midi2.h`), os campos são comutados confirmando a aptidão do C++ de extrair aquela API.
 - Reitera-se que `realSdkHeadersUsed` permanece irredutivelmente travado em `false`.
+
+**Nota (v4.9.0):** A estrutura de Report (`WindowsMidiServicesSdkProbe`) foi drasticamente enrijecida com os campos `sdkCandidateDiscoveryAttempted`, `headerCandidateDetected` e `winmdCandidateDetected`, propiciando um diagnóstico altamente refinado sobre as pastas fornecidas pelo desenvolvedor, sem contudo vazar para APIs reais.

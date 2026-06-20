@@ -14,6 +14,8 @@ A versão `v4.8.0` executa um "Include Compile Experiment" puramente isolado par
 - Nenhuma varredura global foi instaurada.
 - O projeto contínua com seu build *offline* (MIDI 1.0 e UMP parser) protegido.
 
+**Nota (v4.9.0):** A lógica de detecção de diretórios que possibilita este *include experiment* foi aprimorada para detectar e tolerar os nomes corretos do pacote Microsoft (`Microsoft.Windows.Devices.Midi2.h`). O experiment só compila seu payload C++ se o SDK informar que os cabeçalhos (headers) existem (e não apenas o WinMD). Nenhuma API real é chamada e o endpoint listing segue irredutível (bloqueado).
+
 ## CMake Tests
 ```powershell
 cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\Path\To\WindowsMidiServicesSdk"
