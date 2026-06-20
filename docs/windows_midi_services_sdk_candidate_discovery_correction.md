@@ -49,6 +49,6 @@ cmake --build build-wms-sdk-root --config Release
 
 ## Future work
 
-* **v4.10.0**: optional WinMD/header compile strategy research.
-* **v4.11.0**: isolated API type reference compile experiment.
+* **v4.10.0**: optional WinMD/header compile strategy research (Type Reference Compile Experiment).
+* **v4.11.0**: isolated runtime initialization research.
 * **v4.12.0**: endpoint listing prototype only if compile strategy succeeds.

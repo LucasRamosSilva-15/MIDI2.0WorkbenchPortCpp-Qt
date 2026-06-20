@@ -68,6 +68,24 @@ void testWmsSdkProbe_Status() {
 #else
     assertTest("SDK Probe WinMD Candidate Detected False", report.winmdCandidateDetected == false);
 #endif
+
+    assertTest("SDK Probe typeReferenceExperimentStatus not empty", !report.typeReferenceExperimentStatus.isEmpty());
+    assertTest("SDK Probe Formatted contains API Type Reference Compile Experiment", formatted.contains("API Type Reference Compile Experiment"));
+    assertTest("SDK Probe Formatted contains Type Reference Requested", formatted.contains("Type Reference Requested"));
+    assertTest("SDK Probe Formatted contains Type Reference Compiled", formatted.contains("Type Reference Compiled"));
+    assertTest("SDK Probe Formatted contains Type Reference Status", formatted.contains("Type Reference Status"));
+
+#ifdef WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_REQUESTED
+    assertTest("SDK Probe Type Reference Requested True", report.typeReferenceExperimentRequested == true);
+#else
+    assertTest("SDK Probe Type Reference Requested False", report.typeReferenceExperimentRequested == false);
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_COMPILED
+    assertTest("SDK Probe Type Reference Compiled True", report.typeReferenceExperimentCompiled == true);
+#else
+    assertTest("SDK Probe Type Reference Compiled False", report.typeReferenceExperimentCompiled == false);
+#endif
     
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));

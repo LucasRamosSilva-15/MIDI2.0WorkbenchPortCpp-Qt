@@ -59,16 +59,17 @@ Windows MIDI Services backend skeleton.
 - Separated Header detection from WinMD detection.
 - Expanded detection capabilities without invoking real API or mapping Endpoints.
 
-## v4.10.0
-Optional WinMD/header compile strategy research.
-- Retorno dos verdadeiros hardwares pela malha C++.
+## v4.10.0 - Windows MIDI Services isolated API type reference compile experiment
+- Optional compile strategy validation referencing SDK structures directly in C++.
+- Requires verified Candidate SDK path (v4.9.0).
+- Fully abstracted, runtime safe, zero endpoint listings.
 
 ## v4.11.0
-Isolated API type reference compile experiment.
+Isolated runtime initialization research.
 
 ## v4.12.0
-Endpoint listing prototype if compile strategy succeeds.
-- Design gráfico aprimorado, permitindo o desenvolvedor comutar entre o "Teste Didático" (FakeUmpInputBackend) ou a varredura por hardware pela interface QWidget.
+Endpoint listing prototype only after initialization strategy is understood.
+- Retorno dos verdadeiros hardwares pela malha C++.
 
 ## v4.11.0
 Experimental UMP receive prototype.

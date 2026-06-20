@@ -2,6 +2,11 @@
 
 A árvore de versões `v4.x` tem como manifesto principal a migração e exploração orgânica rumo à captação em altíssima resolução de protocolos reais UMP 2.0 pelo Sistema Operacional primário (Windows).
 
+## v4.10.0 - Windows MIDI Services isolated API type reference compile experiment
+- Added isolated `WindowsMidiServicesTypeReferenceProbe` to stress test C++ references without executing them.
+- Kept UI untouched and stable. Endpoints are strictly locked away.
+- Proved CMake's capacity to build upon Windows Native architectures without collapsing standard SDK-Free packages.
+
 ## v4.9.0 - Windows MIDI Services SDK candidate discovery correction
 - Corrected candidate discovery to detect `Microsoft.Windows.Devices.Midi2` headers and `.winmd` files.
 - Restructured `WindowsMidiServicesSdkProbe` to format accurate Header vs WinMD metrics.

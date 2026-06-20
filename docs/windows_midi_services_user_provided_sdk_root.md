@@ -60,6 +60,8 @@ cmake --build build-wms-sdk-root --config Release
 
 **Nota (v4.9.0):** Para amparar a extração robusta via `vcpkg`, a malha de detecção aprofundou a busca passiva isolando a checagem de Metadados (`Microsoft.Windows.Devices.Midi2.winmd`) e C++ Headers (`Microsoft.Windows.Devices.Midi2.h`). WinMD detectado não é o mesmo que Header compilável.
 
+**Nota (v4.10.0):** O root providenciado pelo desenvolvedor agora ampara o referenciamento de tipos da SDK (*Type Reference Compile Experiment*). Esse passo provou que o C++ está alinhado estruturalmente aos binários sem vazar sua estabilidade *offline*.
+
 ## Future work
 - **v4.7.0**: optional header detection with `find_path` using SDK root.
 - **v4.8.0**: endpoint listing prototype only if headers are detected.

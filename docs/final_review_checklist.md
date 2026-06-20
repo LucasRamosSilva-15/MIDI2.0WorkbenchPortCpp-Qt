@@ -146,6 +146,13 @@
 - [ ] WinMD detection does not imply Endpoint Listing.
 - [ ] Real API calls are still strictly forbidden.
 
+## v4.10.0 API type reference compile experiment review
+- [ ] `ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT` is OFF by default.
+- [ ] Compiles `WindowsMidiServicesTypeReferenceProbe` only if requested and Headers exist.
+- [ ] Does not enumerate Windows SDK Endpoints.
+- [ ] Does not instantiate COM Apartments.
+- [ ] Normal builds continue completely detached from Microsoft APIs.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

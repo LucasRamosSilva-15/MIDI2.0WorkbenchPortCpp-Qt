@@ -68,6 +68,24 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
         report.sdkCandidateDiscoveryStatus = "SDK candidate discovery was not attempted because no user-provided SDK root was configured.";
     }
     
+#ifdef WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_REQUESTED
+    report.typeReferenceExperimentRequested = true;
+#else
+    report.typeReferenceExperimentRequested = false;
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_COMPILED
+    report.typeReferenceExperimentCompiled = true;
+    report.typeReferenceExperimentStatus = "Type reference compile experiment completed. No Windows MIDI Services runtime API calls are made in v4.10.0.";
+#else
+    report.typeReferenceExperimentCompiled = false;
+    if (report.typeReferenceExperimentRequested) {
+        report.typeReferenceExperimentStatus = "Type reference experiment was requested, but candidate headers were not available. Non-fatal in v4.10.0.";
+    } else {
+        report.typeReferenceExperimentStatus = "Type reference experiment is disabled.";
+    }
+#endif
+    
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
         report.status = "SDK experiment flag is enabled, but real Windows MIDI Services SDK probing is not implemented in v4.4.0.";
@@ -131,6 +149,11 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "Header Candidate Detected: " + QString(report.headerCandidateDetected ? "Yes" : "No") + "\n";
     out += "WinMD Candidate Detected: " + QString(report.winmdCandidateDetected ? "Yes" : "No") + "\n";
     out += "Discovery Status: " + report.sdkCandidateDiscoveryStatus + "\n";
+    
+    out += "\n--- API Type Reference Compile Experiment ---\n";
+    out += "Type Reference Requested: " + QString(report.typeReferenceExperimentRequested ? "Yes" : "No") + "\n";
+    out += "Type Reference Compiled: " + QString(report.typeReferenceExperimentCompiled ? "Yes" : "No") + "\n";
+    out += "Type Reference Status: " + report.typeReferenceExperimentStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

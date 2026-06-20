@@ -8,8 +8,9 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 option(ENABLE_RTMIDI "Habilitar dependência opcional do RtMidi" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES "Enable Windows MIDI Services native backend (Windows 10+)" OFF)
-option(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT "Enable Windows MIDI Services SDK detection and experimental features" OFF)
-option(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT "Enable Windows MIDI Services optional header include compile experiment" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT "Enable theoretical SDK connection paths (does not build endpoints yet)" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT "Enable isolated Windows MIDI Services C++ header inclusion test" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT "Enable isolated Windows MIDI Services API type reference compile experiment" OFF)
 
 if(ENABLE_RTMIDI)
     include(FetchContent)
@@ -122,6 +123,21 @@ else()
             if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
                 target_include_directories(MidiUmpAnalyzer PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
             endif()
+            
+            if(ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT)
+                message(STATUS "Windows MIDI Services type reference experiment is ENABLED and compiling.")
+                target_compile_definitions(MidiUmpAnalyzer PRIVATE 
+                    WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_REQUESTED
+                    WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_COMPILED
+                )
+                target_include_directories(MidiUmpAnalyzer PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
+                target_sources(MidiUmpAnalyzer PRIVATE src/midi/WindowsMidiServicesTypeReferenceProbe.cpp)
+            endif()
+        else()
+            if(ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT)
+                message(WARNING "Windows MIDI Services type reference experiment was requested, but no header candidate was detected. Non-fatal in v4.10.0.")
+                target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_REQUESTED)
+            endif()
         endif()
         
         if(WINDOWS_MIDI_SERVICES_WINMD_FILE)
@@ -196,6 +212,19 @@ if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
             )
             if(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT)
                 target_include_directories(UmpParserTests PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
+            endif()
+            
+            if(ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT)
+                target_compile_definitions(UmpParserTests PRIVATE 
+                    WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_REQUESTED
+                    WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_COMPILED
+                )
+                target_include_directories(UmpParserTests PRIVATE "${WINDOWS_MIDI_SERVICES_HEADER_DIR}")
+                target_sources(UmpParserTests PRIVATE src/midi/WindowsMidiServicesTypeReferenceProbe.cpp)
+            endif()
+        else()
+            if(ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT)
+                target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_REQUESTED)
             endif()
         endif()
         

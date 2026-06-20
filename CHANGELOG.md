@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v4.10.0 - Windows MIDI Services isolated API type reference compile experiment
+- Added optional `ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT` flag.
+- Added isolated `WindowsMidiServicesTypeReferenceProbe`.
+- Updated SDK diagnostic report with type reference experiment status.
+- Kept build normal and RtMidi SDK-free.
+- No runtime API calls, endpoint listing or UMP capture yet.
+
 ## v4.9.0 - Windows MIDI Services SDK candidate discovery correction
 - Corrected Windows MIDI Services SDK candidate discovery.
 - Added detection for `Microsoft.Windows.Devices.Midi2` WinMD metadata candidates.

@@ -20,6 +20,10 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool winmdCandidateDetected = false;
     QString sdkCandidateDiscoveryStatus;
     
+    bool typeReferenceExperimentRequested = false;
+    bool typeReferenceExperimentCompiled = false;
+    QString typeReferenceExperimentStatus;
+    
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
     bool userProvidedSdkRootConfigured = false;

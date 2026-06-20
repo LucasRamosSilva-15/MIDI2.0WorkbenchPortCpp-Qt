@@ -32,6 +32,8 @@ cmake --build build-wms-sdk-root --config Release
 
 **Nota (v4.9.0):** A busca por candidatos foi estendida para considerar também os metadados `Microsoft.Windows.Devices.Midi2.winmd` de forma dissociada. A detecção passiva ainda é mantida em ambiente estritamente não-hostil (Non-fatal e restrita a raiz).
 
+**Nota (v4.10.0):** Validou-se estruturalmente que detectar Headers é uma etapa prévia e mandatória antes do referenciamento de tipos de API nativas. Detectar o Header C++ contudo, não autoriza o listing de interfaces nem captura UMP real.
+
 ## What is still not implemented
 - Endpoint listing real;
 - UMP capture real;

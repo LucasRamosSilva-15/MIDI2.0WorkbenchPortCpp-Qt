@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.9.0
+**Current version:** v4.10.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -75,9 +75,16 @@ Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por M
 - WinMD detectado não ativa endpoint listing;
 - Header detectado não ativa API real;
 - A build normal continua limpa (*SDK-free*).
+
+## Windows MIDI Services API type reference compile experiment
+- Na **v4.10.0** adicionou-se a flag opcional `ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT` (`OFF` por padrão).
+- Só entra em efeito com um Root válido e Header Detectado.
+- Testa *unicamente* a compatibilidade de compilação C++ cruzada contra a API da MS.
+- Não há instância nativa. Não há Endpoint listing. Não há captura UMP. 
+- A build padrão permanece *SDK-free*.
 - Exemplo experimental:
 ```powershell
-cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\vcpkg\installed\x64-windows"
+cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\vcpkg\installed\x64-windows"
 cmake --build build-wms-sdk-root --config Release
 ```
 
