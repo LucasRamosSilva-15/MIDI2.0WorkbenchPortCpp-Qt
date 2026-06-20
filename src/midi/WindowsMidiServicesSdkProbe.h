@@ -24,6 +24,12 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool typeReferenceExperimentCompiled = false;
     QString typeReferenceExperimentStatus;
     
+    bool cppwinrtAlignmentResearchEnabled = false;
+    bool realCppWinRtIncludeAttemptEnabled = false;
+    bool cppwinrtProjectionAligned = false;
+    bool cppwinrtProjectionBlocked = true;
+    QString cppwinrtAlignmentStatus;
+    
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
     bool userProvidedSdkRootConfigured = false;

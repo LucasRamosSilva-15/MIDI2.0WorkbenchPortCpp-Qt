@@ -2,6 +2,11 @@
 
 A árvore de versões `v4.x` tem como manifesto principal a migração e exploração orgânica rumo à captação em altíssima resolução de protocolos reais UMP 2.0 pelo Sistema Operacional primário (Windows).
 
+## v4.11.0 - Windows MIDI Services C++/WinRT projection alignment research
+- Documented and isolated C++/WinRT mismatch errors inside the compiler's probe.
+- Prevented TypeReferenceProbe from crashing standard and experimental builds (Safe Mode enabled by default).
+- Introduced toolchain diagnostics to guide future resolution of generated `impl/` headers.
+
 ## v4.10.0 - Windows MIDI Services isolated API type reference compile experiment
 - Added isolated `WindowsMidiServicesTypeReferenceProbe` to stress test C++ references without executing them.
 - Kept UI untouched and stable. Endpoints are strictly locked away.

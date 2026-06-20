@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.10.0
+**Current version:** v4.11.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -87,6 +87,13 @@ Foi criado para validar pacotes MIDI 2.0 (como SysEx8 e Flex Data) gerados por M
 cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\vcpkg\installed\x64-windows"
 cmake --build build-wms-sdk-root --config Release
 ```
+
+## Windows MIDI Services C++/WinRT projection alignment research
+- Na **v4.11.0** documentamos a falha arquitetural ocorrida com headers gerados pela biblioteca estática `Microsoft.Windows.Devices.Midi2`.
+- O modo padrão (**Safe Mode**) compila sem tentar acessar headers Microsoft problemáticos (`CPPWINRT_VERSION mismatch`).
+- A tentativa real de acesso (`REAL_CPPWINRT_INCLUDE_ATTEMPT`) foi separada e deve ser usada apenas localmente, pois quebrará a construção fora da *Toolchain* alinhada.
+- O mapeamento nativo (`Endpoint Listing`) segue desligado até a projeção estar resolvida.
+- A build normal de UI permanece *SDK-free*.
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)

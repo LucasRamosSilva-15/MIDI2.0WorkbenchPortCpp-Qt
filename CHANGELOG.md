@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.11.0 - Windows MIDI Services C++/WinRT projection alignment research
+* Added C++/WinRT projection alignment diagnostics.
+* Added safe diagnostic mode for type reference research.
+* Added explicit real include attempt flag for local diagnostics only.
+* Documented `CPPWINRT_VERSION` mismatch and missing generated impl header issue.
+* Kept normal and RtMidi builds SDK-free.
+* No runtime API calls, endpoint listing or UMP capture yet.
+
 ## v4.10.0 - Windows MIDI Services isolated API type reference compile experiment
 - Added optional `ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT` flag.
 - Added isolated `WindowsMidiServicesTypeReferenceProbe`.

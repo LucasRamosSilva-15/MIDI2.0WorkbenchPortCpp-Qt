@@ -64,12 +64,19 @@ Windows MIDI Services backend skeleton.
 - Requires verified Candidate SDK path (v4.9.0).
 - Fully abstracted, runtime safe, zero endpoint listings.
 
-## v4.11.0
-Isolated runtime initialization research.
+## v4.11.0 - Windows MIDI Services C++/WinRT projection alignment research
+- Isolates C++/WinRT version conflicts (`CPPWINRT_VERSION`).
+- Provides safe boundaries preventing experimental probes from corrupting the C++ compiler build logic.
+- Awaiting resolution of the `winrt/impl` projection architecture.
 
 ## v4.12.0
-Endpoint listing prototype only after initialization strategy is understood.
-- Retorno dos verdadeiros hardwares pela malha C++.
+C++/WinRT generated projection strategy research.
+
+## v4.13.0
+Isolated runtime initialization research only after projection alignment.
+
+## v4.14.0
+Endpoint listing prototype only after initialization strategy succeeds.
 
 ## v4.11.0
 Experimental UMP receive prototype.

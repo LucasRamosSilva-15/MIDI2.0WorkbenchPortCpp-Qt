@@ -52,6 +52,8 @@ cmake --build build-wms-sdk-root --config Release
 * Property Exchange;
 * runtime API call.
 
+**Nota (v4.11.0)**: Esta versão revelou conflito de projeções (`CPPWINRT_VERSION mismatch`). Por segurança, a tentativa de Inclusão (`real include attempt`) foi tornada opcional. O listing segue bloqueado até o alinhamento da toolchain.
+
 ## Future work
 
 * **v4.11.0**: isolated runtime initialization research, if safe.

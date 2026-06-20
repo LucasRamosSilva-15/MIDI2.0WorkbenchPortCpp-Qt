@@ -47,6 +47,8 @@ cmake --build build-wms-sdk-root --config Release
 * If neither is found: build still passes.
 * Endpoint listing remains unavailable.
 
+**Nota (v4.11.0)**: Os headers candidatos descobertos, embora válidos em seus metadados, revelaram necessitar do framework isolado C++/WinRT com Toolchain do `vcpkg` para compilarem livre de erros de versão.
+
 ## Future work
 
 * **v4.10.0**: optional WinMD/header compile strategy research (Type Reference Compile Experiment).

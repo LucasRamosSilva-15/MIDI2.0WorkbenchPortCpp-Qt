@@ -76,15 +76,38 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
 
 #ifdef WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT_COMPILED
     report.typeReferenceExperimentCompiled = true;
-    report.typeReferenceExperimentStatus = "Type reference compile experiment completed. No Windows MIDI Services runtime API calls are made in v4.10.0.";
+#ifdef WINDOWS_MIDI_SERVICES_ALLOW_REAL_CPPWINRT_INCLUDE_ATTEMPT
+    report.typeReferenceExperimentStatus = "Type reference compile experiment attempted (REAL INCLUDE ENABLED). This may have caused compile errors if mismatched.";
+#else
+    report.typeReferenceExperimentStatus = "Type reference experiment is blocked pending C++/WinRT projection alignment. No real include attempt is made in safe mode.";
+#endif
 #else
     report.typeReferenceExperimentCompiled = false;
     if (report.typeReferenceExperimentRequested) {
-        report.typeReferenceExperimentStatus = "Type reference experiment was requested, but candidate headers were not available. Non-fatal in v4.10.0.";
+        report.typeReferenceExperimentStatus = "Type reference experiment was requested, but candidate headers were not available. Non-fatal in v4.11.0.";
     } else {
         report.typeReferenceExperimentStatus = "Type reference experiment is disabled.";
     }
 #endif
+
+#ifdef WINDOWS_MIDI_SERVICES_CPPWINRT_ALIGNMENT_RESEARCH_ENABLED
+    report.cppwinrtAlignmentResearchEnabled = true;
+    report.cppwinrtAlignmentStatus = "C++/WinRT projection alignment research is enabled. Previous type reference attempts showed CPPWINRT_VERSION mismatch or missing generated impl headers. No endpoint listing is enabled in v4.11.0.";
+#else
+    report.cppwinrtAlignmentResearchEnabled = false;
+    report.cppwinrtAlignmentStatus = "C++/WinRT projection alignment research is disabled.";
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_ALLOW_REAL_CPPWINRT_INCLUDE_ATTEMPT
+    report.realCppWinRtIncludeAttemptEnabled = true;
+    report.cppwinrtAlignmentStatus += " Real C++/WinRT include attempt is enabled. This mode may fail compilation and is for local diagnostics only.";
+#else
+    report.realCppWinRtIncludeAttemptEnabled = false;
+#endif
+
+    // Em v4.11.0 nós sabemos que a projeção ainda está bloqueada.
+    report.cppwinrtProjectionAligned = false;
+    report.cppwinrtProjectionBlocked = true;
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -154,6 +177,13 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "Type Reference Requested: " + QString(report.typeReferenceExperimentRequested ? "Yes" : "No") + "\n";
     out += "Type Reference Compiled: " + QString(report.typeReferenceExperimentCompiled ? "Yes" : "No") + "\n";
     out += "Type Reference Status: " + report.typeReferenceExperimentStatus + "\n";
+    
+    out += "\n--- C++/WinRT Projection Alignment ---\n";
+    out += "Alignment Research Enabled: " + QString(report.cppwinrtAlignmentResearchEnabled ? "Yes" : "No") + "\n";
+    out += "Real Include Attempt Enabled: " + QString(report.realCppWinRtIncludeAttemptEnabled ? "Yes" : "No") + "\n";
+    out += "Projection Aligned: " + QString(report.cppwinrtProjectionAligned ? "Yes" : "No") + "\n";
+    out += "Projection Blocked: " + QString(report.cppwinrtProjectionBlocked ? "Yes" : "No") + "\n";
+    out += "Alignment Status: " + report.cppwinrtAlignmentStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

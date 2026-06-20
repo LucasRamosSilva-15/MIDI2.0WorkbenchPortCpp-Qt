@@ -153,6 +153,12 @@
 - [ ] Does not instantiate COM Apartments.
 - [ ] Normal builds continue completely detached from Microsoft APIs.
 
+## v4.11.0 C++/WinRT projection alignment review
+- [ ] Safe mode enabled. `TypeReferenceProbe` refrains from `#include` by default.
+- [ ] Explicit flag (`ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT`) needed to attempt real headers.
+- [ ] Endpoint Listing strictly disabled.
+- [ ] MSVC / Qt / RtMidi builds continue unaltered and free of MS SDK.
+
 ## Release
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64.zip generated
 - [ ] dist/MidiUmpAnalyzer-v2.21.0-windows-x64-rtmidi.zip generated

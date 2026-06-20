@@ -86,6 +86,25 @@ void testWmsSdkProbe_Status() {
 #else
     assertTest("SDK Probe Type Reference Compiled False", report.typeReferenceExperimentCompiled == false);
 #endif
+
+    assertTest("SDK Probe cppwinrtAlignmentStatus not empty", !report.cppwinrtAlignmentStatus.isEmpty());
+    assertTest("SDK Probe Formatted contains C++/WinRT Projection Alignment", formatted.contains("C++/WinRT Projection Alignment"));
+    assertTest("SDK Probe Formatted contains Alignment Research Enabled", formatted.contains("Alignment Research Enabled"));
+    assertTest("SDK Probe Formatted contains Real Include Attempt Enabled", formatted.contains("Real Include Attempt Enabled"));
+    assertTest("SDK Probe Formatted contains Projection Aligned", formatted.contains("Projection Aligned"));
+    assertTest("SDK Probe Formatted contains Projection Blocked", formatted.contains("Projection Blocked"));
+
+#ifdef WINDOWS_MIDI_SERVICES_CPPWINRT_ALIGNMENT_RESEARCH_ENABLED
+    assertTest("SDK Probe Alignment Research Enabled True", report.cppwinrtAlignmentResearchEnabled == true);
+#else
+    assertTest("SDK Probe Alignment Research Enabled False", report.cppwinrtAlignmentResearchEnabled == false);
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_ALLOW_REAL_CPPWINRT_INCLUDE_ATTEMPT
+    assertTest("SDK Probe Real Include Attempt Enabled True", report.realCppWinRtIncludeAttemptEnabled == true);
+#else
+    assertTest("SDK Probe Real Include Attempt Enabled False", report.realCppWinRtIncludeAttemptEnabled == false);
+#endif
     
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));

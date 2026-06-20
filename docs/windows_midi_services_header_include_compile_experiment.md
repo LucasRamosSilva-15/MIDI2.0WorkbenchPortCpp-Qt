@@ -18,6 +18,8 @@ A versão `v4.8.0` executa um "Include Compile Experiment" puramente isolado par
 
 **Nota (v4.10.0):** Esse escopo de Header Include abriu o alicerce para o recém chegado `WindowsMidiServicesTypeReferenceProbe`, o qual referencia estritamente os tipos do SDK na linguagem (Compile Only). Type Reference não significa API Funcional. Endpoint listing segue adiado.
 
+**Nota (v4.11.0):** Descobriu-se que o "Include" de Headers C++/WinRT puros não preenche as instâncias `impl/` exigidas. O projeto adotou flags seguras para prevenir a desfragmentação de build na versão corrente, isolando o problema.
+
 ## CMake Tests
 ```powershell
 cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\6.11.1\msvc2022_64" -DENABLE_WINDOWS_MIDI_SERVICES=ON -DENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT=ON -DENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT=ON -DWINDOWS_MIDI_SERVICES_SDK_ROOT="C:\Path\To\WindowsMidiServicesSdk"
