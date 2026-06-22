@@ -163,6 +163,12 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
     report.inputStreamPrototypeEnabled = false;
     report.inputStreamPrototypeStatus = "Input Stream Callback Prototype is disabled.";
 #endif
+
+#ifdef WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP_ENABLED
+    report.backendIntegrationPrepEnabled = true;
+#else
+    report.backendIntegrationPrepEnabled = false;
+#endif
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -273,6 +279,9 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "\n--- Windows MIDI Services Input Stream ---\n";
     out += "Stream Prototype Enabled: " + QString(report.inputStreamPrototypeEnabled ? "Yes" : "No") + "\n";
     out += "Status: " + report.inputStreamPrototypeStatus + "\n";
+    
+    out += "\n--- Backend Integration Preparation ---\n";
+    out += "Backend Orchestrator Ready: " + QString(report.backendIntegrationPrepEnabled ? "Yes" : "No") + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

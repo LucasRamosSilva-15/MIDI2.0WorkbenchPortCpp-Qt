@@ -17,6 +17,7 @@ option(ENABLE_WINDOWS_MIDI_SERVICES_API_SURFACE_MAPPING "Enable Windows MIDI Ser
 option(ENABLE_WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_EXPERIMENT "Enable Windows MIDI Services endpoint enumeration experiment" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_METADATA_EXPERIMENT "Enable Windows MIDI Services endpoint metadata research" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_INPUT_STREAM_EXPERIMENT "Enable Windows MIDI Services UMP input stream prototype" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP "Enable Windows MIDI Services backend integration preparation" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT "DANGEROUS: Force real include of misaligned C++/WinRT headers" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_REAL_WINRT_ACTIVATION_ATTEMPT "DANGEROUS: Force real initialization of WinRT COM apartments" OFF)
 
@@ -182,6 +183,11 @@ else()
                     target_sources(MidiUmpAnalyzer PRIVATE src/midi/WindowsMidiServicesInputStreamProbe.cpp)
                 endif()
                 
+                if(ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP)
+                    message(STATUS "Windows MIDI Services backend integration preparation active. Backend is now a dormant orchestrator.")
+                    target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP_ENABLED)
+                endif()
+                
                 message(STATUS "--- Toolchain Diagnostic ---")
                 message(STATUS "CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
                 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
@@ -326,6 +332,10 @@ if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
                 if(ENABLE_WINDOWS_MIDI_SERVICES_INPUT_STREAM_EXPERIMENT)
                     target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_INPUT_STREAM_EXPERIMENT_ENABLED)
                     target_sources(UmpParserTests PRIVATE src/midi/WindowsMidiServicesInputStreamProbe.cpp)
+                endif()
+                
+                if(ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP)
+                    target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP_ENABLED)
                 endif()
                 
                 if(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT)

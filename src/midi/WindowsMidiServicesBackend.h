@@ -11,8 +11,17 @@
  * (v4.1.0) Esta classe é apenas uma carcaça arquitetural provando a escalabilidade do IUmpInputBackend.
  * Ela não contém as diretrizes #include <winrt/...> nem escuta portas reais ainda.
  */
+#include <mutex>
+
 class WindowsMidiServicesBackend : public IUmpInputBackend {
 public:
+    enum class ConnectionState {
+        Disconnected,
+        Ready,
+        Active,
+        Error
+    };
+
     WindowsMidiServicesBackend();
     virtual ~WindowsMidiServicesBackend();
 
@@ -23,12 +32,19 @@ public:
     void closeInputPort() override;
     bool isOpen() const override;
     std::vector<UmpRawEvent> pollUmpEvents() override;
+    
+    ConnectionState getState() const;
+    QString getLastError() const;
 
 private:
+    ConnectionState m_state;
+    QString m_lastError;
+    std::mutex m_stateMutex;
+    bool m_isOpen;
+
     // Stub de pesquisa: simula a listagem real sem engatilhar o SDK ainda.
     QStringList queryAvailableEndpoints() const;
 
-    bool m_isOpen;
     std::mutex m_mutex;
     // Futuro: ponteiros nativos de IMidiEndpointConnection, sessões, etc.
 };

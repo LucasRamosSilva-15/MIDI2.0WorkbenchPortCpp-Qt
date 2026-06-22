@@ -53,6 +53,8 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool inputStreamPrototypeEnabled = false;
     QString inputStreamPrototypeStatus;
     
+    bool backendIntegrationPrepEnabled = false;
+    
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
     bool userProvidedSdkRootConfigured = false;

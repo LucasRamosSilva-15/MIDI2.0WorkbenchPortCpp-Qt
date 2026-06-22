@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.18.0 - Windows MIDI Services backend integration preparation
+* Transitioned `WindowsMidiServicesBackend` from a dummy skeleton to a State Machine-aware orchestrator.
+* Implemented `ConnectionState` tracking (`Disconnected`, `Ready`, `Active`, `Error`).
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP` CMake option.
+* Engineered graceful failures for `openPort()` under Safe Mode to protect `MainWindow` initialization.
+
 ## v4.17.0 - Windows MIDI Services input stream prototype
 * Created `WindowsMidiServicesInputStreamProbe` to mock UMP callback behaviors (`MidiMessageReceivedEventArgs`).
 * Demonstrated 32-bit Words translation of native WinRT byte arrays in diagnostic status logic.

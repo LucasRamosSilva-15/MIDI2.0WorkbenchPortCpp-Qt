@@ -5,10 +5,24 @@
 #include "../src/midi/WindowsMidiServicesHeaderIncludeProbe.h"
 
 void testWmsBackend_SkeletonBasics() {
-    WindowsMidiServicesBackend wms;
-    assertTest("WMS Backend Name", wms.backendName().contains("Windows MIDI Services"));
-    assertTest("WMS Initially Closed", !wms.isOpen());
-    assertTest("WMS Backend queryAvailableEndpoints returns empty via listInputPorts", wms.listInputPorts().isEmpty());
+    WindowsMidiServicesBackend backend;
+
+    assertTest("WMS Backend Name", backend.backendName().contains("Windows MIDI Services"));
+    assertTest("WMS Initially Closed", backend.isOpen() == false);
+    assertTest("WMS Initial State is Disconnected", backend.getState() == WindowsMidiServicesBackend::ConnectionState::Disconnected);
+
+    // Call openInputPort and ensure it fails gracefully in Safe Mode
+    bool opened = backend.openInputPort(0);
+    assertTest("WMS openInputPort fails in Safe Mode", opened == false);
+    assertTest("WMS state transitions to Error in Safe Mode", backend.getState() == WindowsMidiServicesBackend::ConnectionState::Error);
+    assertTest("WMS Error is recorded", !backend.getLastError().isEmpty());
+    
+    // Close the port and ensure it resets
+    backend.closeInputPort();
+    assertTest("WMS closed after failed open", backend.isOpen() == false);
+    assertTest("WMS State is Disconnected after close", backend.getState() == WindowsMidiServicesBackend::ConnectionState::Disconnected);
+
+    // Test listInputPorts string outputeryAvailableEndpoints returns empty via listInputPorts", wms.listInputPorts().isEmpty());
 }
 
 void testWmsSdkProbe_Status() {
@@ -166,6 +180,15 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Input Stream Prototype Enabled True", report.inputStreamPrototypeEnabled == true);
 #else
     assertTest("SDK Probe Input Stream Prototype Enabled False", report.inputStreamPrototypeEnabled == false);
+#endif
+
+    assertTest("SDK Probe Formatted contains Backend Integration Preparation", formatted.contains("Backend Integration Preparation"));
+    assertTest("SDK Probe Formatted contains Backend Orchestrator Ready", formatted.contains("Backend Orchestrator Ready"));
+
+#ifdef WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP_ENABLED
+    assertTest("SDK Probe Backend Integration Prep Enabled True", report.backendIntegrationPrepEnabled == true);
+#else
+    assertTest("SDK Probe Backend Integration Prep Enabled False", report.backendIntegrationPrepEnabled == false);
 #endif
 
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
