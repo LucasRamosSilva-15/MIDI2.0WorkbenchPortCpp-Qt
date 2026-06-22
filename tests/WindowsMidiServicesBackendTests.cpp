@@ -106,6 +106,16 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Real Include Attempt Enabled False", report.realCppWinRtIncludeAttemptEnabled == false);
 #endif
     
+    assertTest("SDK Probe Formatted contains Generated Projections Strategy", formatted.contains("Generated Projections Strategy"));
+    assertTest("SDK Probe Formatted contains Strategy Research Enabled", formatted.contains("Strategy Research Enabled"));
+    assertTest("SDK Probe generatedProjectionStrategyStatus not empty", !report.generatedProjectionStrategyStatus.isEmpty());
+
+#ifdef WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH_ENABLED
+    assertTest("SDK Probe Strategy Research Enabled True", report.generatedProjectionStrategyResearchEnabled == true);
+#else
+    assertTest("SDK Probe Strategy Research Enabled False", report.generatedProjectionStrategyResearchEnabled == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));

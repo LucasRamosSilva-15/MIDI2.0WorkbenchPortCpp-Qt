@@ -109,6 +109,14 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
     report.cppwinrtProjectionAligned = false;
     report.cppwinrtProjectionBlocked = true;
     
+#ifdef WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH_ENABLED
+    report.generatedProjectionStrategyResearchEnabled = true;
+    report.generatedProjectionStrategyStatus = "C++/WinRT generated projection strategy research is enabled. Projection is passively studied via isolation. No runtime WINRT API is initialized in v4.12.0.";
+#else
+    report.generatedProjectionStrategyResearchEnabled = false;
+    report.generatedProjectionStrategyStatus = "C++/WinRT generated projection strategy research is disabled.";
+#endif
+    
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
         report.status = "SDK experiment flag is enabled, but real Windows MIDI Services SDK probing is not implemented in v4.4.0.";
@@ -184,6 +192,10 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "Projection Aligned: " + QString(report.cppwinrtProjectionAligned ? "Yes" : "No") + "\n";
     out += "Projection Blocked: " + QString(report.cppwinrtProjectionBlocked ? "Yes" : "No") + "\n";
     out += "Alignment Status: " + report.cppwinrtAlignmentStatus + "\n";
+    
+    out += "\n--- Generated Projections Strategy ---\n";
+    out += "Strategy Research Enabled: " + QString(report.generatedProjectionStrategyResearchEnabled ? "Yes" : "No") + "\n";
+    out += "Strategy Status: " + report.generatedProjectionStrategyStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

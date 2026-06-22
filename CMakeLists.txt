@@ -10,8 +10,8 @@ option(ENABLE_RTMIDI "Habilitar dependência opcional do RtMidi" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES "Enable Windows MIDI Services native backend (Windows 10+)" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT "Enable theoretical SDK connection paths (does not build endpoints yet)" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT "Enable isolated Windows MIDI Services C++ header inclusion test" OFF)
-option(ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT "Enable isolated Windows MIDI Services API type reference compile experiment" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_CPPWINRT_ALIGNMENT_RESEARCH "Enable diagnostic diagnostics for C++/WinRT alignment mismatches" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH "Enable diagnostic research on C++/WinRT generated projections" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT "DANGEROUS: Force real include of misaligned C++/WinRT headers" OFF)
 
 if(ENABLE_RTMIDI)
@@ -141,6 +141,11 @@ else()
                 message(STATUS "This mode is diagnostic only and does not enable endpoint listing or UMP capture.")
                 target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_CPPWINRT_ALIGNMENT_RESEARCH_ENABLED)
                 
+                if(ENABLE_WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH)
+                    message(STATUS "Windows MIDI Services C++/WinRT generated projection strategy research enabled.")
+                    target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH_ENABLED)
+                endif()
+                
                 message(STATUS "--- Toolchain Diagnostic ---")
                 message(STATUS "CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
                 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
@@ -252,6 +257,11 @@ if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
             
             if(ENABLE_WINDOWS_MIDI_SERVICES_CPPWINRT_ALIGNMENT_RESEARCH)
                 target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_CPPWINRT_ALIGNMENT_RESEARCH_ENABLED)
+                
+                if(ENABLE_WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH)
+                    target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH_ENABLED)
+                endif()
+                
                 if(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT)
                     target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_ALLOW_REAL_CPPWINRT_INCLUDE_ATTEMPT)
                 endif()

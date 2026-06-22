@@ -30,6 +30,9 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool cppwinrtProjectionBlocked = true;
     QString cppwinrtAlignmentStatus;
     
+    bool generatedProjectionStrategyResearchEnabled = false;
+    QString generatedProjectionStrategyStatus;
+    
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
     bool userProvidedSdkRootConfigured = false;

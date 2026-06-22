@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.12.0 - Windows MIDI Services C++/WinRT generated projection strategy research
+* Added C++/WinRT generated projections strategy research.
+* Investigated the missing `impl/` headers and `.winmd` structural requirements.
+* Documented `cppwinrt.exe` pipeline limits inside isolated build constraints.
+* Safe mode kept intact. No endpoint listing or UI activation.
+
 ## v4.11.0 - Windows MIDI Services C++/WinRT projection alignment research
 * Added C++/WinRT projection alignment diagnostics.
 * Added safe diagnostic mode for type reference research.
