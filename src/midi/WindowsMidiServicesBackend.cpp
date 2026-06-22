@@ -22,14 +22,27 @@ QStringList WindowsMidiServicesBackend::listInputPorts() {
 }
 
 QStringList WindowsMidiServicesBackend::queryAvailableEndpoints() const {
-    QStringList endpoints;
+    QStringList endpointsList;
     
-#ifdef USE_WINDOWS_MIDI_SERVICES
-    // Futuro (v4.x): Listagem real usando winrt::Windows::Devices::Midi2
-    // Por enquanto, retorna vazio blindando o sistema.
+#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
+    try {
+        try {
+            winrt::init_apartment(winrt::apartment_type::multi_threaded);
+        } catch (...) {
+            // Ignora erro caso a thread GUI (Qt) já tenha inicializado o COM
+        }
+
+        auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAll();
+        for (uint32_t i = 0; i < endpoints.Size(); ++i) {
+            auto endpointInfo = endpoints.GetAt(i);
+            endpointsList.push_back(QString::fromStdWString(std::wstring(endpointInfo.Name())));
+        }
+    } catch (...) {
+        // Blindagem: Se o WMS não estiver ativo, falhar silenciosamente retornando lista vazia
+    }
 #endif
 
-    return endpoints;
+    return endpointsList;
 }
 
 bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
@@ -38,7 +51,9 @@ bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
 #if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
     try {
         // Inicialização real do Apartamento COM
-        winrt::init_apartment(winrt::apartment_type::multi_threaded);
+        try {
+            winrt::init_apartment(winrt::apartment_type::multi_threaded);
+        } catch (...) {}
         
         // Enumeração do primeiro endpoint real disponível
         auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAll();
