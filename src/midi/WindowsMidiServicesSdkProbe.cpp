@@ -169,6 +169,12 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
 #else
     report.backendIntegrationPrepEnabled = false;
 #endif
+
+#ifdef WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED
+    report.experimentalCaptureArmed = true;
+#else
+    report.experimentalCaptureArmed = false;
+#endif
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -282,6 +288,9 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     
     out += "\n--- Backend Integration Preparation ---\n";
     out += "Backend Orchestrator Ready: " + QString(report.backendIntegrationPrepEnabled ? "Yes" : "No") + "\n";
+    
+    out += "\n--- Experimental Backend Capture ---\n";
+    out += "Capture Engine Armed: " + QString(report.experimentalCaptureArmed ? "Yes" : "No") + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

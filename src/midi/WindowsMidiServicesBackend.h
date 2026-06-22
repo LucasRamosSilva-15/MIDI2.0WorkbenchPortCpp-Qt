@@ -42,9 +42,10 @@ private:
     std::mutex m_stateMutex;
     bool m_isOpen;
 
+    // Buffer FIFO e lock para receber eventos de callbacks assíncronos WinRT
+    std::mutex m_mutex;
+    std::vector<UmpRawEvent> m_eventBuffer;
+
     // Stub de pesquisa: simula a listagem real sem engatilhar o SDK ainda.
     QStringList queryAvailableEndpoints() const;
-
-    std::mutex m_mutex;
-    // Futuro: ponteiros nativos de IMidiEndpointConnection, sessões, etc.
 };

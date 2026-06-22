@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.19.0 - Windows MIDI Services backend experimental
+* Implemented `ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE`.
+* Built thread-safe FIFO `m_eventBuffer` architecture using `std::mutex`.
+* Drafted live COM WinRT activation `try/catch` boundaries.
+* Proven headless consumption via `pollUmpEvents()` isolated from `MainWindow`.
+
 ## v4.18.0 - Windows MIDI Services backend integration preparation
 * Transitioned `WindowsMidiServicesBackend` from a dummy skeleton to a State Machine-aware orchestrator.
 * Implemented `ConnectionState` tracking (`Disconnected`, `Ready`, `Active`, `Error`).

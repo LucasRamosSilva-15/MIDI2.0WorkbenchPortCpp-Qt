@@ -191,6 +191,15 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Backend Integration Prep Enabled False", report.backendIntegrationPrepEnabled == false);
 #endif
 
+    assertTest("SDK Probe Formatted contains Experimental Backend Capture", formatted.contains("Experimental Backend Capture"));
+    assertTest("SDK Probe Formatted contains Capture Engine Armed", formatted.contains("Capture Engine Armed"));
+
+#ifdef WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED
+    assertTest("SDK Probe Experimental Capture Armed True", report.experimentalCaptureArmed == true);
+#else
+    assertTest("SDK Probe Experimental Capture Armed False", report.experimentalCaptureArmed == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));
