@@ -1,6 +1,7 @@
 #include "WindowsMidiServicesSdkProbe.h"
 #include "WindowsMidiServicesWinRtActivationProbe.h"
 #include "WindowsMidiServicesApiSurfaceProbe.h"
+#include "WindowsMidiServicesEndpointEnumeratorProbe.h"
 
 bool WindowsMidiServicesSdkProbe::isSdkExperimentEnabled() {
 #ifdef USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT
@@ -140,6 +141,13 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
     report.apiSurfaceMappingEnabled = false;
     report.apiSurfaceMappingStatus = "API Surface mapping is disabled.";
 #endif
+
+#ifdef WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_ENABLED
+    report.endpointEnumerationEnabled = true;
+    report.discoveredEndpoints = WindowsMidiServicesEndpointEnumeratorProbe::enumerateEndpoints();
+#else
+    report.endpointEnumerationEnabled = false;
+#endif
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -229,6 +237,17 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "\n--- Windows MIDI Services API Surface ---\n";
     out += "API Surface Mapping Enabled: " + QString(report.apiSurfaceMappingEnabled ? "Yes" : "No") + "\n";
     out += "Mapping Status: " + report.apiSurfaceMappingStatus + "\n";
+    
+    out += "\n--- Windows MIDI Services Endpoint Enumeration ---\n";
+    out += "Enumeration Enabled: " + QString(report.endpointEnumerationEnabled ? "Yes" : "No") + "\n";
+    out += "Discovered Endpoints:\n";
+    if (report.discoveredEndpoints.isEmpty()) {
+        out += " - None or blocked by Safe Mode\n";
+    } else {
+        for (const QString& ep : report.discoveredEndpoints) {
+            out += " - " + ep + "\n";
+        }
+    }
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

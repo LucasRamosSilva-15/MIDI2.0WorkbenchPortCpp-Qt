@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.15.0 - Windows MIDI Services endpoint enumeration prototype
+* Created `WindowsMidiServicesEndpointEnumeratorProbe` to log Windows MIDI Services endpoints in memory.
+* Added CMake flag `ENABLE_WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_EXPERIMENT` for hardware querying.
+* Kept physical endpoints isolated from `MainWindow` and UI comboboxes (Safe Mode).
+* Reaffirmed offline resilience: main UI parser remains untouched and zero UMP is captured.
+
 ## v4.14.0 - Windows MIDI Services API surface mapping
 * Created `WindowsMidiServicesApiSurfaceProbe` to structurally map key Windows MIDI Services classes.
 * Validated theoretical compilation visibility for `MidiSession` and `MidiEndpointConnection`.

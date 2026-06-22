@@ -143,6 +143,16 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe API Surface Mapping Enabled False", report.apiSurfaceMappingEnabled == false);
 #endif
 
+    assertTest("SDK Probe Formatted contains Windows MIDI Services Endpoint Enumeration", formatted.contains("Windows MIDI Services Endpoint Enumeration"));
+    assertTest("SDK Probe Formatted contains Enumeration Enabled", formatted.contains("Enumeration Enabled"));
+    assertTest("SDK Probe Formatted contains Discovered Endpoints", formatted.contains("Discovered Endpoints"));
+
+#ifdef WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_ENABLED
+    assertTest("SDK Probe Endpoint Enumeration Enabled True", report.endpointEnumerationEnabled == true);
+#else
+    assertTest("SDK Probe Endpoint Enumeration Enabled False", report.endpointEnumerationEnabled == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));

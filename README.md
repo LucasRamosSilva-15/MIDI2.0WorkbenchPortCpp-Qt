@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.14.0
+**Current version:** v4.15.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -88,10 +88,10 @@ cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PAT
 cmake --build build-wms-sdk-root --config Release
 ```
 
-## Windows MIDI Services API surface mapping
-- A **v4.14.0** documenta e mapeia as principais APIs (`MidiSession`, `MidiEndpointConnection`) estaticamente através de Probes estruturais.
-- Endpoint listing, comunicação WinRT real e captura UMP seguem intencionalmente desativados.
-- A ferramenta permanece offline/standalone sem requerer dependências do SDK para funcionar normalmente.
+## Windows MIDI Services endpoint enumeration prototype
+- A **v4.15.0** constrói a base teórica de enumeração de hardware via Windows MIDI Services.
+- Os endpoints reais rastreados são isolados da interface gráfica principal (`MainWindow`) e armazenados em memória (Safe Mode).
+- A ferramenta segue imune e não-bloqueante; Nenhuma porta nativa nova é exibida ao usuário final.
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)

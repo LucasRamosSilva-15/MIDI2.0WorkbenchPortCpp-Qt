@@ -40,6 +40,9 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool apiSurfaceMappingEnabled = false;
     QString apiSurfaceMappingStatus;
     
+    bool endpointEnumerationEnabled = false;
+    QStringList discoveredEndpoints;
+    
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
     bool userProvidedSdkRootConfigured = false;
