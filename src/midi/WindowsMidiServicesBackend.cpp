@@ -41,23 +41,23 @@ bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
         winrt::init_apartment(winrt::apartment_type::multi_threaded);
         
         // Enumeração do primeiro endpoint real disponível
-        auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAllAsync().get();
+        auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAll();
         if (endpoints.Size() > 0) {
             auto endpointInfo = endpoints.GetAt(portIndex >= 0 && portIndex < endpoints.Size() ? portIndex : 0);
             
             // Instanciação da Sessão e Conexão
-            m_session = winrt::Microsoft::Windows::Devices::Midi2::MidiSession::CreateSession(L"MidiUmpAnalyzerSession");
-            m_endpoint = m_session.CreateEndpointConnection(endpointInfo.Id());
+            m_session = winrt::Microsoft::Windows::Devices::Midi2::MidiSession::Create(L"MidiUmpAnalyzerSession");
+            m_endpoint = m_session.CreateEndpointConnection(endpointInfo.EndpointDeviceId());
             
             // Registro do Handler (Event Token) engatando o fluxo de dados UMP na fila FIFO
             m_eventToken = m_endpoint.MessageReceived([this](auto const& /*sender*/, winrt::Microsoft::Windows::Devices::Midi2::MidiMessageReceivedEventArgs const& args) {
                 std::lock_guard<std::mutex> bufferLock(m_mutex);
                 UmpRawEvent ev;
                 // Alimentando a m_eventBuffer física com a primeira word UMP real
-                ev.words.push_back(args.PeekFirstWord());
+                ev.umpWords.push_back(args.PeekFirstWord());
                 
                 // Determinando palavras adicionais pelo Message Type
-                uint8_t mt = (ev.words[0] >> 28) & 0xF;
+                uint8_t mt = (ev.umpWords[0] >> 28) & 0xF;
                 int expectedWords = 1;
                 if (mt == 0x2 || mt == 0x3) expectedWords = 2;
                 else if (mt == 0x4) expectedWords = 3;

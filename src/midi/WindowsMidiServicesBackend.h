@@ -15,6 +15,7 @@
 
 #if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Microsoft.Windows.Devices.Midi2.h>
 #endif
 
