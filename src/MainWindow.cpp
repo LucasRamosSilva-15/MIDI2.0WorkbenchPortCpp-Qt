@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.23.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.24.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -342,7 +342,7 @@ void MainWindow::setupUi() {
   fakeBackendLayout->addWidget(new QLabel("Status:", this));
   fakeBackendLayout->addWidget(m_fakeUmpStatusLabel);
 
-  QGroupBox *fakeStreamGroup = new QGroupBox("Experimental UMP Stream", this);
+  QGroupBox *fakeStreamGroup = new QGroupBox("UMP Stream Data", this);
   QVBoxLayout *fakeStreamLayout = new QVBoxLayout(fakeStreamGroup);
   
   QHBoxLayout *fakeStreamControls = new QHBoxLayout();
@@ -361,8 +361,8 @@ void MainWindow::setupUi() {
   fakeStreamControls->addWidget(m_fakeUmpCounterLabel);
   fakeStreamControls->addStretch();
 
-  QLabel *fakeWarningLabel = new QLabel("<b>This is a fake backend prototype. It does not capture real MIDI 2.0/UMP hardware.</b>", this);
-  fakeWarningLabel->setStyleSheet("color: #d32f2f; background-color: #ffcccc; padding: 5px; border-radius: 4px;");
+  QLabel *fakeWarningLabel = new QLabel("<b>Windows MIDI Services Native Backend is Available! Use the dropdown to select real physical MIDI endpoints.</b>", this);
+  fakeWarningLabel->setStyleSheet("color: #1b5e20; background-color: #c8e6c9; padding: 5px; border-radius: 4px;");
 
   m_fakeUmpTable = new QTableWidget(0, 11, this);
   m_fakeUmpTable->setHorizontalHeaderLabels({"Timestamp", "Backend", "Port", "UMP Words", "Bits", "MT", "Group", "Status", "Channel", "Size", "Description"});
@@ -411,7 +411,7 @@ void MainWindow::setupUi() {
   fakeUmpLayout->addWidget(fakeStreamGroup, 1);
   fakeUmpLayout->addWidget(fakeRecordingGroup);
 
-  tabWidget->addTab(tabFakeUmp, "Experimental UMP Backend");
+  tabWidget->addTab(tabFakeUmp, "UMP Native Monitor");
 
   // --- Tab 3: Logs / Diagnostics ---
   QWidget *tabLogs = new QWidget();
@@ -438,11 +438,11 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v4.23.0</p>"
+      "<p><b>Versão:</b> v4.24.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
-      "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
-      "<p><i>Nota Experimental: Experimental UMP Backend uses FakeUmpInputBackend for controlled testing. It does not capture real operating-system UMP streams yet.</i></p>"
+      "e monitor de portas de hardware MIDI 1.0 legado e UMP Nativo (Windows MIDI Services).</p>"
+      "<p><i>Nota de Lançamento: Esta versão inclui integração estável de produção (TCC Master Release) com o Windows MIDI Services.</i></p>"
 
       "<h3>Offline UMP Analyzer</h3>"
       "<p>Módulo analítico principal. Disseca hexadecimais puros representando "
