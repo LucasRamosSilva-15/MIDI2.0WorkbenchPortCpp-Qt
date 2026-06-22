@@ -1,5 +1,6 @@
 #include "WindowsMidiServicesBackend.h"
 #include <QDebug>
+#include <winrt/Windows.Devices.Enumeration.h>
 WindowsMidiServicesBackend::WindowsMidiServicesBackend() : m_state(ConnectionState::Disconnected), m_isOpen(false) {
     // Inicialização vazia. Sem SDK real.
 }
@@ -34,7 +35,8 @@ QStringList WindowsMidiServicesBackend::queryAvailableEndpoints() const {
             qWarning() << "WinRT COM init error:" << errorMsg;
         }
 
-        auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAll();
+        auto aqsSelector = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointConnection::GetDeviceSelector();
+        auto endpoints = winrt::Windows::Devices::Enumeration::DeviceInformation::FindAllAsync(aqsSelector).get();
         for (uint32_t i = 0; i < endpoints.Size(); ++i) {
             auto endpointInfo = endpoints.GetAt(i);
             endpointsList.push_back(QString::fromStdWString(std::wstring(endpointInfo.Name())));
