@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.21.0 - Windows MIDI Services backend selector
+* Added visual backend selector to the Experimental UMP tab.
+* Implemented real hot-swap logic via `MidiInputController::switchBackend()`.
+* Managed graceful fallback for builds lacking Windows MIDI Services flags.
+
 ## v4.20.0 - Windows MIDI Services UI integration research
 * Created `WindowsMidiServicesUiIntegrationProbe` to map pointer swap theory.
 * Documented `QTimer` pausing mechanisms to establish a safe hot-swap transition for `IUmpInputBackend`.

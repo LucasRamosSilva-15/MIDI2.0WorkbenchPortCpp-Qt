@@ -1,15 +1,35 @@
 #include "MidiInputController.h"
+#include "FakeUmpInputBackend.h"
+#include "WindowsMidiServicesBackend.h"
 
-MidiInputController::MidiInputController() : m_backend(nullptr) {
+MidiInputController::MidiInputController() : m_backend(std::make_unique<FakeUmpInputBackend>()), m_activeType(UmpBackendType::FakeUmp) {
 }
 
 MidiInputController::~MidiInputController() {
     closePort();
 }
 
-void MidiInputController::setBackend(std::unique_ptr<IMidiInputBackend> backend) {
+void MidiInputController::switchBackend(UmpBackendType newType) {
+    if (m_activeType == newType && m_backend) return;
+    
     closePort();
-    m_backend = std::move(backend);
+    
+    if (newType == UmpBackendType::WindowsMidiServices) {
+#ifdef WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED
+        m_backend = std::make_unique<WindowsMidiServicesBackend>();
+#else
+        m_backend = std::make_unique<FakeUmpInputBackend>();
+        newType = UmpBackendType::FakeUmp;
+#endif
+    } else {
+        m_backend = std::make_unique<FakeUmpInputBackend>();
+    }
+    
+    m_activeType = newType;
+}
+
+UmpBackendType MidiInputController::getActiveBackendType() const {
+    return m_activeType;
 }
 
 QString MidiInputController::getActiveBackendName() const {
@@ -38,9 +58,9 @@ bool MidiInputController::isPortOpen() const {
     return m_backend->isOpen();
 }
 
-std::vector<MidiRawEvent> MidiInputController::pollNewEvents() {
+std::vector<UmpRawEvent> MidiInputController::pollNewEvents() {
     if (!m_backend || !m_backend->isOpen()) {
         return {};
     }
-    return m_backend->pollEvents();
+    return m_backend->pollUmpEvents();
 }
