@@ -13,6 +13,11 @@
  */
 #include <mutex>
 
+#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Microsoft.Windows.Devices.Midi2.h>
+#endif
+
 class WindowsMidiServicesBackend : public IUmpInputBackend {
 public:
     enum class ConnectionState {
@@ -48,4 +53,10 @@ private:
 
     // Stub de pesquisa: simula a listagem real sem engatilhar o SDK ainda.
     QStringList queryAvailableEndpoints() const;
+
+#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
+    winrt::Microsoft::Windows::Devices::Midi2::MidiSession m_session{ nullptr };
+    winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointConnection m_endpoint{ nullptr };
+    winrt::event_token m_eventToken;
+#endif
 };

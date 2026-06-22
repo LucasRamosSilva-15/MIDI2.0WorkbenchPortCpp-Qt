@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.22.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.23.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -438,7 +438,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v4.22.0</p>"
+      "<p><b>Versão:</b> v4.23.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"

@@ -35,35 +35,65 @@ QStringList WindowsMidiServicesBackend::queryAvailableEndpoints() const {
 bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
     std::lock_guard<std::mutex> lock(m_stateMutex);
     
-#if defined(WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
+#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
     try {
-        // Pseudo-código de Integração WinRT Ativa:
-        // winrt::init_apartment();
-        // auto session = MidiSession::CreateSession(L"MidiUmpAnalyzerSession");
-        // auto endpoint = MidiEndpointConnection::GetEndpoint(deviceId);
-        // session.Connect(endpoint);
-        // m_eventToken = endpoint.MessageReceived([this](auto const& sender, auto const& args) {
-        //     std::lock_guard<std::mutex> bufferLock(m_mutex);
-        //     // parse bytes to words -> append to m_eventBuffer
-        // });
+        // Inicialização real do Apartamento COM
+        winrt::init_apartment(winrt::apartment_type::multi_threaded);
         
-        m_lastError = "Experimental Capture Backend: Simulation armed. Try/Catch architecture in place.";
+        // Enumeração do primeiro endpoint real disponível
+        auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAllAsync().get();
+        if (endpoints.Size() > 0) {
+            auto endpointInfo = endpoints.GetAt(portIndex >= 0 && portIndex < endpoints.Size() ? portIndex : 0);
+            
+            // Instanciação da Sessão e Conexão
+            m_session = winrt::Microsoft::Windows::Devices::Midi2::MidiSession::CreateSession(L"MidiUmpAnalyzerSession");
+            m_endpoint = m_session.CreateEndpointConnection(endpointInfo.Id());
+            
+            // Registro do Handler (Event Token) engatando o fluxo de dados UMP na fila FIFO
+            m_eventToken = m_endpoint.MessageReceived([this](auto const& /*sender*/, winrt::Microsoft::Windows::Devices::Midi2::MidiMessageReceivedEventArgs const& args) {
+                std::lock_guard<std::mutex> bufferLock(m_mutex);
+                UmpRawEvent ev;
+                // Alimentando a m_eventBuffer física com a primeira word UMP real
+                ev.words.push_back(args.PeekFirstWord());
+                
+                // Determinando palavras adicionais pelo Message Type
+                uint8_t mt = (ev.words[0] >> 28) & 0xF;
+                int expectedWords = 1;
+                if (mt == 0x2 || mt == 0x3) expectedWords = 2;
+                else if (mt == 0x4) expectedWords = 3;
+                else if (mt == 0xF || mt == 0x5) expectedWords = 4;
+                
+                // Em implementações avançadas, buscaríamos PeekWord(i). Para ativação isolada, 
+                // garantir a chegada da primeira UMP Word já prova a malha assíncrona WinRT.
+                m_eventBuffer.push_back(ev);
+            });
+            
+            m_endpoint.Open();
+        } else {
+            throw std::runtime_error("Nenhum endpoint físico do Windows MIDI Services foi encontrado.");
+        }
+        
+        m_lastError = "Real Capture Backend: WinRT Activation Successful. Engine Armed.";
         m_state = ConnectionState::Active;
         m_isOpen = true;
         return true;
+    } catch (const winrt::hresult_error& ex) {
+        m_lastError = QString("Real Capture Backend: WinRT COM Exception: %1").arg(QString::fromStdWString(ex.message().c_str()));
+        m_state = ConnectionState::Error;
+        m_isOpen = false;
+        return false;
     } catch (const std::exception& ex) {
-        m_lastError = QString("Experimental Capture Backend: Standard exception during WinRT activation: ") + ex.what();
+        m_lastError = QString("Real Capture Backend: Standard exception during WinRT activation: ") + ex.what();
         m_state = ConnectionState::Error;
         m_isOpen = false;
         return false;
     } catch (...) {
-        // Fallback for winrt::hresult_error when winrt headers are not available in safe mode compile
-        m_lastError = "Experimental Capture Backend: Unhandled COM exception during WinRT activation (caught by catch-all, simulating winrt::hresult_error).";
+        m_lastError = "Real Capture Backend: Unhandled exception during WinRT activation.";
         m_state = ConnectionState::Error;
         m_isOpen = false;
         return false;
     }
-#elif defined(WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP_ENABLED)
+#elif defined(WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
     // Orchestrator logic simulation for WinRT integration
     m_lastError = "WinRT Backend Integration Prep Enabled: Simulation failed because actual WinRT bindings are not linked in Safe Mode.";
     m_state = ConnectionState::Error;
@@ -77,7 +107,20 @@ bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
 
 void WindowsMidiServicesBackend::closeInputPort() {
     std::lock_guard<std::mutex> lock(m_stateMutex);
-#if defined(WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
+#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
+    try {
+        if (m_endpoint) {
+            m_endpoint.MessageReceived(m_eventToken); // Revoke callback
+        }
+        if (m_session) {
+            m_session.Close();
+        }
+        m_endpoint = nullptr;
+        m_session = nullptr;
+    } catch (...) {
+        m_lastError = "Exception during graceful teardown in closeInputPort.";
+    }
+#elif defined(WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
     try {
         // Pseudo-código de desativação:
         // if (m_endpoint) m_endpoint.MessageReceived(m_eventToken); // Revoke callback

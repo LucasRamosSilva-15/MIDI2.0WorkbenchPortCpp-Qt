@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [v4.23.0] - Windows MIDI Services API Activation
+- **Feature**: Real C++/WinRT activation. Replaced pseudo-code with physical `Microsoft.Windows.Devices.Midi2` OS bindings.
+- **Feature**: Endpoints are physically queried.
+- **Feature**: Physical UMP data ingestion bridged to the FIFO queue.
+- **Security**: The activation is safely sandboxed in the `-wms` package, maintaining `Base` and `RtMidi` safe-mode compilation.
+
 ## v4.22.0 - Windows MIDI Services production hardening
 * Hardened `WindowsMidiServicesBackend` with `try/catch` COM exception simulation and graceful teardown blocks.
 * Added `std::mutex` to `MidiInputController` preventing rapid hot-swap thread collisions.

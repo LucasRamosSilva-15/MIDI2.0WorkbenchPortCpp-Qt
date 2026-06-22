@@ -1,4 +1,4 @@
-# Release Summary v4.x
+# Resumo dos Releases v4.x (Até v4.23.0)
 
 A árvore de versões `v4.x` tem como manifesto principal a migração e exploração orgânica rumo à captação em altíssima resolução de protocolos reais UMP 2.0 pelo Sistema Operacional primário (Windows).
 
