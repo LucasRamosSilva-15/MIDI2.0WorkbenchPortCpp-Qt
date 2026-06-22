@@ -133,6 +133,16 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Real Activation Attempt Enabled False", report.realWinRtActivationAttemptEnabled == false);
 #endif
 
+    assertTest("SDK Probe Formatted contains Windows MIDI Services API Surface", formatted.contains("Windows MIDI Services API Surface"));
+    assertTest("SDK Probe Formatted contains API Surface Mapping Enabled", formatted.contains("API Surface Mapping Enabled"));
+    assertTest("SDK Probe apiSurfaceMappingStatus not empty", !report.apiSurfaceMappingStatus.isEmpty());
+
+#ifdef WINDOWS_MIDI_SERVICES_API_SURFACE_MAPPING_ENABLED
+    assertTest("SDK Probe API Surface Mapping Enabled True", report.apiSurfaceMappingEnabled == true);
+#else
+    assertTest("SDK Probe API Surface Mapping Enabled False", report.apiSurfaceMappingEnabled == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));

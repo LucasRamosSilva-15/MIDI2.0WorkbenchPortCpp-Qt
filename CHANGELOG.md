@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.14.0 - Windows MIDI Services API surface mapping
+* Created `WindowsMidiServicesApiSurfaceProbe` to structurally map key Windows MIDI Services classes.
+* Validated theoretical compilation visibility for `MidiSession` and `MidiEndpointConnection`.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_API_SURFACE_MAPPING` to CMake.
+* Ensured zero real endpoints are captured and normal builds remain SDK-free.
+
 ## v4.13.0 - Windows MIDI Services isolated WinRT activation experiment
 * Created `WindowsMidiServicesWinRtActivationProbe` to safely test `winrt::init_apartment()`.
 * Added `ENABLE_WINDOWS_MIDI_SERVICES_WINRT_ACTIVATION_EXPERIMENT` for compiling the WinRT entry point probe.

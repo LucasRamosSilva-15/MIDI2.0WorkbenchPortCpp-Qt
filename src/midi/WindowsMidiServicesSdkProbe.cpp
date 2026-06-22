@@ -1,5 +1,6 @@
 #include "WindowsMidiServicesSdkProbe.h"
 #include "WindowsMidiServicesWinRtActivationProbe.h"
+#include "WindowsMidiServicesApiSurfaceProbe.h"
 
 bool WindowsMidiServicesSdkProbe::isSdkExperimentEnabled() {
 #ifdef USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT
@@ -131,6 +132,14 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
 #else
     report.realWinRtActivationAttemptEnabled = false;
 #endif
+
+#ifdef WINDOWS_MIDI_SERVICES_API_SURFACE_MAPPING_ENABLED
+    report.apiSurfaceMappingEnabled = true;
+    report.apiSurfaceMappingStatus = WindowsMidiServicesApiSurfaceProbe::apiSurfaceMappingStatus();
+#else
+    report.apiSurfaceMappingEnabled = false;
+    report.apiSurfaceMappingStatus = "API Surface mapping is disabled.";
+#endif
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -216,6 +225,10 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "Activation Experiment Compiled: " + QString(report.winRtActivationExperimentCompiled ? "Yes" : "No") + "\n";
     out += "Real Activation Attempt Enabled: " + QString(report.realWinRtActivationAttemptEnabled ? "Yes" : "No") + "\n";
     out += "Activation Status: " + report.winRtActivationExperimentStatus + "\n";
+    
+    out += "\n--- Windows MIDI Services API Surface ---\n";
+    out += "API Surface Mapping Enabled: " + QString(report.apiSurfaceMappingEnabled ? "Yes" : "No") + "\n";
+    out += "Mapping Status: " + report.apiSurfaceMappingStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

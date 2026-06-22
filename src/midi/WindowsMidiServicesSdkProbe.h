@@ -37,6 +37,9 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool realWinRtActivationAttemptEnabled = false;
     QString winRtActivationExperimentStatus;
     
+    bool apiSurfaceMappingEnabled = false;
+    QString apiSurfaceMappingStatus;
+    
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
     bool userProvidedSdkRootConfigured = false;
