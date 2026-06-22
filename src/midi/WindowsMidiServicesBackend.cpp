@@ -1,5 +1,5 @@
 #include "WindowsMidiServicesBackend.h"
-
+#include <QDebug>
 WindowsMidiServicesBackend::WindowsMidiServicesBackend() : m_state(ConnectionState::Disconnected), m_isOpen(false) {
     // Inicialização vazia. Sem SDK real.
 }
@@ -24,12 +24,14 @@ QStringList WindowsMidiServicesBackend::listInputPorts() {
 QStringList WindowsMidiServicesBackend::queryAvailableEndpoints() const {
     QStringList endpointsList;
     
-#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
+#if defined(ENABLE_WINDOWS_MIDI_SERVICES)
     try {
         try {
-            winrt::init_apartment(winrt::apartment_type::multi_threaded);
-        } catch (...) {
-            // Ignora erro caso a thread GUI (Qt) já tenha inicializado o COM
+            winrt::init_apartment(winrt::apartment_type::single_threaded);
+        } catch (const winrt::hresult_error& ex) {
+            // Logar erro de inicialização COM sem tocar em membros const
+            const QString errorMsg = QString::fromStdWString(std::wstring(ex.message()));
+            qWarning() << "WinRT COM init error:" << errorMsg;
         }
 
         auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAll();
@@ -37,11 +39,17 @@ QStringList WindowsMidiServicesBackend::queryAvailableEndpoints() const {
             auto endpointInfo = endpoints.GetAt(i);
             endpointsList.push_back(QString::fromStdWString(std::wstring(endpointInfo.Name())));
         }
-    } catch (...) {
-        // Blindagem: Se o WMS não estiver ativo, falhar silenciosamente retornando lista vazia
+    } catch (const winrt::hresult_error& ex) {
+        // Logar erro de enumeração de endpoints e inserir na lista visual
+        const QString errorMsg = QString::fromStdWString(std::wstring(ex.message()));
+        qWarning() << "WinRT endpoint enumeration error:" << errorMsg;
+        endpointsList.push_back("ERRO WinRT: " + errorMsg);
     }
 #endif
 
+    if (endpointsList.isEmpty()) {
+        endpointsList.push_back("Nenhum dispositivo encontrado (midisrv ativo?)");
+    }
     return endpointsList;
 }
 
