@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QMap>
 #include "WindowsMidiServicesMetadataProbe.h"
+#include "WindowsMidiServicesInputStreamProbe.h"
 #include <QString>
 #include <QStringList>
 
@@ -48,6 +49,9 @@ struct WindowsMidiServicesSdkDetectionReport {
     
     bool metadataResearchEnabled = false;
     QMap<QString, WindowsMidiServicesEndpointMetadata> endpointMetadata;
+    
+    bool inputStreamPrototypeEnabled = false;
+    QString inputStreamPrototypeStatus;
     
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;

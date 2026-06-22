@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.16.0
+**Current version:** v4.17.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -88,10 +88,10 @@ cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PAT
 cmake --build build-wms-sdk-root --config Release
 ```
 
-## Windows MIDI Services endpoint metadata research
-- A **v4.16.0** explora a arquitetura de propriedades estendidas (Manufacturer, Transport, UMP Formats) dos endpoints enumerados.
-- Todo o processamento analítico de *DeviceInformation* ocorre isolado em um Probe de diagnóstico.
-- Os motores legados `RtMidi` e o visualizador hexadecimal nativo não sofrem mutações.
+## Windows MIDI Services UMP input stream prototype
+- A **v4.17.0** estabelece o modelo de recebimento contínuo de UMP Words via callbacks da Microsoft.
+- O parsing é apenas simulado no nível arquitetural, provando a conversão dos bytes para a malha gráfica do nosso analisador hexadecimal sem engatilhar eventos reais na interface.
+- Nenhum pacote físico trafega pelo motor visual.
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)

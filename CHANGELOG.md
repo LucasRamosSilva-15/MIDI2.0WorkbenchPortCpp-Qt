@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.17.0 - Windows MIDI Services input stream prototype
+* Created `WindowsMidiServicesInputStreamProbe` to mock UMP callback behaviors (`MidiMessageReceivedEventArgs`).
+* Demonstrated 32-bit Words translation of native WinRT byte arrays in diagnostic status logic.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_INPUT_STREAM_EXPERIMENT` CMake option.
+* Ensured isolated execution logic without overriding legacy parsing/FakeUMP events.
+
 ## v4.16.0 - Windows MIDI Services endpoint metadata research
 * Created `WindowsMidiServicesMetadataProbe` to simulate extraction of WinRT device capabilities.
 * Documented parsing of Transport, Manufacturer, and MIDI 2.0 flags.

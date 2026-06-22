@@ -159,6 +159,15 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Metadata Research Enabled False", report.metadataResearchEnabled == false);
 #endif
 
+    assertTest("SDK Probe Formatted contains Windows MIDI Services Input Stream", formatted.contains("Windows MIDI Services Input Stream"));
+    assertTest("SDK Probe Formatted contains Stream Prototype Enabled", formatted.contains("Stream Prototype Enabled"));
+
+#ifdef WINDOWS_MIDI_SERVICES_INPUT_STREAM_EXPERIMENT_ENABLED
+    assertTest("SDK Probe Input Stream Prototype Enabled True", report.inputStreamPrototypeEnabled == true);
+#else
+    assertTest("SDK Probe Input Stream Prototype Enabled False", report.inputStreamPrototypeEnabled == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));
