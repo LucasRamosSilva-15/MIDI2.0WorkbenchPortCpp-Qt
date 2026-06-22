@@ -72,10 +72,10 @@ Windows MIDI Services backend skeleton.
 ## v4.12.0
 C++/WinRT generated projection strategy research.
 
-## v4.15.0
+## v4.16.0
 Isolated runtime initialization research only after projection alignment.
 
-## v4.15.0
+## v4.16.0
 Endpoint listing prototype only after initialization strategy succeeds.
 
 ## v4.11.0

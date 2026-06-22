@@ -153,6 +153,12 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Endpoint Enumeration Enabled False", report.endpointEnumerationEnabled == false);
 #endif
 
+#ifdef WINDOWS_MIDI_SERVICES_METADATA_RESEARCH_ENABLED
+    assertTest("SDK Probe Metadata Research Enabled True", report.metadataResearchEnabled == true);
+#else
+    assertTest("SDK Probe Metadata Research Enabled False", report.metadataResearchEnabled == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));

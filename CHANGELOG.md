@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.16.0 - Windows MIDI Services endpoint metadata research
+* Created `WindowsMidiServicesMetadataProbe` to simulate extraction of WinRT device capabilities.
+* Documented parsing of Transport, Manufacturer, and MIDI 2.0 flags.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_METADATA_EXPERIMENT` CMake option.
+* Appended rich metadata extraction to the `WindowsMidiServicesSdkProbe` logs while maintaining Safe Mode.
+
 ## v4.15.0 - Windows MIDI Services endpoint enumeration prototype
 * Created `WindowsMidiServicesEndpointEnumeratorProbe` to log Windows MIDI Services endpoints in memory.
 * Added CMake flag `ENABLE_WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_EXPERIMENT` for hardware querying.

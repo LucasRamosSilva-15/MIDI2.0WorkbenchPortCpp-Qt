@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QDateTime>
+#include <QMap>
+#include "WindowsMidiServicesMetadataProbe.h"
 #include <QString>
 #include <QStringList>
 
@@ -42,6 +45,9 @@ struct WindowsMidiServicesSdkDetectionReport {
     
     bool endpointEnumerationEnabled = false;
     QStringList discoveredEndpoints;
+    
+    bool metadataResearchEnabled = false;
+    QMap<QString, WindowsMidiServicesEndpointMetadata> endpointMetadata;
     
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;

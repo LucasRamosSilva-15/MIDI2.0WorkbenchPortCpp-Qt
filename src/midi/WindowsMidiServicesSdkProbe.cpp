@@ -148,6 +148,13 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
 #else
     report.endpointEnumerationEnabled = false;
 #endif
+
+#ifdef WINDOWS_MIDI_SERVICES_METADATA_RESEARCH_ENABLED
+    report.metadataResearchEnabled = true;
+    report.endpointMetadata = WindowsMidiServicesMetadataProbe::extractMetadata();
+#else
+    report.metadataResearchEnabled = false;
+#endif
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -246,6 +253,12 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     } else {
         for (const QString& ep : report.discoveredEndpoints) {
             out += " - " + ep + "\n";
+            if (report.metadataResearchEnabled && report.endpointMetadata.contains(ep)) {
+                const auto& meta = report.endpointMetadata[ep];
+                out += "     Transport: " + meta.transport + "\n";
+                out += "     Manufacturer: " + meta.manufacturer + "\n";
+                out += "     Capabilities: " + meta.capabilities + "\n";
+            }
         }
     }
     

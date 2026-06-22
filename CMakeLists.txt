@@ -15,6 +15,7 @@ option(ENABLE_WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH "Enab
 option(ENABLE_WINDOWS_MIDI_SERVICES_WINRT_ACTIVATION_EXPERIMENT "Enable isolated WinRT activation experiment" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_API_SURFACE_MAPPING "Enable Windows MIDI Services API surface mapping" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_EXPERIMENT "Enable Windows MIDI Services endpoint enumeration experiment" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_METADATA_EXPERIMENT "Enable Windows MIDI Services endpoint metadata research" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT "DANGEROUS: Force real include of misaligned C++/WinRT headers" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_REAL_WINRT_ACTIVATION_ATTEMPT "DANGEROUS: Force real initialization of WinRT COM apartments" OFF)
 
@@ -168,6 +169,12 @@ else()
                     target_sources(MidiUmpAnalyzer PRIVATE src/midi/WindowsMidiServicesEndpointEnumeratorProbe.cpp)
                 endif()
                 
+                if(ENABLE_WINDOWS_MIDI_SERVICES_METADATA_EXPERIMENT)
+                    message(STATUS "Windows MIDI Services metadata research enabled. Deep endpoint inspection active.")
+                    target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_METADATA_RESEARCH_ENABLED)
+                    target_sources(MidiUmpAnalyzer PRIVATE src/midi/WindowsMidiServicesMetadataProbe.cpp)
+                endif()
+                
                 message(STATUS "--- Toolchain Diagnostic ---")
                 message(STATUS "CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
                 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
@@ -302,6 +309,11 @@ if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
                 if(ENABLE_WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_EXPERIMENT)
                     target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_ENABLED)
                     target_sources(UmpParserTests PRIVATE src/midi/WindowsMidiServicesEndpointEnumeratorProbe.cpp)
+                endif()
+                
+                if(ENABLE_WINDOWS_MIDI_SERVICES_METADATA_EXPERIMENT)
+                    target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_METADATA_RESEARCH_ENABLED)
+                    target_sources(UmpParserTests PRIVATE src/midi/WindowsMidiServicesMetadataProbe.cpp)
                 endif()
                 
                 if(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT)
