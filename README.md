@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.19.0
+**Current version:** v4.20.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -88,10 +88,10 @@ cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PAT
 cmake --build build-wms-sdk-root --config Release
 ```
 
-## Windows MIDI Services backend experimental
-- A **v4.19.0** introduz o primeiro protótipo funcional do backend contendo a malha concorrida real de buffer FIFO e mutexes.
-- A orquestração das APIs COM da Microsoft e os UMP callbacks operam protegidos por try-catch.
-- A renderização gráfica no visualizador permanece desligada desse motor, operando de forma passiva ("Headless").
+## Windows MIDI Services UI integration research
+- A **v4.20.0** foca na orquestração estática de *hot-swap* na MainWindow.
+- A mecânica de pausa do QTimer visual e alocação do ponteiro `IUmpInputBackend` está mapeada sem poluir o `MidiInputController` atual.
+- A estabilidade de ponteiros inteligentes foi teorizada para engatar UMP nativo na interface futura de maneira assíncrona pura.
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)

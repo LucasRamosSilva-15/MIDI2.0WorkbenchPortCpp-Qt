@@ -19,6 +19,7 @@ option(ENABLE_WINDOWS_MIDI_SERVICES_METADATA_EXPERIMENT "Enable Windows MIDI Ser
 option(ENABLE_WINDOWS_MIDI_SERVICES_INPUT_STREAM_EXPERIMENT "Enable Windows MIDI Services UMP input stream prototype" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP "Enable Windows MIDI Services backend integration preparation" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE "Enable Windows MIDI Services experimental hardware capture backend" OFF)
+option(ENABLE_WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH "Enable Windows MIDI Services UI integration research" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT "DANGEROUS: Force real include of misaligned C++/WinRT headers" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_REAL_WINRT_ACTIVATION_ATTEMPT "DANGEROUS: Force real initialization of WinRT COM apartments" OFF)
 
@@ -194,6 +195,12 @@ else()
                     target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
                 endif()
                 
+                if(ENABLE_WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH)
+                    message(STATUS "Windows MIDI Services UI integration research active. Planning hot-swap architecture.")
+                    target_compile_definitions(MidiUmpAnalyzer PRIVATE WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH_ENABLED)
+                    target_sources(MidiUmpAnalyzer PRIVATE src/midi/WindowsMidiServicesUiIntegrationProbe.cpp)
+                endif()
+                
                 message(STATUS "--- Toolchain Diagnostic ---")
                 message(STATUS "CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
                 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
@@ -346,6 +353,11 @@ if(NOT WINDOWS_MIDI_SERVICES_SDK_ROOT STREQUAL "")
 
                 if(ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE)
                     target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
+                endif()
+                
+                if(ENABLE_WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH)
+                    target_compile_definitions(UmpParserTests PRIVATE WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH_ENABLED)
+                    target_sources(UmpParserTests PRIVATE src/midi/WindowsMidiServicesUiIntegrationProbe.cpp)
                 endif()
                 
                 if(ENABLE_WINDOWS_MIDI_SERVICES_REAL_CPPWINRT_INCLUDE_ATTEMPT)

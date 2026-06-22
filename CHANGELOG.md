@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.20.0 - Windows MIDI Services UI integration research
+* Created `WindowsMidiServicesUiIntegrationProbe` to map pointer swap theory.
+* Documented `QTimer` pausing mechanisms to establish a safe hot-swap transition for `IUmpInputBackend`.
+* Maintained headless behavior by default, safeguarding current RT/FakeUmp bindings.
+
 ## v4.19.0 - Windows MIDI Services backend experimental
 * Implemented `ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE`.
 * Built thread-safe FIFO `m_eventBuffer` architecture using `std::mutex`.

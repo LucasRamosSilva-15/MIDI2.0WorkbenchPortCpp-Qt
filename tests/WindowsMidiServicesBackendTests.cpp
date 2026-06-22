@@ -200,6 +200,15 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Experimental Capture Armed False", report.experimentalCaptureArmed == false);
 #endif
 
+    assertTest("SDK Probe Formatted contains UI Integration Research", formatted.contains("UI Integration Research"));
+    assertTest("SDK Probe Formatted contains Hot-Swap Architecture Planned", formatted.contains("Hot-Swap Architecture Planned"));
+
+#ifdef WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH_ENABLED
+    assertTest("SDK Probe UI Integration Research Enabled True", report.uiIntegrationResearchEnabled == true);
+#else
+    assertTest("SDK Probe UI Integration Research Enabled False", report.uiIntegrationResearchEnabled == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));

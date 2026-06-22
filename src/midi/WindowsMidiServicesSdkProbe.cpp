@@ -175,6 +175,14 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
 #else
     report.experimentalCaptureArmed = false;
 #endif
+
+#ifdef WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH_ENABLED
+    report.uiIntegrationResearchEnabled = true;
+    report.uiIntegrationStrategyStatus = WindowsMidiServicesUiIntegrationProbe::validateHotSwapStrategy();
+#else
+    report.uiIntegrationResearchEnabled = false;
+    report.uiIntegrationStrategyStatus = "UI Integration Research is currently disabled.";
+#endif
     
     if (report.experimentCompileFlagEnabled) {
         report.compileMode = "SDK experiment compile flag enabled";
@@ -291,6 +299,10 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     
     out += "\n--- Experimental Backend Capture ---\n";
     out += "Capture Engine Armed: " + QString(report.experimentalCaptureArmed ? "Yes" : "No") + "\n";
+    
+    out += "\n--- UI Integration Research ---\n";
+    out += "Hot-Swap Architecture Planned: " + QString(report.uiIntegrationResearchEnabled ? "Yes" : "No") + "\n";
+    out += "Status: " + report.uiIntegrationStrategyStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

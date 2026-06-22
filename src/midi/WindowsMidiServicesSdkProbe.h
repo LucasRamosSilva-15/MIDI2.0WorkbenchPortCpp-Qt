@@ -4,6 +4,7 @@
 #include <QMap>
 #include "WindowsMidiServicesMetadataProbe.h"
 #include "WindowsMidiServicesInputStreamProbe.h"
+#include "WindowsMidiServicesUiIntegrationProbe.h"
 #include <QString>
 #include <QStringList>
 
@@ -55,6 +56,9 @@ struct WindowsMidiServicesSdkDetectionReport {
     
     bool backendIntegrationPrepEnabled = false;
     bool experimentalCaptureArmed = false;
+    
+    bool uiIntegrationResearchEnabled = false;
+    QString uiIntegrationStrategyStatus;
     
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
