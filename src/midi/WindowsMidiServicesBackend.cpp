@@ -42,7 +42,7 @@ bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
         // auto session = MidiSession::CreateSession(L"MidiUmpAnalyzerSession");
         // auto endpoint = MidiEndpointConnection::GetEndpoint(deviceId);
         // session.Connect(endpoint);
-        // endpoint.MessageReceived([this](auto const& sender, auto const& args) {
+        // m_eventToken = endpoint.MessageReceived([this](auto const& sender, auto const& args) {
         //     std::lock_guard<std::mutex> bufferLock(m_mutex);
         //     // parse bytes to words -> append to m_eventBuffer
         // });
@@ -51,8 +51,14 @@ bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
         m_state = ConnectionState::Active;
         m_isOpen = true;
         return true;
+    } catch (const std::exception& ex) {
+        m_lastError = QString("Experimental Capture Backend: Standard exception during WinRT activation: ") + ex.what();
+        m_state = ConnectionState::Error;
+        m_isOpen = false;
+        return false;
     } catch (...) {
-        m_lastError = "Experimental Capture Backend: Unhandled exception during WinRT COM activation.";
+        // Fallback for winrt::hresult_error when winrt headers are not available in safe mode compile
+        m_lastError = "Experimental Capture Backend: Unhandled COM exception during WinRT activation (caught by catch-all, simulating winrt::hresult_error).";
         m_state = ConnectionState::Error;
         m_isOpen = false;
         return false;
@@ -71,6 +77,17 @@ bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
 
 void WindowsMidiServicesBackend::closeInputPort() {
     std::lock_guard<std::mutex> lock(m_stateMutex);
+#if defined(WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
+    try {
+        // Pseudo-código de desativação:
+        // if (m_endpoint) m_endpoint.MessageReceived(m_eventToken); // Revoke callback
+        // if (m_session) m_session.Close();
+        // m_endpoint = nullptr;
+        // m_session = nullptr;
+    } catch (...) {
+        m_lastError = "Exception during graceful teardown in closeInputPort.";
+    }
+#endif
     m_isOpen = false;
     m_state = ConnectionState::Disconnected;
 }

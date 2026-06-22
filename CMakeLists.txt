@@ -271,6 +271,8 @@ add_executable(UmpParserTests
     src/midi/Midi1ToUmpPreviewConverter.h
     src/core/UmpRawEvent.h
     src/midi/IUmpInputBackend.h
+    src/midi/MidiInputController.h
+    src/midi/MidiInputController.cpp
     src/midi/FakeUmpInputBackend.h
     src/midi/FakeUmpInputBackend.cpp
     src/midi/WindowsMidiServicesBackend.h

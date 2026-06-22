@@ -3,6 +3,7 @@
 #include "../src/midi/WindowsMidiServicesBackend.h"
 #include "../src/midi/WindowsMidiServicesSdkProbe.h"
 #include "../src/midi/WindowsMidiServicesHeaderIncludeProbe.h"
+#include "../src/midi/MidiInputController.h"
 
 void testWmsBackend_SkeletonBasics() {
     WindowsMidiServicesBackend backend;
@@ -250,9 +251,34 @@ void testWmsHeaderIncludeProbe() {
 #endif
 }
 
+void testMidiInputController_RapidHotSwap() {
+    MidiInputController controller;
+    bool survived = true;
+    try {
+        for (int i=0; i<100; ++i) {
+            controller.switchBackend(UmpBackendType::WindowsMidiServices);
+            controller.switchBackend(UmpBackendType::FakeUmp);
+        }
+    } catch (...) {
+        survived = false;
+    }
+    assertTest("MidiInputController Rapid Hot Swap Survived", survived == true);
+}
+
+void testWmsBackend_ForcedFailure() {
+    WindowsMidiServicesBackend backend;
+    bool opened = backend.openInputPort(99); // Will fail in Safe Mode
+    assertTest("Forced Failure Open Failed", opened == false);
+    assertTest("Forced Failure State is Error", backend.getState() == WindowsMidiServicesBackend::ConnectionState::Error);
+    backend.closeInputPort();
+    assertTest("Forced Failure Recovers to Disconnected", backend.getState() == WindowsMidiServicesBackend::ConnectionState::Disconnected);
+}
+
 void runWindowsMidiServicesBackendTests() {
     std::cout << "\nStarting WindowsMidiServicesBackend Skeleton Tests\n\n";
     testWmsBackend_SkeletonBasics();
+    testWmsBackend_ForcedFailure();
+    testMidiInputController_RapidHotSwap();
     testWmsSdkProbe_Status();
     testWmsHeaderIncludeProbe();
 }

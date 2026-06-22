@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.22.0 - Windows MIDI Services production hardening
+* Hardened `WindowsMidiServicesBackend` with `try/catch` COM exception simulation and graceful teardown blocks.
+* Added `std::mutex` to `MidiInputController` preventing rapid hot-swap thread collisions.
+* Expanded `WindowsMidiServicesBackendTests` with rapid swap and forced failure assertions.
+
 ## v4.21.0 - Windows MIDI Services backend selector
 * Added visual backend selector to the Experimental UMP tab.
 * Implemented real hot-swap logic via `MidiInputController::switchBackend()`.

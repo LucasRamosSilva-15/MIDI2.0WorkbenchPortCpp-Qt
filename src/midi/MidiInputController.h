@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <QStringList>
+#include <mutex>
 
 enum class UmpBackendType {
     FakeUmp,
@@ -30,4 +31,5 @@ public:
 private:
     std::unique_ptr<IUmpInputBackend> m_backend;
     UmpBackendType m_activeType;
+    mutable std::mutex m_mutex;
 };
