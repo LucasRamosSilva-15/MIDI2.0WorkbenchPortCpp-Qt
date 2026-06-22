@@ -33,6 +33,10 @@ struct WindowsMidiServicesSdkDetectionReport {
     bool generatedProjectionStrategyResearchEnabled = false;
     QString generatedProjectionStrategyStatus;
     
+    bool winRtActivationExperimentCompiled = false;
+    bool realWinRtActivationAttemptEnabled = false;
+    QString winRtActivationExperimentStatus;
+    
     bool userProvidedSdkRootMissing = false;
     bool userProvidedSdkRootAcceptedForResearch = false;
     bool userProvidedSdkRootConfigured = false;

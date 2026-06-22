@@ -1,4 +1,5 @@
 #include "WindowsMidiServicesSdkProbe.h"
+#include "WindowsMidiServicesWinRtActivationProbe.h"
 
 bool WindowsMidiServicesSdkProbe::isSdkExperimentEnabled() {
 #ifdef USE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT
@@ -111,10 +112,24 @@ WindowsMidiServicesSdkDetectionReport WindowsMidiServicesSdkProbe::buildDetectio
     
 #ifdef WINDOWS_MIDI_SERVICES_GENERATED_PROJECTION_STRATEGY_RESEARCH_ENABLED
     report.generatedProjectionStrategyResearchEnabled = true;
-    report.generatedProjectionStrategyStatus = "C++/WinRT generated projection strategy research is enabled. Projection is passively studied via isolation. No runtime WINRT API is initialized in v4.12.0.";
+    report.generatedProjectionStrategyStatus = "C++/WinRT generated projection strategy research is enabled. Projection is passively studied via isolation. No runtime WINRT API is initialized in v4.13.0.";
 #else
     report.generatedProjectionStrategyResearchEnabled = false;
     report.generatedProjectionStrategyStatus = "C++/WinRT generated projection strategy research is disabled.";
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_WINRT_ACTIVATION_EXPERIMENT_COMPILED
+    report.winRtActivationExperimentCompiled = true;
+    report.winRtActivationExperimentStatus = WindowsMidiServicesWinRtActivationProbe::winRtActivationExperimentStatus();
+#else
+    report.winRtActivationExperimentCompiled = false;
+    report.winRtActivationExperimentStatus = "WinRT Activation experiment is disabled.";
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT
+    report.realWinRtActivationAttemptEnabled = true;
+#else
+    report.realWinRtActivationAttemptEnabled = false;
 #endif
     
     if (report.experimentCompileFlagEnabled) {
@@ -196,6 +211,11 @@ QString WindowsMidiServicesSdkProbe::formatDetectionReport(const WindowsMidiServ
     out += "\n--- Generated Projections Strategy ---\n";
     out += "Strategy Research Enabled: " + QString(report.generatedProjectionStrategyResearchEnabled ? "Yes" : "No") + "\n";
     out += "Strategy Status: " + report.generatedProjectionStrategyStatus + "\n";
+    
+    out += "\n--- WinRT Activation Experiment ---\n";
+    out += "Activation Experiment Compiled: " + QString(report.winRtActivationExperimentCompiled ? "Yes" : "No") + "\n";
+    out += "Real Activation Attempt Enabled: " + QString(report.realWinRtActivationAttemptEnabled ? "Yes" : "No") + "\n";
+    out += "Activation Status: " + report.winRtActivationExperimentStatus + "\n";
     
     out += "\n--- User-Provided SDK Root Research ---\n";
     out += "SDK Root Configured: " + QString(report.userProvidedSdkRootConfigured ? "Yes" : "No") + "\n";

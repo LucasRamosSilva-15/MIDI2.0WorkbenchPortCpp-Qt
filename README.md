@@ -4,7 +4,7 @@
 ![Release](https://github.com/LucasRamosSilva-15/MIDI2.0WorkbenchPortCpp-Qt/actions/workflows/release.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Qt](https://img.shields.io/badge/Framework-Qt6-green)
-**Current version:** v4.12.0
+**Current version:** v4.13.0
 
 ## Descrição curta
 Ferramenta em C++/Qt para análise de Universal MIDI Packet, monitoramento MIDI 1.0, UMP Preview MT 0x2 e pesquisa experimental de backend UMP nativo.
@@ -88,10 +88,10 @@ cmake -B build-wms-sdk-root -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PAT
 cmake --build build-wms-sdk-root --config Release
 ```
 
-## Windows MIDI Services C++/WinRT generated projection strategy research
-- A **v4.12.0** mapeou a necessidade da ferramenta `cppwinrt.exe` na geração da arquitetura `impl/` para transpor os metadados binários (`.winmd`) para C++ puro.
-- O modo padrão (**Safe Mode**) mantém-se ativado evitando o conflito nativo de *Mismatched C++/WinRT headers*.
-- Endpoint listing e comunicação WinRT em Runtime seguem intencionalmente desativados.
+## Windows MIDI Services isolated WinRT activation experiment
+- A **v4.13.0** explora a inicialização restrita de apartamentos COM (`winrt::init_apartment()`) através de um Probe isolado.
+- O **Safe Mode** continua atuante, bloqueando a execução automática do Runtime WinRT na interface gráfica principal.
+- Nenhuma comunicação real com hardware, captura UMP ou listagem de dispositivos está ocorrendo. A arquitetura segue teórica e inofensiva.
 
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)

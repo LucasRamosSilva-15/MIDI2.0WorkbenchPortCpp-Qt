@@ -116,6 +116,23 @@ void testWmsSdkProbe_Status() {
     assertTest("SDK Probe Strategy Research Enabled False", report.generatedProjectionStrategyResearchEnabled == false);
 #endif
 
+    assertTest("SDK Probe Formatted contains WinRT Activation Experiment", formatted.contains("WinRT Activation Experiment"));
+    assertTest("SDK Probe Formatted contains Activation Experiment Compiled", formatted.contains("Activation Experiment Compiled"));
+    assertTest("SDK Probe Formatted contains Real Activation Attempt Enabled", formatted.contains("Real Activation Attempt Enabled"));
+    assertTest("SDK Probe winRtActivationExperimentStatus not empty", !report.winRtActivationExperimentStatus.isEmpty());
+
+#ifdef WINDOWS_MIDI_SERVICES_WINRT_ACTIVATION_EXPERIMENT_COMPILED
+    assertTest("SDK Probe Activation Experiment Compiled True", report.winRtActivationExperimentCompiled == true);
+#else
+    assertTest("SDK Probe Activation Experiment Compiled False", report.winRtActivationExperimentCompiled == false);
+#endif
+
+#ifdef WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT
+    assertTest("SDK Probe Real Activation Attempt Enabled True", report.realWinRtActivationAttemptEnabled == true);
+#else
+    assertTest("SDK Probe Real Activation Attempt Enabled False", report.realWinRtActivationAttemptEnabled == false);
+#endif
+
     assertTest("SDK Probe Formatted contains User-Provided SDK Root", formatted.contains("User-Provided SDK Root"));
     assertTest("SDK Probe Formatted contains SDK Root Configured", formatted.contains("SDK Root Configured"));
     assertTest("SDK Probe Formatted contains SDK Root Status", formatted.contains("SDK Root Status"));

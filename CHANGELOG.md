@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.13.0 - Windows MIDI Services isolated WinRT activation experiment
+* Created `WindowsMidiServicesWinRtActivationProbe` to safely test `winrt::init_apartment()`.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_WINRT_ACTIVATION_EXPERIMENT` for compiling the WinRT entry point probe.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_REAL_WINRT_ACTIVATION_ATTEMPT` danger flag for developers to attempt actual initialization.
+* Kept the runtime blocked in normal application builds (Safe Mode enforced).
+
 ## v4.12.0 - Windows MIDI Services C++/WinRT generated projection strategy research
 * Added C++/WinRT generated projections strategy research.
 * Investigated the missing `impl/` headers and `.winmd` structural requirements.
