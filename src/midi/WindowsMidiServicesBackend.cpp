@@ -27,10 +27,10 @@ void WmsWorker::queryAvailableEndpoints() {
     QMap<QString, QString> idMap;
 
     try {
-        if (!m_mtaInitialized) {
+        // GARANTIA DE INICIALIZAÇÃO NA THREAD DO WORKER
+        try {
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
-            m_mtaInitialized = true;
-        }
+        } catch (...) { /* Ignora se já estiver inicializado nesta thread */ }
 
         auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAll();
         for (uint32_t i = 0; i < endpoints.Size(); ++i) {
@@ -46,7 +46,10 @@ void WmsWorker::queryAvailableEndpoints() {
             names.append("Zero dispositivos retornados pelo FindAll nativo.");
         }
     } catch (const winrt::hresult_error& ex) {
-        names.append("Erro WinRT na Enumeração MTA.");
+        // EXTRAÇÃO DO HRESULT E MENSAGEM
+        QString errorCode = QString::number(static_cast<uint32_t>(ex.code()), 16);
+        QString errorMsg = QString::fromStdWString(std::wstring(ex.message()));
+        names.append(QString("Erro WinRT (0x%1): %2").arg(errorCode, errorMsg));
     }
 
     // Emita o sinal com as listas de volta para a MainWindow/Fachada
