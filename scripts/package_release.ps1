@@ -40,9 +40,11 @@ if ($EnableRtMidi) {
             "-DENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP=ON",
             "-DENABLE_WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE=ON",
             "-DENABLE_WINDOWS_MIDI_SERVICES_REAL_WINRT_ACTIVATION_ATTEMPT=ON",
-            "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake",
-            "-DWINDOWS_MIDI_SERVICES_SDK_ROOT=C:\vcpkg\installed\x64-windows"
+            "-DWINDOWS_MIDI_SERVICES_SDK_ROOT=$PWD\dll"
         )
+        if (Test-Path "C:\vcpkg\scripts\buildsystems\vcpkg.cmake") {
+            $cmakeArgs += "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
+        }
         if ($env:Qt6_DIR) {
             $cmakeArgs += "-DCMAKE_PREFIX_PATH=$env:Qt6_DIR"
         }
