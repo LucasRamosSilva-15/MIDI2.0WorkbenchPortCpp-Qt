@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
       m_samplesCombo->addItem(file.fileName());
     }
   } else {
-    m_samplesCombo->addItem("(samples não encontrados)");
+    m_samplesCombo->addItem(tr("(samples não encontrados)"));
     m_samplesCombo->setEnabled(false);
     m_loadExamplesBtn->setEnabled(false);
   }
@@ -188,7 +188,7 @@ void MainWindow::setupUi() {
   QWidget *tabLive = new QWidget();
   QVBoxLayout *liveLayout = new QVBoxLayout(tabLive);
 
-  QGroupBox *liveMidiGroup = new QGroupBox("Live MIDI (Experimental)", this);
+  QGroupBox *liveMidiGroup = new QGroupBox(tr("Live MIDI (Experimental)"), this);
   QVBoxLayout *liveMidiMainLayout = new QVBoxLayout(liveMidiGroup);
   QHBoxLayout *liveMidiBtnLayout = new QHBoxLayout();
 
@@ -222,7 +222,7 @@ void MainWindow::setupUi() {
   liveMidiControlsLayout->addWidget(m_liveMidiStatusLabel);
   liveMidiControlsLayout->addWidget(m_liveMidiCountersLabel);
 
-  QGroupBox *sessionGroup = new QGroupBox("Session Recording", this);
+  QGroupBox *sessionGroup = new QGroupBox(tr("Session Recording"), this);
   QHBoxLayout *sessionLayout = new QHBoxLayout(sessionGroup);
   m_sessionStatusLabel = new QLabel(tr("Status: Parada"), this);
   m_sessionCountLabel = new QLabel(tr("Eventos gravados: 0"), this);
@@ -278,7 +278,7 @@ void MainWindow::setupUi() {
   }
 
   m_treatNoteOnZeroAsOffCb =
-      new QCheckBox("Mostrar Note On vel 0 como Note Off", this);
+      new QCheckBox(tr("Mostrar Note On vel 0 como Note Off"), this);
   m_treatNoteOnZeroAsOffCb->setChecked(false);
 
   liveMidiFiltersLayout->addWidget(typeLabel);
@@ -300,7 +300,7 @@ void MainWindow::setupUi() {
   liveMidiMainLayout->addLayout(liveMidiControlsLayout);
   liveMidiMainLayout->addWidget(sessionGroup);
 
-  QGroupBox *statsGroup = new QGroupBox("Live MIDI Statistics", this);
+  QGroupBox *statsGroup = new QGroupBox(tr("Live MIDI Statistics"), this);
   QVBoxLayout *statsLayout = new QVBoxLayout(statsGroup);
   m_liveMidiStatsLabel = new QLabel(tr("Aguardando porta abrir..."), this);
   m_liveMidiStatsLabel->setWordWrap(true);
@@ -309,9 +309,9 @@ void MainWindow::setupUi() {
   statsLayout->addWidget(m_liveMidiStatsLabel);
   liveMidiMainLayout->addWidget(statsGroup);
 
-  QGroupBox *umpPreviewGroup = new QGroupBox("UMP Preview", this);
+  QGroupBox *umpPreviewGroup = new QGroupBox(tr("UMP Preview"), this);
   QHBoxLayout *umpPreviewLayout = new QHBoxLayout(umpPreviewGroup);
-  m_umpPreviewCb = new QCheckBox("Mostrar UMP Preview", this);
+  m_umpPreviewCb = new QCheckBox(tr("Mostrar UMP Preview"), this);
   m_umpPreviewCb->setChecked(true);
   m_umpPreviewLabel = new QLabel(tr("Último UMP Gerado: Nenhum"), this);
   m_umpPreviewLabel->setStyleSheet("font-family: monospace;");
@@ -341,7 +341,7 @@ void MainWindow::setupUi() {
   QWidget *tabFakeUmp = new QWidget();
   QVBoxLayout *fakeUmpLayout = new QVBoxLayout(tabFakeUmp);
 
-  QGroupBox *fakeBackendGroup = new QGroupBox("UMP Input Backend Source", this);
+  QGroupBox *fakeBackendGroup = new QGroupBox(tr("UMP Input Backend Source"), this);
   QHBoxLayout *fakeBackendLayout = new QHBoxLayout(fakeBackendGroup);
   
   m_umpBackendTypeCombo = new QComboBox(this);
@@ -366,7 +366,7 @@ void MainWindow::setupUi() {
   fakeBackendLayout->addWidget(new QLabel(tr("Status:"), this));
   fakeBackendLayout->addWidget(m_fakeUmpStatusLabel);
 
-  QGroupBox *fakeStreamGroup = new QGroupBox("UMP Stream Data", this);
+  QGroupBox *fakeStreamGroup = new QGroupBox(tr("UMP Stream Data"), this);
   QVBoxLayout *fakeStreamLayout = new QVBoxLayout(fakeStreamGroup);
   
   QHBoxLayout *fakeStreamControls = new QHBoxLayout();
@@ -402,7 +402,7 @@ void MainWindow::setupUi() {
   fakeStreamLayout->addWidget(new QLabel(tr("Log experimental:"), this));
   fakeStreamLayout->addWidget(m_fakeUmpLog);
 
-  QGroupBox *fakeRecordingGroup = new QGroupBox("Fake UMP Session Recording", this);
+  QGroupBox *fakeRecordingGroup = new QGroupBox(tr("Fake UMP Session Recording"), this);
   QVBoxLayout *fakeRecordingLayout = new QVBoxLayout(fakeRecordingGroup);
   
   QHBoxLayout *fakeRecordingStatusLayout = new QHBoxLayout();
@@ -911,13 +911,13 @@ void MainWindow::refreshMidiPortsClicked() {
 #ifdef USE_RTMIDI
   QStringList ports = m_midiBackend->listInputPorts();
   if (ports.isEmpty()) {
-    m_liveMidiPortsCombo->addItem("Nenhuma porta MIDI encontrada.");
+    m_liveMidiPortsCombo->addItem(tr("Nenhuma porta MIDI encontrada."));
   } else {
     m_liveMidiPortsCombo->addItems(ports);
   }
   logMessage("Portas de entrada MIDI atualizadas com sucesso.");
 #else
-  m_liveMidiPortsCombo->addItem("RtMidi desativado nesta build.");
+  m_liveMidiPortsCombo->addItem(tr("RtMidi desativado nesta build."));
   logMessage("Aviso: Tentativa de listar portas, mas RtMidi está desativado.");
 #endif
 }
@@ -1219,8 +1219,8 @@ void MainWindow::updateLiveMidiStatus() {
 
 void MainWindow::exportLiveTxtClicked() {
   if (m_liveMidiEvents.isEmpty()) {
-    QMessageBox::information(this, "Aviso",
-                             "Não há eventos Live MIDI para exportar.");
+    QMessageBox::information(this, tr("Aviso"),
+                             tr("Não há eventos Live MIDI para exportar."));
     return;
   }
 
@@ -1271,8 +1271,8 @@ void MainWindow::exportLiveTxtClicked() {
 
 void MainWindow::exportLiveCsvClicked() {
   if (m_liveMidiEvents.isEmpty()) {
-    QMessageBox::information(this, "Aviso",
-                             "Não há eventos Live MIDI para exportar.");
+    QMessageBox::information(this, tr("Aviso"),
+                             tr("Não há eventos Live MIDI para exportar."));
     return;
   }
 
@@ -1748,8 +1748,8 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
 void MainWindow::exportSessionSummaryClicked() {
   if (m_liveMidiRecording.isEmpty()) {
     QMessageBox::information(
-        this, "Aviso",
-        "Não há eventos gravados na sessão para gerar um resumo.");
+        this, tr("Aviso"),
+        tr("Não há eventos gravados na sessão para gerar um resumo."));
     return;
   }
 
@@ -2063,7 +2063,7 @@ QString MainWindow::csvTextCellForSpreadsheet(const QString& value) const {
 
 void MainWindow::exportExperimentalUmpTxtClicked() {
     if (!m_fakeUmpTable || m_fakeUmpTable->rowCount() == 0) {
-        QMessageBox::information(this, "Aviso", "A tabela experimental está vazia. Não há dados para exportar.");
+        QMessageBox::information(this, tr("Aviso"), tr("A tabela experimental está vazia. Não há dados para exportar."));
         return;
     }
 
@@ -2084,7 +2084,7 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         logFakeUmpMessage("Erro ao exportar TXT Experimental.");
-        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo TXT.");
+        QMessageBox::warning(this, tr("Erro"), tr("Falha ao criar o arquivo TXT."));
         return;
     }
 
@@ -2120,7 +2120,7 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
 
 void MainWindow::exportExperimentalUmpCsvClicked() {
     if (!m_fakeUmpTable || m_fakeUmpTable->rowCount() == 0) {
-        QMessageBox::information(this, "Aviso", "A tabela experimental está vazia. Não há dados para exportar.");
+        QMessageBox::information(this, tr("Aviso"), tr("A tabela experimental está vazia. Não há dados para exportar."));
         return;
     }
 
@@ -2141,7 +2141,7 @@ void MainWindow::exportExperimentalUmpCsvClicked() {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         logFakeUmpMessage("Erro ao exportar CSV Experimental.");
-        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo CSV.");
+        QMessageBox::warning(this, tr("Erro"), tr("Falha ao criar o arquivo CSV."));
         return;
     }
 
@@ -2198,7 +2198,7 @@ void MainWindow::clearFakeUmpSessionClicked() {
 
 void MainWindow::exportFakeUmpSessionTxtClicked() {
     if (m_fakeUmpRecording.isEmpty()) {
-        QMessageBox::information(this, "Aviso", "Não há sessão UMP gravada para exportar.");
+        QMessageBox::information(this, tr("Aviso"), tr("Não há sessão UMP gravada para exportar."));
         return;
     }
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
@@ -2216,7 +2216,7 @@ void MainWindow::exportFakeUmpSessionTxtClicked() {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         logFakeUmpMessage("Erro ao exportar TXT da sessão.");
-        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo TXT.");
+        QMessageBox::warning(this, tr("Erro"), tr("Falha ao criar o arquivo TXT."));
         return;
     }
     QTextStream out(&file);
@@ -2248,7 +2248,7 @@ void MainWindow::exportFakeUmpSessionTxtClicked() {
 
 void MainWindow::exportFakeUmpSessionCsvClicked() {
     if (m_fakeUmpRecording.isEmpty()) {
-        QMessageBox::information(this, "Aviso", "Não há sessão UMP gravada para exportar.");
+        QMessageBox::information(this, tr("Aviso"), tr("Não há sessão UMP gravada para exportar."));
         return;
     }
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
@@ -2266,7 +2266,7 @@ void MainWindow::exportFakeUmpSessionCsvClicked() {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         logFakeUmpMessage("Erro ao exportar CSV da sessão.");
-        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo CSV.");
+        QMessageBox::warning(this, tr("Erro"), tr("Falha ao criar o arquivo CSV."));
         return;
     }
     QTextStream out(&file);
@@ -2415,7 +2415,7 @@ QString MainWindow::formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummar
 
 void MainWindow::exportFakeUmpSessionSummaryClicked() {
     if (m_fakeUmpRecording.isEmpty()) {
-        QMessageBox::information(this, "Aviso", "Não há sessão UMP gravada para exportar.");
+        QMessageBox::information(this, tr("Aviso"), tr("Não há sessão UMP gravada para exportar."));
         logFakeUmpMessage("Resumo da sessão UMP experimental não exportado: sessão vazia.");
         return;
     }
@@ -2437,7 +2437,7 @@ void MainWindow::exportFakeUmpSessionSummaryClicked() {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         logFakeUmpMessage("Erro ao exportar resumo da sessão UMP experimental.");
-        QMessageBox::warning(this, "Erro", "Falha ao criar o arquivo de resumo TXT.");
+        QMessageBox::warning(this, tr("Erro"), tr("Falha ao criar o arquivo de resumo TXT."));
         return;
     }
 
