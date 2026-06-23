@@ -74,8 +74,15 @@ New-Item -ItemType Directory -Force -Path $distPath | Out-Null
 Write-Host "`n--- Copiando Executavel Principal ---"
 Copy-Item "$buildDir\Release\MidiUmpAnalyzer.exe" -Destination $distPath
 
-if (Test-Path "$buildDir\Release\Microsoft.Windows.Devices.Midi2.dll") {
-    Copy-Item -Path "$buildDir\Release\Microsoft.Windows.Devices.Midi2.dll" -Destination $distPath -Force
+Write-Host "--- Procurando dependencias nativas do Windows MIDI Services ---"
+$midiDll = Get-ChildItem -Path . -Filter "Microsoft.Windows.Devices.Midi2.dll" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+
+if ($midiDll) {
+    Write-Host "DLL nativa encontrada em: $($midiDll.FullName)"
+    Copy-Item -Path $midiDll.FullName -Destination $distPath -Force
+    Write-Host "Microsoft.Windows.Devices.Midi2.dll copiada com sucesso para $distPath !"
+} else {
+    Write-Host "CRÍTICO: Microsoft.Windows.Devices.Midi2.dll NAO ENCONTRADA em nenhum lugar do projeto!" -ForegroundColor Red
 }
 
 if ($EnableRtMidi) {
