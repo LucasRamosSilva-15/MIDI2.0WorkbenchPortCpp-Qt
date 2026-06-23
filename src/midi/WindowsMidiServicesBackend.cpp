@@ -269,6 +269,8 @@ QStringList WindowsMidiServicesBackend::listInputPorts() {
 
 bool WindowsMidiServicesBackend::openInputPort(int /*portIndex*/) {
     m_lastError = "WMS Disabled. Cannot open port.";
+    m_state = ConnectionState::Error;
+    m_isOpen = false;
     return false;
 }
 
