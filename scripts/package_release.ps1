@@ -75,13 +75,17 @@ Write-Host "`n--- Copiando Executavel Principal ---"
 Copy-Item "$buildDir\Release\MidiUmpAnalyzer.exe" -Destination $distPath
 
 Write-Host "--- Copiando dependencias nativas do Windows MIDI Services ---"
+$localMidiDll = "dll\Microsoft.Windows.Devices.Midi2.dll"
 $systemMidiDll = "C:\Program Files\Windows MIDI Services\Desktop App SDK Runtime\Microsoft.Windows.Devices.Midi2.dll"
 
-if (Test-Path $systemMidiDll) {
+if (Test-Path $localMidiDll) {
+    Copy-Item -Path $localMidiDll -Destination $distPath -Force
+    Write-Host "Microsoft.Windows.Devices.Midi2.dll copiada do repositorio local para $distPath com sucesso!" -ForegroundColor Green
+} elseif (Test-Path $systemMidiDll) {
     Copy-Item -Path $systemMidiDll -Destination $distPath -Force
     Write-Host "Microsoft.Windows.Devices.Midi2.dll copiada do sistema para $distPath com sucesso!" -ForegroundColor Green
 } else {
-    Write-Host "CRÍTICO: DLL do sistema nao encontrada em $systemMidiDll" -ForegroundColor Red
+    Write-Host "CRÍTICO: DLL do WMS nao encontrada nem localmente nem no sistema!" -ForegroundColor Red
 }
 
 if ($EnableRtMidi) {
