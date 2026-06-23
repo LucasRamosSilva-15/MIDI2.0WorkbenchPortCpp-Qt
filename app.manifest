@@ -2,7 +2,7 @@
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
   <assemblyIdentity version="1.0.0.0" name="MidiUmpAnalyzer.App"/>
   <file name="Microsoft.Windows.Devices.Midi2.dll">
-    <activatableClass name="Microsoft.Windows.Devices.Midi2.MidiEndpointDeviceInformation" threadingModel="both" />
-    <activatableClass name="Microsoft.Windows.Devices.Midi2.MidiSession" threadingModel="both" />
+    <activatableClass name="Microsoft.Windows.Devices.Midi2.MidiEndpointDeviceInformation" threadingModel="both" xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass name="Microsoft.Windows.Devices.Midi2.MidiSession" threadingModel="both" xmlns="urn:schemas-microsoft-com:winrt.v1" />
   </file>
 </assembly>
