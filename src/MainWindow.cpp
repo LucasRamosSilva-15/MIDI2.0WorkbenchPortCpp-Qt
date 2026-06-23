@@ -327,8 +327,7 @@ void MainWindow::setupUi() {
 
 #ifndef USE_RTMIDI
   QLabel *rtMidiWarning = new QLabel(
-      tr("<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). ")
-      "Compile com RtMidi=ON para usar o Live MIDI.",
+      tr("<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). Compile com RtMidi=ON para usar o Live MIDI."),
       this);
   rtMidiWarning->setStyleSheet(
       "color: #d32f2f; font-weight: bold; padding: 5px;");
