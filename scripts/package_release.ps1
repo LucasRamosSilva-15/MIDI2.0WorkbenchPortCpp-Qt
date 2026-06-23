@@ -74,6 +74,10 @@ New-Item -ItemType Directory -Force -Path $distPath | Out-Null
 Write-Host "`n--- Copiando Executavel Principal ---"
 Copy-Item "$buildDir\Release\MidiUmpAnalyzer.exe" -Destination $distPath
 
+if (Test-Path "$buildDir\Release\Microsoft.Windows.Devices.Midi2.dll") {
+    Copy-Item -Path "$buildDir\Release\Microsoft.Windows.Devices.Midi2.dll" -Destination $distPath -Force
+}
+
 if ($EnableRtMidi) {
     Write-Host "`n--- Copiando DLL do RtMidi (se existir) ---"
     if (Test-Path "$buildDir\_deps\rtmidi-build\Release\rtmidi.dll") {

@@ -65,6 +65,7 @@ add_executable(MidiUmpAnalyzer WIN32
     src/midi/WindowsMidiServicesSdkProbe.h
     src/midi/WindowsMidiServicesSdkProbe.cpp
     src/midi/WindowsMidiServicesHeaderIncludeProbe.cpp
+    app.manifest
 )
 
 target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
