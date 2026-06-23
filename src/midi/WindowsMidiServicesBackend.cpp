@@ -3,6 +3,12 @@
 #include <QSettings>
 #include <QEventLoop>
 
+#if defined(USE_WINDOWS_MIDI_SERVICES)
+
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Microsoft.Windows.Devices.Midi2.h>
+
 WmsWorker::WmsWorker(std::shared_ptr<SharedBuffer> sharedBuffer, QObject *parent)
     : QObject(parent), m_sharedBuffer(sharedBuffer) {}
 
@@ -235,3 +241,42 @@ std::vector<UmpRawEvent> WindowsMidiServicesBackend::pollUmpEvents() {
     }
     return eventsToReturn;
 }
+
+#else
+
+// --- SAFE MODE STUBS PARA O GITHUB ACTIONS ---
+// Se o WMS não estiver habilitado no CMake, compila apenas métodos vazios para o linker e MOC
+
+WmsWorker::WmsWorker(std::shared_ptr<SharedBuffer> sharedBuffer, QObject *parent) : QObject(parent), m_sharedBuffer(sharedBuffer) {}
+WmsWorker::~WmsWorker() {}
+void WmsWorker::doInit() {}
+void WmsWorker::queryAvailableEndpoints() {}
+void WmsWorker::openPort(QString /*deviceId*/, QString /*portName*/) {}
+void WmsWorker::closePort() {}
+
+WindowsMidiServicesBackend::WindowsMidiServicesBackend() 
+    : m_state(ConnectionState::Disconnected), m_isOpen(false), m_worker(nullptr) {}
+
+WindowsMidiServicesBackend::~WindowsMidiServicesBackend() {}
+
+QString WindowsMidiServicesBackend::backendName() const {
+    return "Windows MIDI Services Backend (v4.25 skeleton)";
+}
+
+QStringList WindowsMidiServicesBackend::listInputPorts() {
+    return QStringList() << "Safe Mode (WMS Disabled in Build)";
+}
+
+bool WindowsMidiServicesBackend::openInputPort(int /*portIndex*/) {
+    m_lastError = "WMS Disabled. Cannot open port.";
+    return false;
+}
+
+void WindowsMidiServicesBackend::closeInputPort() {}
+
+bool WindowsMidiServicesBackend::isOpen() const { return false; }
+WindowsMidiServicesBackend::ConnectionState WindowsMidiServicesBackend::getState() const { return m_state; }
+QString WindowsMidiServicesBackend::getLastError() const { return m_lastError; }
+std::vector<UmpRawEvent> WindowsMidiServicesBackend::pollUmpEvents() { return {}; }
+
+#endif
