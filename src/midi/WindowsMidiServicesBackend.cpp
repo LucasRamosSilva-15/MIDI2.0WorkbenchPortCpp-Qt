@@ -274,7 +274,10 @@ bool WindowsMidiServicesBackend::openInputPort(int /*portIndex*/) {
     return false;
 }
 
-void WindowsMidiServicesBackend::closeInputPort() {}
+void WindowsMidiServicesBackend::closeInputPort() {
+    m_isOpen = false;
+    m_state = ConnectionState::Disconnected;
+}
 
 bool WindowsMidiServicesBackend::isOpen() const { return false; }
 WindowsMidiServicesBackend::ConnectionState WindowsMidiServicesBackend::getState() const { return m_state; }
