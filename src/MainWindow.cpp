@@ -18,6 +18,9 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMenuBar>
+#include <QAction>
+#include <QSettings>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPlainTextEdit>
@@ -73,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.26.2)");
+  setWindowTitle(tr("MIDI 2.0 UMP Analyzer (v4.26.2)"));
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -84,19 +87,41 @@ void MainWindow::setupUi() {
   QTabWidget *tabWidget = new QTabWidget(this);
   mainLayout->addWidget(tabWidget);
 
+  // --- Menu Bar ---
+  QMenuBar *menuBar = new QMenuBar(this);
+  setMenuBar(menuBar);
+  QMenu *langMenu = menuBar->addMenu(tr("Language"));
+  
+  QAction *actionPt = new QAction("Português (PT-BR)", this);
+  QAction *actionEn = new QAction("English (EN-US)", this);
+  langMenu->addAction(actionPt);
+  langMenu->addAction(actionEn);
+  
+  connect(actionPt, &QAction::triggered, this, [this]() {
+      QSettings settings;
+      settings.setValue("Language", "pt");
+      QMessageBox::information(this, tr("Language"), tr("Por favor, reinicie a aplicação para aplicar o idioma. / Please restart the application to apply the language."));
+  });
+  
+  connect(actionEn, &QAction::triggered, this, [this]() {
+      QSettings settings;
+      settings.setValue("Language", "en");
+      QMessageBox::information(this, tr("Language"), tr("Please restart the application to apply the language. / Por favor, reinicie a aplicação para aplicar o idioma."));
+  });
+
   // --- Tab 1: Offline UMP Analyzer ---
   QWidget *tabOffline = new QWidget();
   QVBoxLayout *offlineLayout = new QVBoxLayout(tabOffline);
 
   // Área de Ações
   QHBoxLayout *actionsLayout = new QHBoxLayout();
-  m_openFileBtn = new QPushButton("Abrir arquivo", this);
-  m_saveLogBtn = new QPushButton("Exportar TXT", this);
-  m_exportCsvBtn = new QPushButton("Exportar CSV", this);
-  m_copyTableBtn = new QPushButton("Copiar Tabela", this);
-  m_clearBtn = new QPushButton("Limpar", this);
-  m_adjustColsBtn = new QPushButton("Ajustar Colunas", this);
-  m_loadExamplesBtn = new QPushButton("Carregar exemplo", this);
+  m_openFileBtn = new QPushButton(tr("Abrir arquivo"), this);
+  m_saveLogBtn = new QPushButton(tr("Exportar TXT"), this);
+  m_exportCsvBtn = new QPushButton(tr("Exportar CSV"), this);
+  m_copyTableBtn = new QPushButton(tr("Copiar Tabela"), this);
+  m_clearBtn = new QPushButton(tr("Limpar"), this);
+  m_adjustColsBtn = new QPushButton(tr("Ajustar Colunas"), this);
+  m_loadExamplesBtn = new QPushButton(tr("Carregar exemplo"), this);
   m_samplesCombo = new QComboBox(this);
 
   actionsLayout->addWidget(m_openFileBtn);
@@ -113,12 +138,12 @@ void MainWindow::setupUi() {
   // Área de Input
   QHBoxLayout *inputLayout = new QHBoxLayout();
   QLabel *inputLabel =
-      new QLabel("Hex UMP (ex: 20904000 4090400040000000):", this);
+      new QLabel(tr("Hex UMP (ex: 20904000 4090400040000000):"), this);
   m_inputField = new QPlainTextEdit(this);
   m_inputField->setPlaceholderText(
-      "Cole pacotes UMPs em Hexadecimal (ex: SysEx7, SysEx8, Flex, Voice)...");
+      tr("Cole pacotes UMPs em Hexadecimal (ex: SysEx7, SysEx8, Flex, Voice)..."));
   m_inputField->setFixedHeight(80);
-  m_interpretBtn = new QPushButton("Interpretar", this);
+  m_interpretBtn = new QPushButton(tr("Interpretar"), this);
   inputLayout->addWidget(inputLabel);
   inputLayout->addWidget(m_inputField);
   inputLayout->addWidget(m_interpretBtn);
@@ -126,12 +151,12 @@ void MainWindow::setupUi() {
 
   // Área de Filtro e Estatísticas
   QHBoxLayout *filterLayout = new QHBoxLayout();
-  QLabel *filterLabel = new QLabel("Filtrar por Type:", this);
+  QLabel *filterLabel = new QLabel(tr("Filtrar por Type:"), this);
   m_filterField = new QLineEdit(this);
   m_filterField->setPlaceholderText(
-      "Digite para filtrar... (ex: SysEx, Flex, Voice)");
+      tr("Digite para filtrar... (ex: SysEx, Flex, Voice)"));
   m_statsLabel =
-      new QLabel("Estatísticas: 0 lidos | 0 válidos | 0 erros", this);
+      new QLabel(tr("Estatísticas: 0 lidos | 0 válidos | 0 erros"), this);
   filterLayout->addWidget(filterLabel);
   filterLayout->addWidget(m_filterField);
   filterLayout->addStretch();
@@ -141,9 +166,9 @@ void MainWindow::setupUi() {
   // Área da Tabela
   m_tableWidget = new QTableWidget(this);
   m_tableWidget->setColumnCount(8);
-  m_tableWidget->setHorizontalHeaderLabels({"#", "Words (Hex)", "Size", "Type",
-                                            "Group", "Status", "Channel",
-                                            "Description"});
+  m_tableWidget->setHorizontalHeaderLabels({tr("#"), tr("Words (Hex)"), tr("Size"), tr("Type"),
+                                            tr("Group"), tr("Status"), tr("Channel"),
+                                            tr("Description")});
   m_tableWidget->horizontalHeader()->setSectionResizeMode(
       QHeaderView::Interactive);
   m_tableWidget->horizontalHeader()->setStretchLastSection(true);
@@ -157,7 +182,7 @@ void MainWindow::setupUi() {
   m_tableWidget->setColumnWidth(7, 400);
   offlineLayout->addWidget(m_tableWidget, 1);
 
-  tabWidget->addTab(tabOffline, "Offline UMP Analyzer");
+  tabWidget->addTab(tabOffline, tr("Offline UMP Analyzer"));
 
   // --- Tab 2: Live MIDI Monitor ---
   QWidget *tabLive = new QWidget();
@@ -167,11 +192,11 @@ void MainWindow::setupUi() {
   QVBoxLayout *liveMidiMainLayout = new QVBoxLayout(liveMidiGroup);
   QHBoxLayout *liveMidiBtnLayout = new QHBoxLayout();
 
-  m_refreshMidiPortsBtn = new QPushButton("Atualizar portas", this);
+  m_refreshMidiPortsBtn = new QPushButton(tr("Atualizar portas"), this);
   m_liveMidiPortsCombo = new QComboBox(this);
   m_liveMidiPortsCombo->setMinimumWidth(250);
-  m_openMidiPortBtn = new QPushButton("Abrir porta", this);
-  m_closeMidiPortBtn = new QPushButton("Fechar porta", this);
+  m_openMidiPortBtn = new QPushButton(tr("Abrir porta"), this);
+  m_closeMidiPortBtn = new QPushButton(tr("Fechar porta"), this);
   m_closeMidiPortBtn->setEnabled(false);
 
   liveMidiBtnLayout->addWidget(m_refreshMidiPortsBtn);
@@ -181,13 +206,13 @@ void MainWindow::setupUi() {
   liveMidiBtnLayout->addStretch();
 
   QHBoxLayout *liveMidiControlsLayout = new QHBoxLayout();
-  m_pauseLiveMidiBtn = new QPushButton("Pausar Monitor", this);
+  m_pauseLiveMidiBtn = new QPushButton(tr("Pausar Monitor"), this);
   m_pauseLiveMidiBtn->setEnabled(false);
-  m_clearLiveMidiLogBtn = new QPushButton("Limpar Live Log", this);
-  m_exportLiveTxtBtn = new QPushButton("Exportar Live TXT", this);
-  m_exportLiveCsvBtn = new QPushButton("Exportar Live CSV", this);
-  m_liveMidiStatusLabel = new QLabel("Status: Porta fechada", this);
-  m_liveMidiCountersLabel = new QLabel("Recebidas: 0 | Exibidas: 0", this);
+  m_clearLiveMidiLogBtn = new QPushButton(tr("Limpar Live Log"), this);
+  m_exportLiveTxtBtn = new QPushButton(tr("Exportar Live TXT"), this);
+  m_exportLiveCsvBtn = new QPushButton(tr("Exportar Live CSV"), this);
+  m_liveMidiStatusLabel = new QLabel(tr("Status: Porta fechada"), this);
+  m_liveMidiCountersLabel = new QLabel(tr("Recebidas: 0 | Exibidas: 0"), this);
 
   liveMidiControlsLayout->addWidget(m_pauseLiveMidiBtn);
   liveMidiControlsLayout->addWidget(m_clearLiveMidiLogBtn);
@@ -199,16 +224,16 @@ void MainWindow::setupUi() {
 
   QGroupBox *sessionGroup = new QGroupBox("Session Recording", this);
   QHBoxLayout *sessionLayout = new QHBoxLayout(sessionGroup);
-  m_sessionStatusLabel = new QLabel("Status: Parada", this);
-  m_sessionCountLabel = new QLabel("Eventos gravados: 0", this);
-  m_startSessionBtn = new QPushButton("Iniciar Gravação", this);
-  m_stopSessionBtn = new QPushButton("Parar Gravação", this);
+  m_sessionStatusLabel = new QLabel(tr("Status: Parada"), this);
+  m_sessionCountLabel = new QLabel(tr("Eventos gravados: 0"), this);
+  m_startSessionBtn = new QPushButton(tr("Iniciar Gravação"), this);
+  m_stopSessionBtn = new QPushButton(tr("Parar Gravação"), this);
   m_stopSessionBtn->setEnabled(false);
-  m_clearSessionBtn = new QPushButton("Limpar Sessão", this);
-  m_exportSessionTxtBtn = new QPushButton("Exportar Sessão TXT", this);
-  m_exportSessionCsvBtn = new QPushButton("Exportar Sessão CSV", this);
+  m_clearSessionBtn = new QPushButton(tr("Limpar Sessão"), this);
+  m_exportSessionTxtBtn = new QPushButton(tr("Exportar Sessão TXT"), this);
+  m_exportSessionCsvBtn = new QPushButton(tr("Exportar Sessão CSV"), this);
   m_exportSessionSummaryBtn =
-      new QPushButton("Exportar Resumo da Sessão", this);
+      new QPushButton(tr("Exportar Resumo da Sessão"), this);
 
   sessionLayout->addWidget(m_sessionStatusLabel);
   sessionLayout->addWidget(m_sessionCountLabel);
@@ -225,29 +250,29 @@ void MainWindow::setupUi() {
   m_liveMidiLog->setReadOnly(true);
   m_liveMidiLog->document()->setMaximumBlockCount(1000);
   m_liveMidiLog->setPlaceholderText(
-      "Eventos brutos MIDI 1.0 (Hex) aparecerão aqui...");
+      tr("Eventos brutos MIDI 1.0 (Hex) aparecerão aqui..."));
 
   m_liveUmpPreviewTable = new QTableWidget(this);
   m_liveUmpPreviewTable->setColumnCount(8);
   m_liveUmpPreviewTable->setHorizontalHeaderLabels(
-      {"Timestamp", "MIDI Bytes", "UMP Word", "MT", "Group", "Status",
-       "Channel", "Description"});
+      {tr("Timestamp"), tr("MIDI Bytes"), tr("UMP Word"), tr("MT"), tr("Group"), tr("Status"),
+       tr("Channel"), tr("Description")});
   m_liveUmpPreviewTable->horizontalHeader()->setStretchLastSection(true);
   m_liveUmpPreviewTable->setSelectionBehavior(QAbstractItemView::SelectRows);
   m_liveUmpPreviewTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
   m_liveUmpPreviewTable->verticalHeader()->setVisible(false);
 
   QHBoxLayout *liveMidiFiltersLayout = new QHBoxLayout();
-  QLabel *typeLabel = new QLabel("Tipo:", this);
+  QLabel *typeLabel = new QLabel(tr("Tipo:"), this);
   m_liveMidiTypeFilterCombo = new QComboBox(this);
   m_liveMidiTypeFilterCombo->addItems(
       {"Todos", "Note On", "Note Off", "Control Change", "Program Change",
        "Pitch Bend", "Poly Aftertouch", "Channel Aftertouch",
        "System/Common/Real-Time"});
 
-  QLabel *channelLabel = new QLabel("Canal:", this);
+  QLabel *channelLabel = new QLabel(tr("Canal:"), this);
   m_liveMidiChannelFilterCombo = new QComboBox(this);
-  m_liveMidiChannelFilterCombo->addItem("Todos os canais");
+  m_liveMidiChannelFilterCombo->addItem(tr("Todos os canais"));
   for (int i = 1; i <= 16; ++i) {
     m_liveMidiChannelFilterCombo->addItem(QString("Ch %1").arg(i));
   }
@@ -266,7 +291,7 @@ void MainWindow::setupUi() {
   liveMidiFiltersLayout->addStretch();
 
   QLabel *filterHintLabel = new QLabel(
-      "<i>(Os filtros se aplicam a novas mensagens recebidas)</i>", this);
+      tr("<i>(Os filtros se aplicam a novas mensagens recebidas)</i>"), this);
   filterHintLabel->setStyleSheet("color: #666;");
   liveMidiFiltersLayout->addWidget(filterHintLabel);
 
@@ -277,7 +302,7 @@ void MainWindow::setupUi() {
 
   QGroupBox *statsGroup = new QGroupBox("Live MIDI Statistics", this);
   QVBoxLayout *statsLayout = new QVBoxLayout(statsGroup);
-  m_liveMidiStatsLabel = new QLabel("Aguardando porta abrir...", this);
+  m_liveMidiStatsLabel = new QLabel(tr("Aguardando porta abrir..."), this);
   m_liveMidiStatsLabel->setWordWrap(true);
   m_liveMidiStatsLabel->setStyleSheet(
       "font-family: monospace; font-size: 12px;");
@@ -288,7 +313,7 @@ void MainWindow::setupUi() {
   QHBoxLayout *umpPreviewLayout = new QHBoxLayout(umpPreviewGroup);
   m_umpPreviewCb = new QCheckBox("Mostrar UMP Preview", this);
   m_umpPreviewCb->setChecked(true);
-  m_umpPreviewLabel = new QLabel("Último UMP Gerado: Nenhum", this);
+  m_umpPreviewLabel = new QLabel(tr("Último UMP Gerado: Nenhum"), this);
   m_umpPreviewLabel->setStyleSheet("font-family: monospace;");
   umpPreviewLayout->addWidget(m_umpPreviewCb);
   umpPreviewLayout->addSpacing(20);
@@ -302,7 +327,7 @@ void MainWindow::setupUi() {
 
 #ifndef USE_RTMIDI
   QLabel *rtMidiWarning = new QLabel(
-      "<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). "
+      tr("<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). ")
       "Compile com RtMidi=ON para usar o Live MIDI.",
       this);
   rtMidiWarning->setStyleSheet(
@@ -311,7 +336,7 @@ void MainWindow::setupUi() {
 #endif
 
   liveLayout->addWidget(liveMidiGroup, 1);
-  tabWidget->addTab(tabLive, "Live MIDI Monitor");
+  tabWidget->addTab(tabLive, tr("Live MIDI Monitor"));
 
   // --- Tab Experimental UMP Backend ---
   QWidget *tabFakeUmp = new QWidget();
@@ -321,37 +346,37 @@ void MainWindow::setupUi() {
   QHBoxLayout *fakeBackendLayout = new QHBoxLayout(fakeBackendGroup);
   
   m_umpBackendTypeCombo = new QComboBox(this);
-  m_umpBackendTypeCombo->addItem("Fake UMP Simulator", QVariant(0));
+  m_umpBackendTypeCombo->addItem(tr("Fake UMP Simulator"), QVariant(0));
 #ifdef WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED
-  m_umpBackendTypeCombo->addItem("Windows MIDI Services (Native)", QVariant(1));
+  m_umpBackendTypeCombo->addItem(tr("Windows MIDI Services (Native)"), QVariant(1));
 #endif
   
-  QPushButton *refreshFakePortsBtn = new QPushButton("Atualizar portas", this);
+  QPushButton *refreshFakePortsBtn = new QPushButton(tr("Atualizar portas"), this);
   m_fakeUmpPortCombo = new QComboBox(this);
-  QPushButton *openFakePortBtn = new QPushButton("Abrir porta", this);
-  QPushButton *closeFakePortBtn = new QPushButton("Fechar porta", this);
-  m_fakeUmpStatusLabel = new QLabel("Fechada", this);
+  QPushButton *openFakePortBtn = new QPushButton(tr("Abrir porta"), this);
+  QPushButton *closeFakePortBtn = new QPushButton(tr("Fechar porta"), this);
+  m_fakeUmpStatusLabel = new QLabel(tr("Fechada"), this);
   m_fakeUmpStatusLabel->setStyleSheet("color: gray; font-weight: bold;");
 
-  fakeBackendLayout->addWidget(new QLabel("Backend:", this));
+  fakeBackendLayout->addWidget(new QLabel(tr("Backend:"), this));
   fakeBackendLayout->addWidget(m_umpBackendTypeCombo);
   fakeBackendLayout->addWidget(refreshFakePortsBtn);
   fakeBackendLayout->addWidget(m_fakeUmpPortCombo, 1);
   fakeBackendLayout->addWidget(openFakePortBtn);
   fakeBackendLayout->addWidget(closeFakePortBtn);
-  fakeBackendLayout->addWidget(new QLabel("Status:", this));
+  fakeBackendLayout->addWidget(new QLabel(tr("Status:"), this));
   fakeBackendLayout->addWidget(m_fakeUmpStatusLabel);
 
   QGroupBox *fakeStreamGroup = new QGroupBox("UMP Stream Data", this);
   QVBoxLayout *fakeStreamLayout = new QVBoxLayout(fakeStreamGroup);
   
   QHBoxLayout *fakeStreamControls = new QHBoxLayout();
-  QPushButton *startFakePollingBtn = new QPushButton("Iniciar polling", this);
-  QPushButton *stopFakePollingBtn = new QPushButton("Parar polling", this);
-  QPushButton *clearFakeUmpBtn = new QPushButton("Limpar UMP experimental", this);
-  QPushButton *exportFakeUmpTxtBtn = new QPushButton("Exportar TXT", this);
-  QPushButton *exportFakeUmpCsvBtn = new QPushButton("Exportar CSV", this);
-  m_fakeUmpCounterLabel = new QLabel("Eventos: 0", this);
+  QPushButton *startFakePollingBtn = new QPushButton(tr("Iniciar polling"), this);
+  QPushButton *stopFakePollingBtn = new QPushButton(tr("Parar polling"), this);
+  QPushButton *clearFakeUmpBtn = new QPushButton(tr("Limpar UMP experimental"), this);
+  QPushButton *exportFakeUmpTxtBtn = new QPushButton(tr("Exportar TXT"), this);
+  QPushButton *exportFakeUmpCsvBtn = new QPushButton(tr("Exportar CSV"), this);
+  m_fakeUmpCounterLabel = new QLabel(tr("Eventos: 0"), this);
 
   fakeStreamControls->addWidget(startFakePollingBtn);
   fakeStreamControls->addWidget(stopFakePollingBtn);
@@ -361,11 +386,11 @@ void MainWindow::setupUi() {
   fakeStreamControls->addWidget(m_fakeUmpCounterLabel);
   fakeStreamControls->addStretch();
 
-  QLabel *fakeWarningLabel = new QLabel("<b>Windows MIDI Services Native Backend is Available! Use the dropdown to select real physical MIDI endpoints.</b>", this);
+  QLabel *fakeWarningLabel = new QLabel(tr("<b>Windows MIDI Services Native Backend is Available! Use the dropdown to select real physical MIDI endpoints.</b>"), this);
   fakeWarningLabel->setStyleSheet("color: #1b5e20; background-color: #c8e6c9; padding: 5px; border-radius: 4px;");
 
   m_fakeUmpTable = new QTableWidget(0, 11, this);
-  m_fakeUmpTable->setHorizontalHeaderLabels({"Timestamp", "Backend", "Port", "UMP Words", "Bits", "MT", "Group", "Status", "Channel", "Size", "Description"});
+  m_fakeUmpTable->setHorizontalHeaderLabels({tr("Timestamp"), tr("Backend"), tr("Port"), tr("UMP Words"), tr("Bits"), tr("MT"), tr("Group"), tr("Status"), tr("Channel"), tr("Size"), tr("Description")});
   m_fakeUmpTable->horizontalHeader()->setStretchLastSection(true);
   
   m_fakeUmpLog = new QTextEdit(this);
@@ -375,26 +400,26 @@ void MainWindow::setupUi() {
   fakeStreamLayout->addWidget(fakeWarningLabel);
   fakeStreamLayout->addLayout(fakeStreamControls);
   fakeStreamLayout->addWidget(m_fakeUmpTable, 1);
-  fakeStreamLayout->addWidget(new QLabel("Log experimental:", this));
+  fakeStreamLayout->addWidget(new QLabel(tr("Log experimental:"), this));
   fakeStreamLayout->addWidget(m_fakeUmpLog);
 
   QGroupBox *fakeRecordingGroup = new QGroupBox("Fake UMP Session Recording", this);
   QVBoxLayout *fakeRecordingLayout = new QVBoxLayout(fakeRecordingGroup);
   
   QHBoxLayout *fakeRecordingStatusLayout = new QHBoxLayout();
-  m_fakeUmpRecordingStatusLabel = new QLabel("Status: Parada", this);
-  m_fakeUmpRecordingCounterLabel = new QLabel("Eventos gravados: 0", this);
+  m_fakeUmpRecordingStatusLabel = new QLabel(tr("Status: Parada"), this);
+  m_fakeUmpRecordingCounterLabel = new QLabel(tr("Eventos gravados: 0"), this);
   fakeRecordingStatusLayout->addWidget(m_fakeUmpRecordingStatusLabel);
   fakeRecordingStatusLayout->addWidget(m_fakeUmpRecordingCounterLabel);
   fakeRecordingStatusLayout->addStretch();
   
   QHBoxLayout *fakeRecordingControlsLayout = new QHBoxLayout();
-  QPushButton *startFakeRecordingBtn = new QPushButton("Iniciar Gravação UMP", this);
-  QPushButton *stopFakeRecordingBtn = new QPushButton("Parar Gravação UMP", this);
-  QPushButton *clearFakeSessionBtn = new QPushButton("Limpar Sessão UMP", this);
-  QPushButton *exportFakeSessionTxtBtn = new QPushButton("Exportar Sessão TXT", this);
-  QPushButton *exportFakeSessionCsvBtn = new QPushButton("Exportar Sessão CSV", this);
-  QPushButton *exportFakeSessionSummaryBtn = new QPushButton("Exportar Resumo da Sessão UMP", this);
+  QPushButton *startFakeRecordingBtn = new QPushButton(tr("Iniciar Gravação UMP"), this);
+  QPushButton *stopFakeRecordingBtn = new QPushButton(tr("Parar Gravação UMP"), this);
+  QPushButton *clearFakeSessionBtn = new QPushButton(tr("Limpar Sessão UMP"), this);
+  QPushButton *exportFakeSessionTxtBtn = new QPushButton(tr("Exportar Sessão TXT"), this);
+  QPushButton *exportFakeSessionCsvBtn = new QPushButton(tr("Exportar Sessão CSV"), this);
+  QPushButton *exportFakeSessionSummaryBtn = new QPushButton(tr("Exportar Resumo da Sessão UMP"), this);
   
   fakeRecordingControlsLayout->addWidget(startFakeRecordingBtn);
   fakeRecordingControlsLayout->addWidget(stopFakeRecordingBtn);
@@ -411,7 +436,7 @@ void MainWindow::setupUi() {
   fakeUmpLayout->addWidget(fakeStreamGroup, 1);
   fakeUmpLayout->addWidget(fakeRecordingGroup);
 
-  tabWidget->addTab(tabFakeUmp, "UMP Native Monitor");
+  tabWidget->addTab(tabFakeUmp, tr("UMP Native Monitor"));
 
   // --- Tab 3: Logs / Diagnostics ---
   QWidget *tabLogs = new QWidget();
@@ -423,13 +448,13 @@ void MainWindow::setupUi() {
       "4px; border-radius: 4px; color: #102a43; font-weight: bold; }");
   logsLayout->addWidget(m_diagnosticsLabel);
 
-  QLabel *logLabel = new QLabel("Log Geral da Aplicação:", this);
+  QLabel *logLabel = new QLabel(tr("Log Geral da Aplicação:"), this);
   m_logPanel = new QTextEdit(this);
   m_logPanel->setReadOnly(true);
   logsLayout->addWidget(logLabel);
   logsLayout->addWidget(m_logPanel, 1);
 
-  tabWidget->addTab(tabLogs, "Logs / Diagnostics");
+  tabWidget->addTab(tabLogs, tr("Logs / Diagnostics"));
 
   // --- Tab 4: About / Help ---
   QWidget *tabAbout = new QWidget();
@@ -471,7 +496,7 @@ void MainWindow::setupUi() {
       "para depuração forense ou documentação em TCC.</p>");
 
   aboutLayout->addWidget(aboutText);
-  tabWidget->addTab(tabAbout, "About / Help");
+  tabWidget->addTab(tabAbout, tr("About / Help"));
 
   connect(m_interpretBtn, &QPushButton::clicked, this,
           &MainWindow::interpretClicked);

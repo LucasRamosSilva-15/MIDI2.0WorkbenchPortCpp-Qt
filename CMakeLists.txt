@@ -4,8 +4,10 @@ project(MidiUmpAnalyzer VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools)
 
+set(TS_FILES translations/MidiUmpAnalyzer_en_US.ts)
+qt_add_translations(MidiUmpAnalyzer TS_FILES ${TS_FILES} RESOURCE_PREFIX "/i18n")
 option(ENABLE_RTMIDI "Habilitar dependência opcional do RtMidi" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES "Enable Windows MIDI Services native backend (Windows 10+)" OFF)
 option(ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT "Enable theoretical SDK connection paths (does not build endpoints yet)" OFF)
