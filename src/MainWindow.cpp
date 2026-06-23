@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.24.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.26.2)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -438,7 +438,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v4.24.0</p>"
+      "<p><b>Versão:</b> v4.26.2</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor de portas de hardware MIDI 1.0 legado e UMP Nativo (Windows MIDI Services).</p>"
@@ -1577,7 +1577,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v4.22.0\n";
+  stream << "Version: v4.26.2\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
@@ -2068,7 +2068,7 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Experimental UMP Backend Export\n";
-    out << "Version: v4.22.0\n";
+    out << "Version: v4.26.2\n";
     out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Source: FakeUmpInputBackend\n";
     out << "Important note: This export uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n\n";
@@ -2199,7 +2199,7 @@ void MainWindow::exportFakeUmpSessionTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Fake UMP Session Recording Export\n";
-    out << "Version: v4.22.0\n";
+    out << "Version: v4.26.2\n";
     out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Source: FakeUmpInputBackend\n";
     out << "Important note: This session uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n";
@@ -2304,7 +2304,7 @@ QString MainWindow::formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummar
     QTextStream stream(&out);
 
     stream << "MidiUmpAnalyzer - Fake UMP Session Summary Report\n";
-    stream << "Version: v4.22.0\n";
+    stream << "Version: v4.26.2\n";
     stream << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     stream << "Source: FakeUmpInputBackend\n";
     stream << "Important note: This report summarizes fake UMP backend events only.\n";

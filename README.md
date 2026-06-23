@@ -92,6 +92,11 @@ cmake --build build-wms-sdk-root --config Release
 - Proteções contra exceções COM (`try/catch` para `winrt::hresult_error`) e teardown seguro aplicados ao `WindowsMidiServicesBackend`.
 - O `MidiInputController` agora possui exclusão mútua (`std::mutex`) blindando contra *rapid hot-swaps*.
 
+## Windows MIDI Services CI/CD & Registration-Free COM
+- A partir das versões **v4.25.x / v4.26.x**, o Windows MIDI Services é empacotado para distribuição e compilação na nuvem (GitHub Actions).
+- A DLL nativa é "vendored" no repositório local e ativada via Registration-Free COM (`app.manifest`), abolindo problemas de registro de classes (SxS).
+- As bibliotecas de cabeçalho do SDK (`winrt/impl`) foram incluídas no projeto (`dll/include`) para garantir a compilação cruzada na nuvem sem depender do vcpkg.
+
 ## Screenshots
 - ![Interface Principal](docs/screenshots/Screenshot3.png)
 - ![Filtragem SysEx](docs/screenshots/Screenshot4.png)

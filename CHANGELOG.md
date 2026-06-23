@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [v4.26.2] - WinRT Impl Headers Fix
+- **Build**: Added the missing C++/WinRT `impl` internal headers to the local project structure to fully enable compiling the real Windows MIDI Services endpoint integration in cloud environments.
+
+## [v4.26.1] - WMS CI Release Step
+- **CI/CD**: Introduced dedicated "Package Release (WMS)" step to the GitHub Actions `release.yml` to automatically output native UMP build artifacts alongside standard versions.
+
+## [v4.25.x] - Safe Mode, App Manifest & Stability
+- **Build**: Added conditional compile macros (`USE_WINDOWS_MIDI_SERVICES`) creating a resilient CI/CD Safe Mode fallback skeleton.
+- **Packaging**: Embedded WinRT Registration-Free COM support via `app.manifest`, automatically resolving SxS component issues.
+- **Packaging**: Introduced logic to dynamically vendor and deploy `Microsoft.Windows.Devices.Midi2.dll` alongside the final executable.
+- **UI**: Added `Backend` and `Port` string metadata population into `UmpRawEvent` for WMS traffic.
+
 ## [v4.24.0] - Final Production Release (TCC Master Release)
 - **Release**: TCC Master Release coroando a estabilidade da arquitetura de isolamento e o Triunvirato de compilação.
 - **UI**: Limpeza visual da interface, removendo tags experimentais e substituindo por nomenclatura oficial ("UMP Native Monitor").
