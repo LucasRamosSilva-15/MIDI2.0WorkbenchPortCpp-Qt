@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle(tr("MIDI 2.0 UMP Analyzer (v4.26.2)"));
+  setWindowTitle(tr("MIDI 2.0 UMP Analyzer (v4.26.3)"));
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -462,7 +462,7 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v4.26.2</p>"
+      "<p><b>Versão:</b> v4.26.3</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
       "e monitor de portas de hardware MIDI 1.0 legado e UMP Nativo (Windows MIDI Services).</p>"
@@ -1245,7 +1245,7 @@ void MainWindow::exportLiveTxtClicked() {
 
   QTextStream out(&file);
   out << "MidiUmpAnalyzer - Exportacao do Monitor MIDI Live\n";
-  out << "Versao: v4.26.2\n";
+  out << "Versao: v4.26.3\n";
   out << "Exportado em: "
       << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
   out << m_liveMidiStatusLabel->text() << "\n";
@@ -1469,7 +1469,7 @@ void MainWindow::exportSessionTxt() {
   if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     QTextStream out(&file);
     out << "MidiUmpAnalyzer - Gravacao da Sessao MIDI Live\n";
-    out << "Versao: v4.26.2\n";
+    out << "Versao: v4.26.3\n";
     out << "Exportado em: "
         << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Eventos gravados: " << m_liveMidiRecordedCount << "\n";
@@ -1601,7 +1601,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Relatorio de Resumo da Sessao MIDI Live\n";
-  stream << "Versao: v4.26.2\n";
+  stream << "Versao: v4.26.3\n";
   stream << "Exportado em: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
@@ -2092,7 +2092,7 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Exportacao do Backend UMP Experimental\n";
-    out << "Versao: v4.26.2\n";
+    out << "Versao: v4.26.3\n";
     out << "Exportado em: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Origem: FakeUmpInputBackend\n";
     out << "Nota importante: Esta exportacao usa um prototipo de backend UMP falso. Ela nao representa a captura real de hardware MIDI 2.0.\n\n";
@@ -2223,7 +2223,7 @@ void MainWindow::exportFakeUmpSessionTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Exportacao da Gravacao da Sessao Fake UMP\n";
-    out << "Versao: v4.26.2\n";
+    out << "Versao: v4.26.3\n";
     out << "Exportado em: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Origem: FakeUmpInputBackend\n";
     out << "Nota importante: Esta sessao usa um prototipo de backend UMP falso. Ela nao representa a captura real de hardware MIDI 2.0.\n";
@@ -2328,7 +2328,7 @@ QString MainWindow::formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummar
     QTextStream stream(&out);
 
     stream << "MidiUmpAnalyzer - Relatorio de Resumo da Sessao Fake UMP\n";
-    stream << "Versao: v4.26.2\n";
+    stream << "Versao: v4.26.3\n";
     stream << "Exportado em: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     stream << "Origem: FakeUmpInputBackend\n";
     stream << "Nota importante: Este relatorio resume apenas os eventos do backend UMP falso.\n";

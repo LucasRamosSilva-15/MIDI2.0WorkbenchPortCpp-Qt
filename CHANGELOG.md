@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [v4.26.3] - Internacionalização e Localização (I18N)
+- **UI/I18N**: Implementado suporte nativo a múltiplos idiomas com a integração completa da infraestrutura do Qt Linguist (`QTranslator`).
+- **UI/I18N**: Adicionado um menu superior ("Language") permitindo alternar de forma transparente entre Português e Inglês, com persistência de escolha via `QSettings`.
+- **UI/I18N**: Geradas as traduções binárias integradas (`.qm`) para todas as 100 strings, painéis de logs, e avisos de sistema presentes na aplicação, sem quebra do fluxo de código C++.
 ## [v4.26.2] - Correção dos Cabeçalhos WinRT Impl
 - **Build**: Adicionados os cabeçalhos internos C++/WinRT `impl` ausentes na estrutura local do projeto para habilitar totalmente a compilação da integração real do endpoint Windows MIDI Services em ambientes de nuvem.
 
