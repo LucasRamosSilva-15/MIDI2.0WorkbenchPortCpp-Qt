@@ -6,19 +6,16 @@
 #include "../src/midi/Midi1LiveDecoder.h"
 #include "../src/midi/Midi1ToUmpPreviewConverter.h"
 #include "../src/midi/FakeUmpInputBackend.h"
+#include "../src/midi/WindowsMidiServicesBackend.h"
+#include "../src/midi/WindowsMidiServicesSdkProbe.h"
+
+#include "TestUtils.h"
+#include "WindowsMidiServicesBackendTests.h"
 
 int testsRun = 0;
 int testsPassed = 0;
 
-void assertTest(const std::string& testName, bool condition) {
-    testsRun++;
-    if (condition) {
-        std::cout << "[PASS] " << testName << std::endl;
-        testsPassed++;
-    } else {
-        std::cout << "[FAIL] " << testName << std::endl;
-    }
-}
+
 
 int main() {
     std::cout << "Starting UMP Parser Tests (v0.8.0)\n" << std::endl;
@@ -272,6 +269,8 @@ int main() {
         assertTest("FakeUmpBackend Closes Successfully", !fakeBackend.isOpen());
         assertTest("FakeUmpBackend Empty after Close", fakeBackend.pollUmpEvents().empty());
     }
+
+    runWindowsMidiServicesBackendTests();
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 

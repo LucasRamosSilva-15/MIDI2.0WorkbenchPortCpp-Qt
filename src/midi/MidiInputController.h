@@ -1,16 +1,23 @@
 #pragma once
 
-#include "IMidiInputBackend.h"
+#include "IUmpInputBackend.h"
 #include <memory>
 #include <vector>
 #include <QStringList>
+#include <mutex>
+
+enum class UmpBackendType {
+    FakeUmp,
+    WindowsMidiServices
+};
 
 class MidiInputController {
 public:
     MidiInputController();
     ~MidiInputController();
 
-    void setBackend(std::unique_ptr<IMidiInputBackend> backend);
+    void switchBackend(UmpBackendType newType);
+    UmpBackendType getActiveBackendType() const;
     
     QString getActiveBackendName() const;
     QStringList getAvailablePorts() const;
@@ -19,8 +26,10 @@ public:
     void closePort();
     bool isPortOpen() const;
 
-    std::vector<MidiRawEvent> pollNewEvents();
+    std::vector<UmpRawEvent> pollNewEvents();
 
 private:
-    std::unique_ptr<IMidiInputBackend> m_backend;
+    std::unique_ptr<IUmpInputBackend> m_backend;
+    UmpBackendType m_activeType;
+    mutable std::mutex m_mutex;
 };

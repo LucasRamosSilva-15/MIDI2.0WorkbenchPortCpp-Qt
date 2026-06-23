@@ -1,9 +1,15 @@
 param (
     [string]$Version = "v1.0.0",
-    [switch]$EnableRtMidi
+    [switch]$EnableRtMidi,
+    [switch]$EnableWms
 )
 
 $ErrorActionPreference = "Stop"
+
+if ($EnableRtMidi -and $EnableWms) {
+    Write-Host "Erro: As flags -EnableRtMidi e -EnableWms sao mutuamente exclusivas para manter a pureza das builds. Escolha apenas uma." -ForegroundColor Red
+    exit 1
+}
 
 if ($EnableRtMidi) {
     $buildDir = "build-rtmidi"
@@ -13,6 +19,32 @@ if ($EnableRtMidi) {
     if (-not (Test-Path $buildDir)) {
         Write-Host "`n--- Garantindo configuracao com RtMidi ---"
         $cmakeArgs = @("-G", "Visual Studio 17 2022", "-A", "x64", "-B", $buildDir, "-DENABLE_RTMIDI=ON")
+        if ($env:Qt6_DIR) {
+            $cmakeArgs += "-DCMAKE_PREFIX_PATH=$env:Qt6_DIR"
+        }
+        & cmake $cmakeArgs
+    }
+} elseif ($EnableWms) {
+    $buildDir = "build-wms"
+    $distName = "MidiUmpAnalyzer-$Version-windows-x64-wms"
+    
+    # Se a pasta não existe, configura
+    if (-not (Test-Path $buildDir)) {
+        Write-Host "`n--- Garantindo configuracao com Windows MIDI Services ---"
+        $cmakeArgs = @(
+            "-G", "Visual Studio 17 2022",
+            "-A", "x64",
+            "-B", $buildDir,
+            "-DENABLE_WINDOWS_MIDI_SERVICES=ON",
+            "-DENABLE_WINDOWS_MIDI_SERVICES_UI_INTEGRATION_RESEARCH=ON",
+            "-DENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP=ON",
+            "-DENABLE_WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE=ON",
+            "-DENABLE_WINDOWS_MIDI_SERVICES_REAL_WINRT_ACTIVATION_ATTEMPT=ON",
+            "-DWINDOWS_MIDI_SERVICES_SDK_ROOT=$PWD\dll"
+        )
+        if (Test-Path "C:\vcpkg\scripts\buildsystems\vcpkg.cmake") {
+            $cmakeArgs += "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
+        }
         if ($env:Qt6_DIR) {
             $cmakeArgs += "-DCMAKE_PREFIX_PATH=$env:Qt6_DIR"
         }
@@ -43,6 +75,20 @@ New-Item -ItemType Directory -Force -Path $distPath | Out-Null
 
 Write-Host "`n--- Copiando Executavel Principal ---"
 Copy-Item "$buildDir\Release\MidiUmpAnalyzer.exe" -Destination $distPath
+
+Write-Host "--- Copiando dependencias nativas do Windows MIDI Services ---"
+$localMidiDll = "dll\Microsoft.Windows.Devices.Midi2.dll"
+$systemMidiDll = "C:\Program Files\Windows MIDI Services\Desktop App SDK Runtime\Microsoft.Windows.Devices.Midi2.dll"
+
+if (Test-Path $localMidiDll) {
+    Copy-Item -Path $localMidiDll -Destination $distPath -Force
+    Write-Host "Microsoft.Windows.Devices.Midi2.dll copiada do repositorio local para $distPath com sucesso!" -ForegroundColor Green
+} elseif (Test-Path $systemMidiDll) {
+    Copy-Item -Path $systemMidiDll -Destination $distPath -Force
+    Write-Host "Microsoft.Windows.Devices.Midi2.dll copiada do sistema para $distPath com sucesso!" -ForegroundColor Green
+} else {
+    Write-Host "CRÍTICO: DLL do WMS nao encontrada nem localmente nem no sistema!" -ForegroundColor Red
+}
 
 if ($EnableRtMidi) {
     Write-Host "`n--- Copiando DLL do RtMidi (se existir) ---"

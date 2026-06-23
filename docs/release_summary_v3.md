@@ -52,3 +52,5 @@ A linha `v3.x` surge com o propósito de avançar a infraestrutura construída n
 - Added demo script, checklist, defense Q&A and final release notes.
 - No real UMP backend implementation yet.
 - No C++ logic changes.
+
+> **Nota Final:** A versão v3.x é considerada a série madura, congelada e *TCC-ready* (Pronta para a banca acadêmica) estabelecendo a fundação indestrutível de Mock (Fake UMP Backend). Desenvolvimentos orgânicos foram transferidos para a linha v4.x.

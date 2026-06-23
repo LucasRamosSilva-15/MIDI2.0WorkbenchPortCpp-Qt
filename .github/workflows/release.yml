@@ -40,11 +40,15 @@ jobs:
     - name: Package Release (RtMidi)
       run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }} -EnableRtMidi
 
+    - name: Package Release (WMS)
+      run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }} -EnableWms
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
           dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64.zip
           dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64-rtmidi.zip
+          dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64-wms.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

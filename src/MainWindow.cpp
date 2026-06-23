@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
   m_currentFile = "Nenhum";
   m_lastOperation = "Aguardando entrada...";
   m_midiBackend = std::make_unique<RtMidiInputBackend>();
+  m_umpController = std::make_unique<MidiInputController>();
 
   m_liveMidiTimer = new QTimer(this);
   connect(m_liveMidiTimer, &QTimer::timeout, this, &MainWindow::pollLiveMidi);
@@ -72,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setupUi() {
-  setWindowTitle("MIDI 2.0 UMP Analyzer (v3.8.0)");
+  setWindowTitle("MIDI 2.0 UMP Analyzer (v4.24.0)");
   setMinimumSize(1100, 700);
   resize(1600, 900);
 
@@ -316,16 +317,24 @@ void MainWindow::setupUi() {
   QWidget *tabFakeUmp = new QWidget();
   QVBoxLayout *fakeUmpLayout = new QVBoxLayout(tabFakeUmp);
 
-  QGroupBox *fakeBackendGroup = new QGroupBox("Fake UMP Backend", this);
+  QGroupBox *fakeBackendGroup = new QGroupBox("UMP Input Backend Source", this);
   QHBoxLayout *fakeBackendLayout = new QHBoxLayout(fakeBackendGroup);
   
-  QPushButton *refreshFakePortsBtn = new QPushButton("Atualizar portas UMP fake", this);
+  m_umpBackendTypeCombo = new QComboBox(this);
+  m_umpBackendTypeCombo->addItem("Fake UMP Simulator", QVariant(0));
+#ifdef WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED
+  m_umpBackendTypeCombo->addItem("Windows MIDI Services (Native)", QVariant(1));
+#endif
+  
+  QPushButton *refreshFakePortsBtn = new QPushButton("Atualizar portas", this);
   m_fakeUmpPortCombo = new QComboBox(this);
-  QPushButton *openFakePortBtn = new QPushButton("Abrir porta fake", this);
-  QPushButton *closeFakePortBtn = new QPushButton("Fechar porta fake", this);
+  QPushButton *openFakePortBtn = new QPushButton("Abrir porta", this);
+  QPushButton *closeFakePortBtn = new QPushButton("Fechar porta", this);
   m_fakeUmpStatusLabel = new QLabel("Fechada", this);
   m_fakeUmpStatusLabel->setStyleSheet("color: gray; font-weight: bold;");
 
+  fakeBackendLayout->addWidget(new QLabel("Backend:", this));
+  fakeBackendLayout->addWidget(m_umpBackendTypeCombo);
   fakeBackendLayout->addWidget(refreshFakePortsBtn);
   fakeBackendLayout->addWidget(m_fakeUmpPortCombo, 1);
   fakeBackendLayout->addWidget(openFakePortBtn);
@@ -333,7 +342,7 @@ void MainWindow::setupUi() {
   fakeBackendLayout->addWidget(new QLabel("Status:", this));
   fakeBackendLayout->addWidget(m_fakeUmpStatusLabel);
 
-  QGroupBox *fakeStreamGroup = new QGroupBox("Experimental UMP Stream", this);
+  QGroupBox *fakeStreamGroup = new QGroupBox("UMP Stream Data", this);
   QVBoxLayout *fakeStreamLayout = new QVBoxLayout(fakeStreamGroup);
   
   QHBoxLayout *fakeStreamControls = new QHBoxLayout();
@@ -352,8 +361,8 @@ void MainWindow::setupUi() {
   fakeStreamControls->addWidget(m_fakeUmpCounterLabel);
   fakeStreamControls->addStretch();
 
-  QLabel *fakeWarningLabel = new QLabel("<b>This is a fake backend prototype. It does not capture real MIDI 2.0/UMP hardware.</b>", this);
-  fakeWarningLabel->setStyleSheet("color: #d32f2f; background-color: #ffcccc; padding: 5px; border-radius: 4px;");
+  QLabel *fakeWarningLabel = new QLabel("<b>Windows MIDI Services Native Backend is Available! Use the dropdown to select real physical MIDI endpoints.</b>", this);
+  fakeWarningLabel->setStyleSheet("color: #1b5e20; background-color: #c8e6c9; padding: 5px; border-radius: 4px;");
 
   m_fakeUmpTable = new QTableWidget(0, 11, this);
   m_fakeUmpTable->setHorizontalHeaderLabels({"Timestamp", "Backend", "Port", "UMP Words", "Bits", "MT", "Group", "Status", "Channel", "Size", "Description"});
@@ -402,7 +411,7 @@ void MainWindow::setupUi() {
   fakeUmpLayout->addWidget(fakeStreamGroup, 1);
   fakeUmpLayout->addWidget(fakeRecordingGroup);
 
-  tabWidget->addTab(tabFakeUmp, "Experimental UMP Backend");
+  tabWidget->addTab(tabFakeUmp, "UMP Native Monitor");
 
   // --- Tab 3: Logs / Diagnostics ---
   QWidget *tabLogs = new QWidget();
@@ -429,11 +438,11 @@ void MainWindow::setupUi() {
   aboutText->setReadOnly(true);
   aboutText->setHtml(
       "<h2>MIDI 2.0 Workbench Port</h2>"
-      "<p><b>Versão:</b> v3.8.0</p>"
+      "<p><b>Versão:</b> v4.24.0</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
-      "e monitor experimental de portas de hardware MIDI 1.0 legado.</p>"
-      "<p><i>Nota Experimental: Experimental UMP Backend uses FakeUmpInputBackend for controlled testing. It does not capture real operating-system UMP streams yet.</i></p>"
+      "e monitor de portas de hardware MIDI 1.0 legado e UMP Nativo (Windows MIDI Services).</p>"
+      "<p><i>Nota de Lançamento: Esta versão inclui integração estável de produção (TCC Master Release) com o Windows MIDI Services.</i></p>"
 
       "<h3>Offline UMP Analyzer</h3>"
       "<p>Módulo analítico principal. Disseca hexadecimais puros representando "
@@ -525,6 +534,8 @@ void MainWindow::setupUi() {
   connect(exportFakeSessionTxtBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionTxtClicked);
   connect(exportFakeSessionCsvBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionCsvClicked);
   connect(exportFakeSessionSummaryBtn, &QPushButton::clicked, this, &MainWindow::exportFakeUmpSessionSummaryClicked);
+  
+  connect(m_umpBackendTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::umpBackendChanged);
 
   auto filterChangedLog = [this]() {
     logMessage("Filtros do Live MIDI atualizados.");
@@ -1566,7 +1577,7 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QTextStream stream(&out);
 
   stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v3.8.0\n";
+  stream << "Version: v4.22.0\n";
   stream << "Exported at: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
@@ -1745,21 +1756,38 @@ void MainWindow::exportSessionSummaryClicked() {
 // EXPERIMENTAL UMP BACKEND METHODS
 // =======================================================================
 
+void MainWindow::umpBackendChanged(int index) {
+    if (!m_umpController) return;
+    
+    // Pause QTimer if active
+    if (m_fakeUmpTimer && m_fakeUmpTimer->isActive()) {
+        m_fakeUmpTimer->stop();
+    }
+    
+    int backendVal = m_umpBackendTypeCombo->itemData(index).toInt();
+    UmpBackendType newType = (backendVal == 1) ? UmpBackendType::WindowsMidiServices : UmpBackendType::FakeUmp;
+    
+    m_umpController->switchBackend(newType);
+    
+    refreshFakeUmpPortsClicked();
+    updateFakeUmpStatus();
+    
+    logFakeUmpMessage("Backend comutado para: " + m_umpController->getActiveBackendName());
+}
+
 void MainWindow::refreshFakeUmpPortsClicked() {
-  if (!m_fakeUmpBackend) {
-      m_fakeUmpBackend = std::make_unique<FakeUmpInputBackend>();
-  }
+  if (!m_umpController) return;
   m_fakeUmpPortCombo->clear();
-  QStringList ports = m_fakeUmpBackend->listInputPorts();
+  QStringList ports = m_umpController->getAvailablePorts();
   m_fakeUmpPortCombo->addItems(ports);
   logFakeUmpMessage("Portas atualizadas.");
 }
 
 void MainWindow::openFakeUmpPortClicked() {
-  if (!m_fakeUmpBackend) return;
+  if (!m_umpController) return;
   int idx = m_fakeUmpPortCombo->currentIndex();
   if (idx < 0) return;
-  if (m_fakeUmpBackend->openInputPort(idx)) {
+  if (m_umpController->openPort(idx)) {
       logFakeUmpMessage("Porta aberta: " + m_fakeUmpPortCombo->currentText());
   } else {
       logFakeUmpMessage("Falha ao abrir porta.");
@@ -1771,8 +1799,8 @@ void MainWindow::closeFakeUmpPortClicked() {
   if (m_fakeUmpTimer) {
       m_fakeUmpTimer->stop();
   }
-  if (m_fakeUmpBackend) {
-      m_fakeUmpBackend->closeInputPort();
+  if (m_umpController) {
+      m_umpController->closePort();
       logFakeUmpMessage("Porta fechada.");
   }
   updateFakeUmpStatus();
@@ -1782,7 +1810,7 @@ void MainWindow::closeFakeUmpPortClicked() {
 }
 
 void MainWindow::startFakeUmpPollingClicked() {
-  if (!m_fakeUmpBackend || !m_fakeUmpBackend->isOpen()) {
+  if (!m_umpController || !m_umpController->isPortOpen()) {
       logFakeUmpMessage("Erro: Abra a porta antes de iniciar o polling.");
       return;
   }
@@ -1812,8 +1840,8 @@ void MainWindow::clearFakeUmpClicked() {
 }
 
 void MainWindow::pollFakeUmpBackend() {
-  if (!m_fakeUmpBackend || !m_fakeUmpBackend->isOpen()) return;
-  auto events = m_fakeUmpBackend->pollUmpEvents();
+  if (!m_umpController || !m_umpController->isPortOpen()) return;
+  auto events = m_umpController->pollNewEvents();
   for (const auto& ev : events) {
       addFakeUmpEventRow(ev);
       m_fakeUmpReceivedCount++;
@@ -1885,8 +1913,8 @@ void MainWindow::logFakeUmpMessage(const QString& message) {
 }
 
 void MainWindow::updateFakeUmpStatus() {
-  if (!m_fakeUmpBackend) return;
-  if (!m_fakeUmpBackend->isOpen()) {
+  if (!m_umpController) return;
+  if (!m_umpController->isPortOpen()) {
       m_fakeUmpStatusLabel->setText("Fechada");
       m_fakeUmpStatusLabel->setStyleSheet("color: gray; font-weight: bold;");
   } else {
@@ -2040,7 +2068,7 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Experimental UMP Backend Export\n";
-    out << "Version: v3.8.0\n";
+    out << "Version: v4.22.0\n";
     out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Source: FakeUmpInputBackend\n";
     out << "Important note: This export uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n\n";
@@ -2171,7 +2199,7 @@ void MainWindow::exportFakeUmpSessionTxtClicked() {
     out.setEncoding(QStringConverter::Utf8);
 
     out << "MidiUmpAnalyzer - Fake UMP Session Recording Export\n";
-    out << "Version: v3.8.0\n";
+    out << "Version: v4.22.0\n";
     out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     out << "Source: FakeUmpInputBackend\n";
     out << "Important note: This session uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n";
@@ -2276,7 +2304,7 @@ QString MainWindow::formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummar
     QTextStream stream(&out);
 
     stream << "MidiUmpAnalyzer - Fake UMP Session Summary Report\n";
-    stream << "Version: v3.8.0\n";
+    stream << "Version: v4.22.0\n";
     stream << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
     stream << "Source: FakeUmpInputBackend\n";
     stream << "Important note: This report summarizes fake UMP backend events only.\n";

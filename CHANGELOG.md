@@ -1,5 +1,169 @@
 # CHANGELOG
 
+## [v4.24.0] - Final Production Release (TCC Master Release)
+- **Release**: TCC Master Release coroando a estabilidade da arquitetura de isolamento e o Triunvirato de compilação.
+- **UI**: Limpeza visual da interface, removendo tags experimentais e substituindo por nomenclatura oficial ("UMP Native Monitor").
+- **CMake**: Ajuste de descrições da esteira de compilação C++/WinRT, validando a fase madura de produção e removendo alertas vermelhos do console CMake.
+- **Documentation**: Atualização completa do README.md e CHANGELOG.md documentando a integração final bem sucedida do Windows MIDI Services.
+- **Packaging**: Estabelecimento dos 3 zips de release de Ouro (Base, RtMidi, WMS) para entrega da pesquisa.
+
+## [v4.23.0] - Windows MIDI Services API Activation
+- **Feature**: Real C++/WinRT activation. Replaced pseudo-code with physical `Microsoft.Windows.Devices.Midi2` OS bindings.
+- **Feature**: Endpoints are physically queried.
+- **Feature**: Physical UMP data ingestion bridged to the FIFO queue.
+- **Security**: The activation is safely sandboxed in the `-wms` package, maintaining `Base` and `RtMidi` safe-mode compilation.
+
+## v4.22.0 - Windows MIDI Services production hardening
+* Hardened `WindowsMidiServicesBackend` with `try/catch` COM exception simulation and graceful teardown blocks.
+* Added `std::mutex` to `MidiInputController` preventing rapid hot-swap thread collisions.
+* Expanded `WindowsMidiServicesBackendTests` with rapid swap and forced failure assertions.
+
+## v4.21.0 - Windows MIDI Services backend selector
+* Added visual backend selector to the Experimental UMP tab.
+* Implemented real hot-swap logic via `MidiInputController::switchBackend()`.
+* Managed graceful fallback for builds lacking Windows MIDI Services flags.
+
+## v4.20.0 - Windows MIDI Services UI integration research
+* Created `WindowsMidiServicesUiIntegrationProbe` to map pointer swap theory.
+* Documented `QTimer` pausing mechanisms to establish a safe hot-swap transition for `IUmpInputBackend`.
+* Maintained headless behavior by default, safeguarding current RT/FakeUmp bindings.
+
+## v4.19.0 - Windows MIDI Services backend experimental
+* Implemented `ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE`.
+* Built thread-safe FIFO `m_eventBuffer` architecture using `std::mutex`.
+* Drafted live COM WinRT activation `try/catch` boundaries.
+* Proven headless consumption via `pollUmpEvents()` isolated from `MainWindow`.
+
+## v4.18.0 - Windows MIDI Services backend integration preparation
+* Transitioned `WindowsMidiServicesBackend` from a dummy skeleton to a State Machine-aware orchestrator.
+* Implemented `ConnectionState` tracking (`Disconnected`, `Ready`, `Active`, `Error`).
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_BACKEND_INTEGRATION_PREP` CMake option.
+* Engineered graceful failures for `openPort()` under Safe Mode to protect `MainWindow` initialization.
+
+## v4.17.0 - Windows MIDI Services input stream prototype
+* Created `WindowsMidiServicesInputStreamProbe` to mock UMP callback behaviors (`MidiMessageReceivedEventArgs`).
+* Demonstrated 32-bit Words translation of native WinRT byte arrays in diagnostic status logic.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_INPUT_STREAM_EXPERIMENT` CMake option.
+* Ensured isolated execution logic without overriding legacy parsing/FakeUMP events.
+
+## v4.16.0 - Windows MIDI Services endpoint metadata research
+* Created `WindowsMidiServicesMetadataProbe` to simulate extraction of WinRT device capabilities.
+* Documented parsing of Transport, Manufacturer, and MIDI 2.0 flags.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_METADATA_EXPERIMENT` CMake option.
+* Appended rich metadata extraction to the `WindowsMidiServicesSdkProbe` logs while maintaining Safe Mode.
+
+## v4.15.0 - Windows MIDI Services endpoint enumeration prototype
+* Created `WindowsMidiServicesEndpointEnumeratorProbe` to log Windows MIDI Services endpoints in memory.
+* Added CMake flag `ENABLE_WINDOWS_MIDI_SERVICES_ENDPOINT_ENUMERATION_EXPERIMENT` for hardware querying.
+* Kept physical endpoints isolated from `MainWindow` and UI comboboxes (Safe Mode).
+* Reaffirmed offline resilience: main UI parser remains untouched and zero UMP is captured.
+
+## v4.14.0 - Windows MIDI Services API surface mapping
+* Created `WindowsMidiServicesApiSurfaceProbe` to structurally map key Windows MIDI Services classes.
+* Validated theoretical compilation visibility for `MidiSession` and `MidiEndpointConnection`.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_API_SURFACE_MAPPING` to CMake.
+* Ensured zero real endpoints are captured and normal builds remain SDK-free.
+
+## v4.13.0 - Windows MIDI Services isolated WinRT activation experiment
+* Created `WindowsMidiServicesWinRtActivationProbe` to safely test `winrt::init_apartment()`.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_WINRT_ACTIVATION_EXPERIMENT` for compiling the WinRT entry point probe.
+* Added `ENABLE_WINDOWS_MIDI_SERVICES_REAL_WINRT_ACTIVATION_ATTEMPT` danger flag for developers to attempt actual initialization.
+* Kept the runtime blocked in normal application builds (Safe Mode enforced).
+
+## v4.12.0 - Windows MIDI Services C++/WinRT generated projection strategy research
+* Added C++/WinRT generated projections strategy research.
+* Investigated the missing `impl/` headers and `.winmd` structural requirements.
+* Documented `cppwinrt.exe` pipeline limits inside isolated build constraints.
+* Safe mode kept intact. No endpoint listing or UI activation.
+
+## v4.11.0 - Windows MIDI Services C++/WinRT projection alignment research
+* Added C++/WinRT projection alignment diagnostics.
+* Added safe diagnostic mode for type reference research.
+* Added explicit real include attempt flag for local diagnostics only.
+* Documented `CPPWINRT_VERSION` mismatch and missing generated impl header issue.
+* Kept normal and RtMidi builds SDK-free.
+* No runtime API calls, endpoint listing or UMP capture yet.
+
+## v4.10.0 - Windows MIDI Services isolated API type reference compile experiment
+- Added optional `ENABLE_WINDOWS_MIDI_SERVICES_TYPE_REFERENCE_EXPERIMENT` flag.
+- Added isolated `WindowsMidiServicesTypeReferenceProbe`.
+- Updated SDK diagnostic report with type reference experiment status.
+- Kept build normal and RtMidi SDK-free.
+- No runtime API calls, endpoint listing or UMP capture yet.
+
+## v4.9.0 - Windows MIDI Services SDK candidate discovery correction
+- Corrected Windows MIDI Services SDK candidate discovery.
+- Added detection for `Microsoft.Windows.Devices.Midi2` WinMD metadata candidates.
+- Added detection for `Microsoft.Windows.Devices.Midi2` header candidates.
+- Kept detection restricted to `WINDOWS_MIDI_SERVICES_SDK_ROOT` with `NO_DEFAULT_PATH`.
+- Kept discovery non-fatal and research-only.
+- No real API calls, endpoint listing or UMP capture yet.
+
+## v4.8.0 - Windows MIDI Services optional header include compile experiment
+- Introduced `ENABLE_WINDOWS_MIDI_SERVICES_HEADER_INCLUDE_EXPERIMENT`.
+- Created `WindowsMidiServicesHeaderIncludeProbe` to run `#include` checks completely isolated from core system.
+- Kept UI untouched. Main functionality untouched.
+- No real Native API calls are made.
+
+## v4.7.0 - Windows MIDI Services optional header detection with SDK root
+- Added optional `find_path`-based header detection using `WINDOWS_MIDI_SERVICES_SDK_ROOT`.
+- Restricted header search to the user-provided SDK root.
+- Added formatted header detection diagnostics.
+- Kept detection non-fatal and SDK-free for normal builds.
+- No real header consumption, endpoint listing or UMP capture yet.
+
+## v4.6.0 - Windows MIDI Services user-provided SDK root research
+- Added optional `WINDOWS_MIDI_SERVICES_SDK_ROOT` CMake variable.
+- Added SDK root readiness fields to WindowsMidiServicesSdkProbe.
+- Added formatted SDK root diagnostics.
+- Documented manual SDK root research workflow.
+- Kept SDK usage optional and non-fatal.
+- No real SDK headers, endpoint listing or UMP capture yet.
+
+## v4.5.0 - Windows MIDI Services optional package detection experiment
+- Added optional package/header detection readiness fields to WindowsMidiServicesSdkProbe.
+- Added documentation for future non-invasive SDK package/header detection.
+- Created dedicated WindowsMidiServicesBackendTests test file.
+- Kept Windows MIDI Services SDK dependency optional and non-required.
+- No real endpoint listing or UMP capture yet.
+
+## v4.4.0 - Windows MIDI Services SDK detection research
+- Added Windows MIDI Services SDK detection report structure.
+- Added formatted diagnostic output for SDK experiment status.
+- Added documentation for SDK detection research.
+- Preserved stable builds without SDK dependency.
+- No real SDK header probing, endpoint listing or UMP capture yet.
+
+## v4.3.0 - Windows MIDI Services SDK build experiment
+- Added optional ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT build flag.
+- Added documentation for future Windows MIDI Services SDK integration.
+- Preserved stable builds without SDK dependency.
+- No real Windows MIDI Services endpoint listing or UMP capture yet.
+- No UI backend selector yet.
+
+## v4.2.0 - Windows MIDI Services endpoint listing research
+- Updated README to reflect current v4.x project state.
+- Added endpoint listing research notes for Windows MIDI Services.
+- Prepared WindowsMidiServicesBackend skeleton for future endpoint enumeration.
+- Preserved build stability without Windows MIDI Services SDK dependency.
+- No real endpoint listing or UMP capture yet.
+
+## v4.1.0 - Windows MIDI Services backend skeleton
+- Added initial WindowsMidiServicesBackend skeleton.
+- Added optional ENABLE_WINDOWS_MIDI_SERVICES flag, OFF by default.
+- Preserved FakeUmpInputBackend as the working test backend.
+- No real Windows MIDI Services SDK integration yet.
+- No real UMP endpoint listing or capture yet.
+- Updated CI workflow to run on v4-experimental branch.
+
+## v4.0.0 - Native UMP backend feasibility research
+- Started v4.x research line for native UMP backend feasibility.
+- Added Windows MIDI Services feasibility notes.
+- Added native UMP backend roadmap.
+- Added backend decision matrix.
+- Clarified that no real UMP capture is implemented yet.
+- No parser, backend, converter, UI polling, export, recording or summary logic changes.
+
 ## v3.8.0 - TCC final demo readiness review
 - Added final TCC demo script.
 - Added final demo checklist.

@@ -1,0 +1,48 @@
+# Windows MIDI Services Feasibility Notes
+
+## What it is
+O Windows MIDI Services é o novo stack de áudio, *API* e *SDK* construído do zero pela Microsoft para suceder o legado Windows MMSystem. Ele viabiliza transporte em nanosegundos simultâneo para equipamentos MIDI 1.0 antigos e lida de forma nativa e ininterrupta com toda a especificação UMP (Universal MIDI Packet) 2.0.
+
+## Why it matters
+- Ele permite uma via real (kernel/USB/Bluetooth) para recepcionar pacotes brutos do MIDI 2.0.
+- Servirá como o motor matriz que implementará as virtuais instâncias do nosso `IUmpInputBackend`, dividindo espaço dinamicamente com o nosso atual `FakeUmpInputBackend`.
+
+## What must be investigated
+Para que a orquestração do C++ abrace a API da Microsoft sem causar explosões no ambiente do desenvolvedor, algumas pesquisas urgentes englobam:
+1. Qual a metodologia exata de linkagem (`find_package`, MSBuild) ou dependência de Runtime nativo (Windows 11)?
+2. Como lidar com ponteiros COM e bibliotecas WinRT nativas cruzando a fronteira de ponteiros C++ estritos.
+3. Métodos em chamadas seguras para listar Endpoints do sistema local.
+4. Desvendar a interrupção que joga a palavra UMP na variável da *Session*.
+5. Construir a "tradução", movendo um evento do driver Microsoft para a nossa `struct UmpRawEvent`.
+
+## Proposed integration path
+1. **[v4.1.0 - Feito]** Criar um esqueleto atômico chamado `WindowsMidiServicesBackend` preenchendo as promessas da *interface* `IUmpInputBackend`.
+2. **[v4.1.0 - Feito]** Proteger as chamadas do CMakeLists.txt com `ENABLE_WINDOWS_MIDI_SERVICES=OFF`.
+3. **[v4.1.0 - Feito]** A compilação é estéril. Não quebra o build legível do MSVC purista.
+4. **[v4.2.0 - Feito (Stub)]** Listar o nome de um endpoint UMP conectado no dropdown (ComboBox).
+5. **Segundo Marco Futuro:** Garantir acesso de hardware a porta (Open endpoint).
+6. **Terceiro Marco Futuro:** Estourar um pacote MT 0x4 UMP advindo do Windows no console C++.
+7. **Quarto Marco Futuro:** Enviar esse pacote para o canal da UI Experimental nativa do Workbench para validação visual pericial.
+
+## Endpoint Listing Research - v4.2.0
+- O objetivo futuro real (via kernel) é listar de forma dinâmica os *endpoints* MIDI/UMP nativos do Windows MIDI Services conectados por USB.
+- A listagem (*endpoint listing*) é o primeiro batismo de fogo para testar o acesso à biblioteca antes de tentar um *Open Session* e receber dados UMP.
+- A classe de esqueleto `WindowsMidiServicesBackend` está blindada nesta versão. O método C++ devolve rigorosamente uma lista vazia, apenas alocando a chamada na função privada `queryAvailableEndpoints()`.
+- O passo final em `v4.x` exigirá explicitamente o **SDK Runtime / Tools** do Windows e seus headers interativos, sob ameaça de não compilar se as condicionais do CMake não forem precisas. Falhas de ausência do Runtime não devem quebrar o pipeline Offline.
+
+## SDK Build Experiment - v4.3.0
+- Para não comprometer a imunidade do sistema host, a integração real do SDK ainda não foi selada. O projeto explora agora uma trilha de Build Opcional (`ENABLE_WINDOWS_MIDI_SERVICES_SDK_EXPERIMENT`).
+- A flag opera separada do esqueleto (`ENABLE_WINDOWS_MIDI_SERVICES`) justamente porque engatilhar o SDK significa abrir os portões para exigências do C++/WinRT, NuGet/vcpkg ou o pacote nativo Windows.Devices.Midi2.
+- O endpoint listing real continua suspenso para não poluir o *stub* sem atestar primeiro que o compilador enxerga a API da Microsoft de modo seguro.
+
+## SDK Detection Research - v4.4.0
+- O projeto passa a prover diagnósticos formatados e não invasivos do ambiente de Kernel/SDK (`WindowsMidiServicesSdkDetectionReport`).
+- Essa pesquisa foca puramente em rastrear *Compile-Time Flags*, logo **não há leitura forçada de registro**, caça à `.DLL` obscura ou estouramento da lista nativa.
+- Trata-se de uma fase de auditoria preparatória, atestando de forma honesta que pacotes de hardware físico e headers nativos ainda repousam bloqueados.
+
+## State in v4.1.0
+A versão v4.1.0 instanciou o **Skeleton**, consolidando arquiteturalmente a árvore. Não obstante, o projeto recusa a captura real até segunda ordem. Ela está bloqueada contra:
+- Headers da Microsoft (`<winrt/...>`).
+- Bibliotecas do Windows SDK embutidas no sistema.
+- Listagem real e captura física de pacotes UMP interativos.
+- Nenhum código fonte operando APIs Windows de última geração.
