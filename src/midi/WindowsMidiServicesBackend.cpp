@@ -32,31 +32,34 @@ void WmsWorker::queryAvailableEndpoints() {
 
 #if defined(ENABLE_WINDOWS_MIDI_SERVICES)
     try {
-        // Varredura via Registo Win32 como Bypass Seguro do Sandbox UWP (RC4 API limitation for unpackaged apps)
-        QSettings registry("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\SWD\\MIDISRV", QSettings::NativeFormat);
-        for (const QString &group : registry.childGroups()) {
-            registry.beginGroup(group);
-            for (const QString &subGroup : registry.childGroups()) {
-                registry.beginGroup(subGroup);
-                QString friendlyName = registry.value("FriendlyName").toString();
-                if (!friendlyName.isEmpty()) {
-                    names.push_back(friendlyName);
-                    QString deviceId = QString("\\\\?\\swd#midisrv#%1#%2").arg(group, subGroup).toLower();
-                    idMap[friendlyName] = deviceId;
-                }
-                registry.endGroup();
-            }
-            registry.endGroup();
+        if (!m_mtaInitialized) {
+            winrt::init_apartment(winrt::apartment_type::multi_threaded);
+            m_mtaInitialized = true;
         }
-    } catch (...) {
-        emit errorReported("Erro durante varredura do Registro para bypass de Sandbox.");
+
+        auto endpoints = winrt::Microsoft::Windows::Devices::Midi2::MidiEndpointDeviceInformation::FindAll();
+        for (uint32_t i = 0; i < endpoints.Size(); ++i) {
+            auto ep = endpoints.GetAt(i);
+            QString name = QString::fromStdWString(std::wstring(ep.Name()));
+            QString id = QString::fromStdWString(std::wstring(ep.EndpointDeviceId()));
+            
+            names.append(name);
+            idMap.insert(name, id);
+        }
+
+        if (names.isEmpty()) {
+            names.append("Zero dispositivos retornados pelo FindAll nativo.");
+        }
+    } catch (const winrt::hresult_error& ex) {
+        names.append("Erro WinRT na Enumeração MTA.");
+    }
+#else
+    if (names.isEmpty()) {
+        names.append("Nenhum dispositivo encontrado (Safe Mode).");
     }
 #endif
 
-    if (names.isEmpty()) {
-        names.push_back("Nenhum dispositivo encontrado (Sandbox bypass ativo?)");
-    }
-
+    // Emita o sinal com as listas de volta para a MainWindow/Fachada
     emit endpointsDiscovered(names, idMap);
 }
 
