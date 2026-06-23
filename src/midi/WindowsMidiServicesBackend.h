@@ -31,7 +31,7 @@ public:
 public slots:
     void doInit();
     void queryAvailableEndpoints();
-    void openPort(QString deviceId);
+    void openPort(QString deviceId, QString portName);
     void closePort();
 
 signals:
@@ -43,6 +43,7 @@ signals:
 private:
     std::shared_ptr<SharedBuffer> m_sharedBuffer;
     bool m_mtaInitialized = false;
+    QString m_openedPortName;
 
 #if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
     winrt::Microsoft::Windows::Devices::Midi2::MidiSession m_session{ nullptr };
@@ -79,7 +80,7 @@ signals:
     // Sinais para despachar comandos para o Worker
     void requestInit();
     void requestEndpoints();
-    void requestOpenPort(QString deviceId);
+    void requestOpenPort(QString deviceId, QString portName);
     void requestClosePort();
 
 private:

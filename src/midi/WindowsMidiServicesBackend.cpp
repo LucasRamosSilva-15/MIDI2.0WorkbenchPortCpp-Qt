@@ -56,12 +56,14 @@ void WmsWorker::queryAvailableEndpoints() {
     emit endpointsDiscovered(names, idMap);
 }
 
-void WmsWorker::openPort(QString deviceId) {
+void WmsWorker::openPort(QString deviceId, QString portName) {
     try {
         if (!m_mtaInitialized) {
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
             m_mtaInitialized = true;
         }
+        
+        m_openedPortName = portName;
 
         winrt::hstring hDeviceId(deviceId.toStdWString());
         m_session = winrt::Microsoft::Windows::Devices::Midi2::MidiSession::Create(L"MidiUmpAnalyzerSession");
@@ -69,9 +71,12 @@ void WmsWorker::openPort(QString deviceId) {
         
         // Proteção do Ciclo de Vida: Captura estritamente o SharedBuffer
         auto sharedBuf = m_sharedBuffer;
-        m_eventToken = m_endpoint.MessageReceived([sharedBuf](auto const& /*sender*/, winrt::Microsoft::Windows::Devices::Midi2::MidiMessageReceivedEventArgs const& args) {
+        QString capturedPortName = m_openedPortName;
+        m_eventToken = m_endpoint.MessageReceived([sharedBuf, capturedPortName](auto const& /*sender*/, winrt::Microsoft::Windows::Devices::Midi2::MidiMessageReceivedEventArgs const& args) {
             std::lock_guard<std::mutex> bufferLock(sharedBuf->mutex);
             UmpRawEvent ev;
+            ev.backendName = "Windows MIDI Services (Native)";
+            ev.portName = capturedPortName;
             ev.umpWords.push_back(args.PeekFirstWord());
             
             uint8_t mt = (ev.umpWords[0] >> 28) & 0xF;
@@ -185,7 +190,7 @@ bool WindowsMidiServicesBackend::openInputPort(int portIndex) {
         loop.quit();
     });
     
-    emit requestOpenPort(deviceId);
+    emit requestOpenPort(deviceId, name);
     loop.exec();
     disconnect(conn);
     
