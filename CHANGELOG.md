@@ -1,16 +1,16 @@
 # CHANGELOG
 
-## [v4.26.2] - WinRT Impl Headers Fix
-- **Build**: Added the missing C++/WinRT `impl` internal headers to the local project structure to fully enable compiling the real Windows MIDI Services endpoint integration in cloud environments.
+## [v4.26.2] - Correção dos Cabeçalhos WinRT Impl
+- **Build**: Adicionados os cabeçalhos internos C++/WinRT `impl` ausentes na estrutura local do projeto para habilitar totalmente a compilação da integração real do endpoint Windows MIDI Services em ambientes de nuvem.
 
-## [v4.26.1] - WMS CI Release Step
-- **CI/CD**: Introduced dedicated "Package Release (WMS)" step to the GitHub Actions `release.yml` to automatically output native UMP build artifacts alongside standard versions.
+## [v4.26.1] - Passo de Release WMS no CI
+- **CI/CD**: Introduzido o passo dedicado "Package Release (WMS)" no arquivo `release.yml` do GitHub Actions para gerar automaticamente os artefatos de build nativos do UMP juntamente com as versões padrão.
 
-## [v4.25.x] - Safe Mode, App Manifest & Stability
-- **Build**: Added conditional compile macros (`USE_WINDOWS_MIDI_SERVICES`) creating a resilient CI/CD Safe Mode fallback skeleton.
-- **Packaging**: Embedded WinRT Registration-Free COM support via `app.manifest`, automatically resolving SxS component issues.
-- **Packaging**: Introduced logic to dynamically vendor and deploy `Microsoft.Windows.Devices.Midi2.dll` alongside the final executable.
-- **UI**: Added `Backend` and `Port` string metadata population into `UmpRawEvent` for WMS traffic.
+## [v4.25.x] - Modo Seguro, App Manifest e Estabilidade
+- **Build**: Adicionadas macros condicionais de compilação (`USE_WINDOWS_MIDI_SERVICES`) criando um esqueleto de fallback de Modo Seguro resiliente para CI/CD.
+- **Packaging**: Embutido o suporte a WinRT Registration-Free COM através do `app.manifest`, resolvendo automaticamente os problemas de componentes SxS.
+- **Packaging**: Introduzida lógica para embutir e implantar dinamicamente a `Microsoft.Windows.Devices.Midi2.dll` junto com o executável final.
+- **UI**: Adicionada a população dos metadados textuais de `Backend` e `Port` dentro de `UmpRawEvent` para o tráfego WMS.
 
 ## [v4.24.0] - Final Production Release (TCC Master Release)
 - **Release**: TCC Master Release coroando a estabilidade da arquitetura de isolamento e o Triunvirato de compilação.
@@ -19,11 +19,11 @@
 - **Documentation**: Atualização completa do README.md e CHANGELOG.md documentando a integração final bem sucedida do Windows MIDI Services.
 - **Packaging**: Estabelecimento dos 3 zips de release de Ouro (Base, RtMidi, WMS) para entrega da pesquisa.
 
-## [v4.23.0] - Windows MIDI Services API Activation
-- **Feature**: Real C++/WinRT activation. Replaced pseudo-code with physical `Microsoft.Windows.Devices.Midi2` OS bindings.
-- **Feature**: Endpoints are physically queried.
-- **Feature**: Physical UMP data ingestion bridged to the FIFO queue.
-- **Security**: The activation is safely sandboxed in the `-wms` package, maintaining `Base` and `RtMidi` safe-mode compilation.
+## [v4.23.0] - Ativação da API Windows MIDI Services
+- **Feature**: Ativação real do C++/WinRT. Pseudocódigo substituído pelas vinculações físicas do SO `Microsoft.Windows.Devices.Midi2`.
+- **Feature**: Endpoints são consultados fisicamente.
+- **Feature**: Ingestão de dados UMP físicos conectada à fila FIFO.
+- **Security**: A ativação está isolada com segurança no pacote `-wms`, mantendo a compilação em modo seguro para os pacotes `Base` e `RtMidi`.
 
 ## v4.22.0 - Windows MIDI Services production hardening
 * Hardened `WindowsMidiServicesBackend` with `try/catch` COM exception simulation and graceful teardown blocks.

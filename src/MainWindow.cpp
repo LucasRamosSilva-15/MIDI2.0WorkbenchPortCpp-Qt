@@ -1220,14 +1220,14 @@ void MainWindow::exportLiveTxtClicked() {
   }
 
   QTextStream out(&file);
-  out << "MidiUmpAnalyzer - Live MIDI Monitor Export\n";
-  out << "Version: v2.11.0\n";
-  out << "Exported at: "
+  out << "MidiUmpAnalyzer - Exportacao do Monitor MIDI Live\n";
+  out << "Versao: v4.26.2\n";
+  out << "Exportado em: "
       << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
   out << m_liveMidiStatusLabel->text() << "\n";
-  out << "Received: " << m_liveMidiStats.received << "\n";
-  out << "Displayed: " << m_liveMidiStats.displayed << "\n";
-  out << "Max live log lines: 1000\n\n";
+  out << "Recebidos: " << m_liveMidiStats.received << "\n";
+  out << "Exibidos: " << m_liveMidiStats.displayed << "\n";
+  out << "Maximo de linhas de log ao vivo: 1000\n\n";
   out << "Live MIDI Log:\n";
 
   for (const auto &ev : m_liveMidiEvents) {
@@ -1444,13 +1444,13 @@ void MainWindow::exportSessionTxt() {
   QFile file(fileName);
   if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     QTextStream out(&file);
-    out << "MidiUmpAnalyzer - Live MIDI Session Recording\n";
-    out << "Version: v2.16.0\n";
-    out << "Exported at: "
+    out << "MidiUmpAnalyzer - Gravacao da Sessao MIDI Live\n";
+    out << "Versao: v4.26.2\n";
+    out << "Exportado em: "
         << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
-    out << "Recorded events: " << m_liveMidiRecordedCount << "\n";
-    out << "Note: Session recording captures received Live MIDI events while "
-           "recording is active.\n\n";
+    out << "Eventos gravados: " << m_liveMidiRecordedCount << "\n";
+    out << "Nota: A gravacao da sessao captura os eventos MIDI Live recebidos enquanto a "
+           "gravacao esta ativa.\n\n";
     for (const auto &ev : m_liveMidiRecording) {
       out << "[" << ev.timestamp << "s] " << ev.bytesHex << " | "
           << ev.description << " | Type: " << ev.messageType;
@@ -1576,9 +1576,9 @@ QString MainWindow::formatLiveMidiSessionSummaryReport(
   QString out;
   QTextStream stream(&out);
 
-  stream << "MidiUmpAnalyzer - Live MIDI Session Summary Report\n";
-  stream << "Version: v4.26.2\n";
-  stream << "Exported at: "
+  stream << "MidiUmpAnalyzer - Relatorio de Resumo da Sessao MIDI Live\n";
+  stream << "Versao: v4.26.2\n";
+  stream << "Exportado em: "
          << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
          << "\n\n";
 
@@ -2067,11 +2067,11 @@ void MainWindow::exportExperimentalUmpTxtClicked() {
     QTextStream out(&file);
     out.setEncoding(QStringConverter::Utf8);
 
-    out << "MidiUmpAnalyzer - Experimental UMP Backend Export\n";
-    out << "Version: v4.26.2\n";
-    out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
-    out << "Source: FakeUmpInputBackend\n";
-    out << "Important note: This export uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n\n";
+    out << "MidiUmpAnalyzer - Exportacao do Backend UMP Experimental\n";
+    out << "Versao: v4.26.2\n";
+    out << "Exportado em: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    out << "Origem: FakeUmpInputBackend\n";
+    out << "Nota importante: Esta exportacao usa um prototipo de backend UMP falso. Ela nao representa a captura real de hardware MIDI 2.0.\n\n";
     
     out << "Total events: " << m_fakeUmpTable->rowCount() << "\n\n";
     out << "Experimental UMP Events:\n";
@@ -2198,11 +2198,11 @@ void MainWindow::exportFakeUmpSessionTxtClicked() {
     QTextStream out(&file);
     out.setEncoding(QStringConverter::Utf8);
 
-    out << "MidiUmpAnalyzer - Fake UMP Session Recording Export\n";
-    out << "Version: v4.26.2\n";
-    out << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
-    out << "Source: FakeUmpInputBackend\n";
-    out << "Important note: This session uses a fake UMP backend prototype. It does not represent real MIDI 2.0 hardware capture.\n";
+    out << "MidiUmpAnalyzer - Exportacao da Gravacao da Sessao Fake UMP\n";
+    out << "Versao: v4.26.2\n";
+    out << "Exportado em: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    out << "Origem: FakeUmpInputBackend\n";
+    out << "Nota importante: Esta sessao usa um prototipo de backend UMP falso. Ela nao representa a captura real de hardware MIDI 2.0.\n";
     out << "Recorded events: " << m_fakeUmpRecordedCount << "\n\n";
 
     for (const auto& ev : m_fakeUmpRecording) {
@@ -2303,16 +2303,16 @@ QString MainWindow::formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummar
     QString out;
     QTextStream stream(&out);
 
-    stream << "MidiUmpAnalyzer - Fake UMP Session Summary Report\n";
-    stream << "Version: v4.26.2\n";
-    stream << "Exported at: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
-    stream << "Source: FakeUmpInputBackend\n";
-    stream << "Important note: This report summarizes fake UMP backend events only.\n";
-    stream << "It does not represent real MIDI 2.0 hardware capture.\n\n";
+    stream << "MidiUmpAnalyzer - Relatorio de Resumo da Sessao Fake UMP\n";
+    stream << "Versao: v4.26.2\n";
+    stream << "Exportado em: " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    stream << "Origem: FakeUmpInputBackend\n";
+    stream << "Nota importante: Este relatorio resume apenas os eventos do backend UMP falso.\n";
+    stream << "Ele nao representa a captura real de hardware MIDI 2.0.\n\n";
 
-    stream << "=== Session Overview ===\n";
-    stream << "Total recorded events: " << summary.totalEvents << "\n";
-    stream << "First event timestamp: " << (summary.hasFirstEvent ? summary.firstTimestamp : "N/A") << "\n";
+    stream << "=== Visao Geral da Sessao ===\n";
+    stream << "Total de eventos gravados: " << summary.totalEvents << "\n";
+    stream << "Marca de tempo do primeiro evento: " << (summary.hasFirstEvent ? summary.firstTimestamp : "N/A") << "\n";
     stream << "Last event timestamp: " << (summary.hasLastEvent ? summary.lastTimestamp : "N/A") << "\n";
     stream << "Recording status: " << (m_isFakeUmpRecording ? "Active" : "Stopped") << "\n";
     stream << "Source backend: FakeUmpInputBackend\n\n";
