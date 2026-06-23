@@ -7,30 +7,25 @@ WmsWorker::WmsWorker(std::shared_ptr<SharedBuffer> sharedBuffer, QObject *parent
     : QObject(parent), m_sharedBuffer(sharedBuffer) {}
 
 WmsWorker::~WmsWorker() {
-#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
     closePort();
     if (m_mtaInitialized) {
         winrt::uninit_apartment();
     }
-#endif
 }
 
 void WmsWorker::doInit() {
-#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
     try {
         winrt::init_apartment(winrt::apartment_type::multi_threaded);
         m_mtaInitialized = true;
     } catch (...) {
         emit errorReported("Failed to initialize MTA COM apartment in Worker Thread.");
     }
-#endif
 }
 
 void WmsWorker::queryAvailableEndpoints() {
     QStringList names;
     QMap<QString, QString> idMap;
 
-#if defined(ENABLE_WINDOWS_MIDI_SERVICES)
     try {
         if (!m_mtaInitialized) {
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
@@ -53,18 +48,12 @@ void WmsWorker::queryAvailableEndpoints() {
     } catch (const winrt::hresult_error& ex) {
         names.append("Erro WinRT na Enumeração MTA.");
     }
-#else
-    if (names.isEmpty()) {
-        names.append("Nenhum dispositivo encontrado (Safe Mode).");
-    }
-#endif
 
     // Emita o sinal com as listas de volta para a MainWindow/Fachada
     emit endpointsDiscovered(names, idMap);
 }
 
 void WmsWorker::openPort(QString deviceId) {
-#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
     try {
         if (!m_mtaInitialized) {
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
@@ -98,15 +87,9 @@ void WmsWorker::openPort(QString deviceId) {
     } catch (...) {
         emit portOpened(false, "Unknown exception during openPort in WmsWorker.");
     }
-#elif defined(WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED)
-    emit portOpened(false, "WinRT Backend Integration Prep Enabled: Simulation failed.");
-#else
-    emit portOpened(false, "Safe Mode: Cannot open real hardware port.");
-#endif
 }
 
 void WmsWorker::closePort() {
-#if defined(WINDOWS_MIDI_SERVICES_ALLOW_REAL_WINRT_ACTIVATION_ATTEMPT)
     try {
         if (m_endpoint) m_endpoint.MessageReceived(m_eventToken);
         if (m_session) m_session.Close();
@@ -115,7 +98,6 @@ void WmsWorker::closePort() {
     } catch (...) {
         emit errorReported("Exceção silenciosa capturada durante o encerramento do UMP Endpoint.");
     }
-#endif
     emit portClosed();
 }
 
