@@ -23,8 +23,16 @@ Write-Host "`n--- Rodando Testes Automatizados ---"
 $testExe = "build\Release\UmpParserTests.exe"
 
 if (-Not (Test-Path $testExe)) {
-    Write-Host "Executavel de teste nao encontrado em: $testExe" -ForegroundColor Red
-    exit 1
+    if (Test-Path "build\UmpParserTests.exe") {
+        $testExe = "build\UmpParserTests.exe"
+    } elseif (Test-Path "build/Release/UmpParserTests") {
+        $testExe = "build/Release/UmpParserTests"
+    } elseif (Test-Path "build/UmpParserTests") {
+        $testExe = "build/UmpParserTests"
+    } else {
+        Write-Host "Executavel de teste nao encontrado em: $testExe" -ForegroundColor Red
+        exit 1
+    }
 }
 
 & $testExe

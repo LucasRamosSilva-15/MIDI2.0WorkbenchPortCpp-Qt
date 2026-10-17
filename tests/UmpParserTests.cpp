@@ -6,6 +6,8 @@
 #include "../src/midi/Midi1LiveDecoder.h"
 #include "../src/midi/Midi1ToUmpPreviewConverter.h"
 #include "../src/midi/FakeUmpInputBackend.h"
+#include "../src/midi/LibremidiBackend.h"
+#include "../src/midi/MidiInputController.h"
 #include "../src/midi/WindowsMidiServicesBackend.h"
 #include "../src/midi/WindowsMidiServicesSdkProbe.h"
 
@@ -268,6 +270,65 @@ int main() {
         fakeBackend.closeInputPort();
         assertTest("FakeUmpBackend Closes Successfully", !fakeBackend.isOpen());
         assertTest("FakeUmpBackend Empty after Close", fakeBackend.pollUmpEvents().empty());
+    }
+
+    std::cout << "\nStarting LibremidiBackend Tests\n" << std::endl;
+    {
+        LibremidiBackend backend;
+
+        // 1. Name Check
+        assertTest("LibremidiBackend Name", backend.backendName() == "libremidi (Cross-Platform UMP)");
+
+        // 2. Default State
+        assertTest("LibremidiBackend Initially Closed", !backend.isOpen());
+        assertTest("LibremidiBackend Empty when Closed", backend.pollUmpEvents().empty());
+
+        // 3. Ports listing (safely returns QStringList without throwing)
+        bool listingSucceeded = true;
+        QStringList ports;
+        try {
+            ports = backend.listInputPorts();
+        } catch (...) {
+            listingSucceeded = false;
+        }
+        assertTest("LibremidiBackend Ports Listing Safe", listingSucceeded);
+
+        // 4. Open invalid ports returns false safely
+        assertTest("LibremidiBackend Open Negative Port", !backend.openInputPort(-1));
+        assertTest("LibremidiBackend Open Invalid Out-of-Bounds Port", !backend.openInputPort(99999));
+
+        // 5. Close port safely
+        backend.closeInputPort();
+        assertTest("LibremidiBackend Still Closed After Close", !backend.isOpen());
+        assertTest("LibremidiBackend Empty After Close", backend.pollUmpEvents().empty());
+
+        // 6. Test opening and closing first available port if any
+        if (!ports.isEmpty()) {
+            bool hasValidPrefix = ports[0].startsWith("[UMP] ") || ports[0].startsWith("[MIDI 1.0] ");
+            assertTest("LibremidiBackend Port Has Protocol Prefix", hasValidPrefix);
+
+            bool opened = backend.openInputPort(0);
+            assertTest("LibremidiBackend Open First Available Port", opened);
+            assertTest("LibremidiBackend Port Is Open", backend.isOpen());
+            backend.closeInputPort();
+            assertTest("LibremidiBackend Port Closed Cleanly", !backend.isOpen());
+        }
+
+        // 6. MidiInputController integration
+        MidiInputController controller;
+        controller.switchBackend(UmpBackendType::Libremidi);
+        assertTest("Controller Active Type is Libremidi", controller.getActiveBackendType() == UmpBackendType::Libremidi);
+        assertTest("Controller Active Name is Libremidi", controller.getActiveBackendName() == "libremidi (Cross-Platform UMP)");
+        assertTest("Controller Available Ports Safe", controller.getAvailablePorts().size() >= 0);
+        assertTest("Controller Port Initially Closed", !controller.isPortOpen());
+        assertTest("Controller Open Invalid Port False", !controller.openPort(99999));
+        assertTest("Controller Poll Empty When Closed", controller.pollNewEvents().empty());
+
+        // 7. Hot swap between backends
+        controller.switchBackend(UmpBackendType::FakeUmp);
+        assertTest("Controller Switch Back to FakeUmp", controller.getActiveBackendType() == UmpBackendType::FakeUmp);
+        controller.switchBackend(UmpBackendType::Libremidi);
+        assertTest("Controller Switch Back to Libremidi", controller.getActiveBackendType() == UmpBackendType::Libremidi);
     }
 
     runWindowsMidiServicesBackendTests();

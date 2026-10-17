@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(MidiUmpAnalyzer VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools)
@@ -35,6 +35,17 @@ if(ENABLE_RTMIDI)
     FetchContent_MakeAvailable(rtmidi)
 endif()
 
+# libremidi FetchContent (Cross-platform MIDI 2.0 / UMP backend)
+include(FetchContent)
+set(LIBREMIDI_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(LIBREMIDI_TESTS OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    libremidi
+    GIT_REPOSITORY https://github.com/celtera/libremidi.git
+    GIT_TAG v5.4.3
+)
+FetchContent_MakeAvailable(libremidi)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -62,6 +73,8 @@ add_executable(MidiUmpAnalyzer WIN32
     src/midi/IUmpInputBackend.h
     src/midi/FakeUmpInputBackend.h
     src/midi/FakeUmpInputBackend.cpp
+    src/midi/LibremidiBackend.h
+    src/midi/LibremidiBackend.cpp
     src/midi/WindowsMidiServicesBackend.h
     src/midi/WindowsMidiServicesBackend.cpp
     src/midi/WindowsMidiServicesSdkProbe.h
@@ -70,7 +83,7 @@ add_executable(MidiUmpAnalyzer WIN32
     app.manifest
 )
 
-target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+target_link_libraries(MidiUmpAnalyzer PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets libremidi::libremidi)
 
 if(ENABLE_WINDOWS_MIDI_SERVICES)
     target_compile_definitions(MidiUmpAnalyzer PRIVATE USE_WINDOWS_MIDI_SERVICES)
@@ -295,6 +308,8 @@ add_executable(UmpParserTests
     src/midi/MidiInputController.cpp
     src/midi/FakeUmpInputBackend.h
     src/midi/FakeUmpInputBackend.cpp
+    src/midi/LibremidiBackend.h
+    src/midi/LibremidiBackend.cpp
     src/midi/WindowsMidiServicesBackend.h
     src/midi/WindowsMidiServicesBackend.cpp
     src/midi/WindowsMidiServicesSdkProbe.h
@@ -302,7 +317,7 @@ add_executable(UmpParserTests
     src/midi/WindowsMidiServicesHeaderIncludeProbe.cpp
 )
 
-target_link_libraries(UmpParserTests PRIVATE Qt6::Core)
+target_link_libraries(UmpParserTests PRIVATE Qt6::Core libremidi::libremidi)
 
 if(ENABLE_WINDOWS_MIDI_SERVICES)
     target_compile_definitions(UmpParserTests PRIVATE USE_WINDOWS_MIDI_SERVICES)

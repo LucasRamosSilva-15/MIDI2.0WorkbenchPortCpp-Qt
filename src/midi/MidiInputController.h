@@ -8,7 +8,8 @@
 
 enum class UmpBackendType {
     FakeUmp,
-    WindowsMidiServices
+    WindowsMidiServices,
+    Libremidi
 };
 
 class MidiInputController {
