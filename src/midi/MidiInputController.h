@@ -8,7 +8,6 @@
 
 enum class UmpBackendType {
     FakeUmp,
-    WindowsMidiServices,
     Libremidi
 };
 

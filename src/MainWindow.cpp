@@ -347,9 +347,6 @@ void MainWindow::setupUi() {
   m_umpBackendTypeCombo = new QComboBox(this);
   m_umpBackendTypeCombo->addItem(tr("Fake UMP Simulator"), QVariant(0));
   m_umpBackendTypeCombo->addItem(tr("libremidi (Cross-Platform UMP)"), QVariant(2));
-#ifdef WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED
-  m_umpBackendTypeCombo->addItem(tr("Windows MIDI Services (Native)"), QVariant(1));
-#endif
   
   QPushButton *refreshFakePortsBtn = new QPushButton(tr("Atualizar portas"), this);
   m_fakeUmpPortCombo = new QComboBox(this);
@@ -1790,14 +1787,7 @@ void MainWindow::umpBackendChanged(int index) {
     }
     
     int backendVal = m_umpBackendTypeCombo->itemData(index).toInt();
-    UmpBackendType newType = UmpBackendType::FakeUmp;
-    if (backendVal == 2) {
-        newType = UmpBackendType::Libremidi;
-    } else if (backendVal == 1) {
-        newType = UmpBackendType::WindowsMidiServices;
-    } else {
-        newType = UmpBackendType::FakeUmp;
-    }
+    UmpBackendType newType = (backendVal == 2) ? UmpBackendType::Libremidi : UmpBackendType::FakeUmp;
     
     m_umpController->switchBackend(newType);
     

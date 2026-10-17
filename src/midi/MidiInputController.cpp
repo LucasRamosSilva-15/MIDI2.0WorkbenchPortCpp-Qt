@@ -1,6 +1,5 @@
 #include "MidiInputController.h"
 #include "FakeUmpInputBackend.h"
-#include "WindowsMidiServicesBackend.h"
 #include "LibremidiBackend.h"
 
 MidiInputController::MidiInputController() : m_backend(std::make_unique<FakeUmpInputBackend>()), m_activeType(UmpBackendType::FakeUmp) {
@@ -20,15 +19,9 @@ void MidiInputController::switchBackend(UmpBackendType newType) {
     
     if (newType == UmpBackendType::Libremidi) {
         m_backend = std::make_unique<LibremidiBackend>();
-    } else if (newType == UmpBackendType::WindowsMidiServices) {
-#ifdef WINDOWS_MIDI_SERVICES_BACKEND_EXPERIMENTAL_CAPTURE_ENABLED
-        m_backend = std::make_unique<WindowsMidiServicesBackend>();
-#else
-        m_backend = std::make_unique<FakeUmpInputBackend>();
-        newType = UmpBackendType::FakeUmp;
-#endif
     } else {
         m_backend = std::make_unique<FakeUmpInputBackend>();
+        newType = UmpBackendType::FakeUmp;
     }
     
     m_activeType = newType;

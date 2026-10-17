@@ -8,11 +8,7 @@
 #include "../src/midi/FakeUmpInputBackend.h"
 #include "../src/midi/LibremidiBackend.h"
 #include "../src/midi/MidiInputController.h"
-#include "../src/midi/WindowsMidiServicesBackend.h"
-#include "../src/midi/WindowsMidiServicesSdkProbe.h"
-
 #include "TestUtils.h"
-#include "WindowsMidiServicesBackendTests.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -330,8 +326,6 @@ int main() {
         controller.switchBackend(UmpBackendType::Libremidi);
         assertTest("Controller Switch Back to Libremidi", controller.getActiveBackendType() == UmpBackendType::Libremidi);
     }
-
-    runWindowsMidiServicesBackendTests();
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 
