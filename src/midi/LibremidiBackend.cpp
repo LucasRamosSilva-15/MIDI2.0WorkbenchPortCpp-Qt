@@ -42,6 +42,31 @@ QString LibremidiBackend::getPortDisplayName(const libremidi::input_port& port, 
     return prefix + baseName;
 }
 
+uint32_t LibremidiBackend::convertMidi1BytesToUmpWord(const uint8_t* data, size_t size, uint8_t group) {
+    if (!data || size == 0) return 0;
+
+    uint8_t status = data[0];
+    uint8_t d1 = size > 1 ? data[1] : 0;
+    uint8_t d2 = size > 2 ? data[2] : 0;
+    uint8_t grp = group & 0x0F;
+
+    if (status >= 0x80 && status <= 0xEF) {
+        // MIDI 1.0 Channel Voice -> UMP MT 0x2
+        return 0x20000000 | (static_cast<uint32_t>(grp) << 24) |
+               (static_cast<uint32_t>(status) << 16) |
+               (static_cast<uint32_t>(d1) << 8) |
+               static_cast<uint32_t>(d2);
+    } else if (status >= 0xF0) {
+        // System Common / Real-Time -> UMP MT 0x1
+        return 0x10000000 | (static_cast<uint32_t>(grp) << 24) |
+               (static_cast<uint32_t>(status) << 16) |
+               (static_cast<uint32_t>(d1) << 8) |
+               static_cast<uint32_t>(d2);
+    }
+
+    return 0;
+}
+
 QStringList LibremidiBackend::listInputPorts() {
     std::lock_guard<std::mutex> lock(m_mutex);
     return listInputPortsLocked();
@@ -160,24 +185,8 @@ bool LibremidiBackend::openInputPort(int portIndex) {
             // Standard / Legacy MIDI 1.0 configuration: converts bytes into UMP Word MT 0x2 / MT 0x1
             libremidi::input_configuration conf;
             conf.on_message = [this](libremidi::message&& msg) {
-                if (msg.bytes.empty()) return;
-
-                uint8_t status = msg.bytes[0];
-                uint32_t umpWord = 0;
-
-                if (status >= 0x80 && status <= 0xEF) {
-                    // MIDI 1.0 Channel Voice -> UMP MT 0x2
-                    uint8_t d1 = msg.bytes.size() > 1 ? msg.bytes[1] : 0;
-                    uint8_t d2 = msg.bytes.size() > 2 ? msg.bytes[2] : 0;
-                    umpWord = 0x20000000 | (static_cast<uint32_t>(status) << 16) | (static_cast<uint32_t>(d1) << 8) | static_cast<uint32_t>(d2);
-                } else if (status >= 0xF0) {
-                    // System Common / Real-Time -> UMP MT 0x1
-                    uint8_t d1 = msg.bytes.size() > 1 ? msg.bytes[1] : 0;
-                    uint8_t d2 = msg.bytes.size() > 2 ? msg.bytes[2] : 0;
-                    umpWord = 0x10000000 | (static_cast<uint32_t>(status) << 16) | (static_cast<uint32_t>(d1) << 8) | static_cast<uint32_t>(d2);
-                } else {
-                    return;
-                }
+                uint32_t umpWord = convertMidi1BytesToUmpWord(msg.bytes.data(), msg.bytes.size(), 0);
+                if (umpWord == 0) return;
 
                 UmpRawEvent ev;
                 ev.sourceType = InputSourceType::LiveUmpWords;

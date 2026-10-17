@@ -9,6 +9,7 @@
 #include "../src/midi/LibremidiBackend.h"
 #include "../src/midi/MidiInputController.h"
 #include "TestUtils.h"
+#include "LibremidiBackendTests.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -326,6 +327,8 @@ int main() {
         controller.switchBackend(UmpBackendType::Libremidi);
         assertTest("Controller Switch Back to Libremidi", controller.getActiveBackendType() == UmpBackendType::Libremidi);
     }
+
+    runLibremidiBackendTests();
 
     std::cout << "\nResults: " << testsPassed << " / " << testsRun << " passed." << std::endl;
 

@@ -23,9 +23,14 @@ public:
 
     std::vector<UmpRawEvent> pollUmpEvents() override;
 
+    static QString getPortDisplayName(const libremidi::input_port& port, int fallbackIndex = 0);
+    static uint32_t convertMidi1BytesToUmpWord(const uint8_t* data, size_t size, uint8_t group = 0);
+    static uint32_t convertMidi1BytesToUmpWord(const std::vector<uint8_t>& bytes, uint8_t group = 0) {
+        return convertMidi1BytesToUmpWord(bytes.data(), bytes.size(), group);
+    }
+
 private:
     QStringList listInputPortsLocked();
-    static QString getPortDisplayName(const libremidi::input_port& port, int fallbackIndex = 0);
 
     mutable std::mutex m_mutex;
     bool m_isOpen{false};

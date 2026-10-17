@@ -72,6 +72,8 @@ endif()
 # Criação do Executável de Testes
 add_executable(UmpParserTests
     tests/UmpParserTests.cpp
+    tests/LibremidiBackendTests.cpp
+    tests/LibremidiBackendTests.h
     tests/TestUtils.h
     src/UmpParser.cpp
     src/UmpParser.h
