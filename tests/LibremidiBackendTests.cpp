@@ -2,6 +2,7 @@
 #include "TestUtils.h"
 #include "../src/midi/LibremidiBackend.h"
 #include "../src/midi/FakeUmpInputBackend.h"
+#include "../src/midi/RtMidiInputBackend.h"
 #include "../src/midi/MidiInputController.h"
 #include "../src/midi/Midi1LiveDecoder.h"
 #include "../src/UmpParser.h"
@@ -273,5 +274,37 @@ void runLibremidiBackendTests() {
         assertTest("HotSwap FakeUmp Port Is Reopened", controller.isPortOpen());
         controller.closePort();
         assertTest("HotSwap Controller Closed Cleanly", !controller.isPortOpen());
+    }
+
+    // =========================================================================
+    // 4. RtMidiInputBackend - Dependência Obrigatória e Robustez
+    // =========================================================================
+    {
+        RtMidiInputBackend rtBackend;
+
+        // 4.1 Identificação e estado inicial
+        assertTest("RtMidiBackend Name", rtBackend.backendName() == "RtMidi (Real Hardware)");
+        assertTest("RtMidiBackend Initially Closed", !rtBackend.isOpen());
+        assertTest("RtMidiBackend Empty Events When Closed", rtBackend.pollEvents().empty());
+
+        // 4.2 Listagem de portas segura
+        bool rtListingSucceeded = true;
+        QStringList rtPorts;
+        try {
+            rtPorts = rtBackend.listInputPorts();
+        } catch (...) {
+            rtListingSucceeded = false;
+        }
+        assertTest("RtMidiBackend listInputPorts Exception Safety", rtListingSucceeded);
+
+        // 4.3 Tentativa de abertura com índices inválidos
+        assertTest("RtMidiBackend Open Negative Port", !rtBackend.openInputPort(-1));
+        assertTest("RtMidiBackend Open Out-of-Bounds Port", !rtBackend.openInputPort(99999));
+        assertTest("RtMidiBackend Remains Closed After Invalid Opens", !rtBackend.isOpen());
+
+        // 4.4 Fechamento seguro e idempotente
+        rtBackend.closeInputPort();
+        assertTest("RtMidiBackend Close When Closed Safe", !rtBackend.isOpen());
+        assertTest("RtMidiBackend Queue Empty After Close", rtBackend.pollEvents().empty());
     }
 }

@@ -1,26 +1,20 @@
 param (
-    [string]$Version = "v1.0.0",
-    [switch]$EnableRtMidi
+    [string]$Version = "v1.0.0"
 )
 
 $ErrorActionPreference = "Stop"
 
-if ($EnableRtMidi) {
-    $buildDir = "build-rtmidi"
-    $distName = "MidiUmpAnalyzer-$Version-windows-x64-rtmidi"
-    
-    # Se a pasta não existe, configura
-    if (-not (Test-Path $buildDir)) {
-        Write-Host "`n--- Garantindo configuracao com RtMidi ---"
-        $cmakeArgs = @("-G", "Visual Studio 17 2022", "-A", "x64", "-B", $buildDir, "-DENABLE_RTMIDI=ON")
-        if ($env:Qt6_DIR) {
-            $cmakeArgs += "-DCMAKE_PREFIX_PATH=$env:Qt6_DIR"
-        }
-        & cmake $cmakeArgs
+$buildDir = "build"
+$distName = "MidiUmpAnalyzer-$Version-windows-x64"
+
+# Se a pasta não existe, configura
+if (-not (Test-Path $buildDir)) {
+    Write-Host "`n--- Configurando CMake ---"
+    $cmakeArgs = @("-G", "Visual Studio 17 2022", "-A", "x64", "-B", $buildDir)
+    if ($env:Qt6_DIR) {
+        $cmakeArgs += "-DCMAKE_PREFIX_PATH=$env:Qt6_DIR"
     }
-} else {
-    $buildDir = "build"
-    $distName = "MidiUmpAnalyzer-$Version-windows-x64"
+    & cmake $cmakeArgs
 }
 
 $distPath = "dist\$distName"
@@ -44,11 +38,9 @@ New-Item -ItemType Directory -Force -Path $distPath | Out-Null
 Write-Host "`n--- Copiando Executavel Principal ---"
 Copy-Item "$buildDir\Release\MidiUmpAnalyzer.exe" -Destination $distPath
 
-if ($EnableRtMidi) {
-    Write-Host "`n--- Copiando DLL do RtMidi (se existir) ---"
-    if (Test-Path "$buildDir\_deps\rtmidi-build\Release\rtmidi.dll") {
-        Copy-Item "$buildDir\_deps\rtmidi-build\Release\rtmidi.dll" -Destination $distPath
-    }
+Write-Host "`n--- Copiando DLL do RtMidi (se gerada separadamente) ---"
+if (Test-Path "$buildDir\_deps\rtmidi-build\Release\rtmidi.dll") {
+    Copy-Item "$buildDir\_deps\rtmidi-build\Release\rtmidi.dll" -Destination $distPath
 }
 
 Write-Host "`n--- Copiando Dependencias Qt (windeployqt ja foi rodado pelo CMake) ---"

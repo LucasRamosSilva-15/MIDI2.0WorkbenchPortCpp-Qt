@@ -19,9 +19,7 @@ public:
     std::vector<MidiRawEvent> pollEvents() override;
 
 private:
-#ifdef USE_RTMIDI
     static void midiCallback(double timeStamp, std::vector<unsigned char> *message, void *userData);
-#endif
 
     void* m_midiIn; // Usando void* para não espalhar headers do RtMidi
     bool m_isOpen;

@@ -325,14 +325,6 @@ void MainWindow::setupUi() {
   liveSplitter->setSizes({600, 400});
   liveMidiMainLayout->addWidget(liveSplitter, 1);
 
-#ifndef USE_RTMIDI
-  QLabel *rtMidiWarning = new QLabel(
-      tr("<b>Aviso:</b> Suporte ao RtMidi não compilado (ENABLE_RTMIDI=OFF). Compile com RtMidi=ON para usar o Live MIDI."),
-      this);
-  rtMidiWarning->setStyleSheet(
-      "color: #d32f2f; font-weight: bold; padding: 5px;");
-  liveMidiMainLayout->addWidget(rtMidiWarning);
-#endif
 
   liveLayout->addWidget(liveMidiGroup, 1);
   tabWidget->addTab(tabLive, tr("Live MIDI Monitor"));
@@ -383,18 +375,6 @@ void MainWindow::setupUi() {
   fakeStreamControls->addWidget(m_fakeUmpCounterLabel);
   fakeStreamControls->addStretch();
 
-  QLabel *fakeWarningLabel = new QLabel(tr("<b>Windows MIDI Services Native Backend is Available! Use the dropdown to select real physical MIDI endpoints.</b>"), this);
-  fakeWarningLabel->setStyleSheet("color: #1b5e20; background-color: #c8e6c9; padding: 5px; border-radius: 4px;");
-
-  m_fakeUmpTable = new QTableWidget(0, 11, this);
-  m_fakeUmpTable->setHorizontalHeaderLabels({tr("Timestamp"), tr("Backend"), tr("Port"), tr("UMP Words"), tr("Bits"), tr("MT"), tr("Group"), tr("Status"), tr("Channel"), tr("Size"), tr("Description")});
-  m_fakeUmpTable->horizontalHeader()->setStretchLastSection(true);
-  
-  m_fakeUmpLog = new QTextEdit(this);
-  m_fakeUmpLog->setReadOnly(true);
-  m_fakeUmpLog->setMaximumHeight(100);
-
-  fakeStreamLayout->addWidget(fakeWarningLabel);
   fakeStreamLayout->addLayout(fakeStreamControls);
   fakeStreamLayout->addWidget(m_fakeUmpTable, 1);
   fakeStreamLayout->addWidget(new QLabel(tr("Log experimental:"), this));
@@ -463,8 +443,8 @@ void MainWindow::setupUi() {
       "<p><b>Versão:</b> v4.26.3</p>"
       "<p><b>Resumo:</b> Analisador estático forense para Universal MIDI "
       "Packets (UMP) "
-      "e monitor de portas de hardware MIDI 1.0 legado e UMP Nativo (Windows MIDI Services).</p>"
-      "<p><i>Nota de Lançamento: Esta versão inclui integração estável de produção (TCC Master Release) com o Windows MIDI Services.</i></p>"
+      "e monitor de portas de hardware MIDI 1.0 (RtMidi) e UMP Nativo / MIDI 2.0 (libremidi).</p>"
+      "<p><i>Nota de Lançamento: Esta versão inclui integração multiplataforma com libremidi (suporte a UMP / MIDI 2.0) e RtMidi.</i></p>"
 
       "<h3>Offline UMP Analyzer</h3>"
       "<p>Módulo analítico principal. Disseca hexadecimais puros representando "
@@ -592,14 +572,9 @@ void MainWindow::updateDiagnostics() {
   QString samplesStatus =
       m_samplesPath.isEmpty() ? "Não Encontrada" : "Encontrada";
 
-  QString rtMidiStatus = "Desativado";
-#ifdef USE_RTMIDI
-  if (m_midiBackend && m_midiBackend->isOpen()) {
-    rtMidiStatus = "Aberta (" + m_liveMidiPortsCombo->currentText() + ")";
-  } else {
-    rtMidiStatus = "Pronto";
-  }
-#endif
+  QString rtMidiStatus = (m_midiBackend && m_midiBackend->isOpen())
+                             ? ("Aberta (" + m_liveMidiPortsCombo->currentText() + ")")
+                             : "Pronto";
 
   QString text = QString("Arquivo Atual: %1 | Samples: %2 | Filtro: %3 | "
                          "Linhas: %4/%5 | MIDI: %6 | Última Operação: %7")
@@ -906,7 +881,6 @@ void MainWindow::filterTable(const QString &text) {
 
 void MainWindow::refreshMidiPortsClicked() {
   m_liveMidiPortsCombo->clear();
-#ifdef USE_RTMIDI
   QStringList ports = m_midiBackend->listInputPorts();
   if (ports.isEmpty()) {
     m_liveMidiPortsCombo->addItem(tr("Nenhuma porta MIDI encontrada."));
@@ -914,14 +888,9 @@ void MainWindow::refreshMidiPortsClicked() {
     m_liveMidiPortsCombo->addItems(ports);
   }
   logMessage("Portas de entrada MIDI atualizadas com sucesso.");
-#else
-  m_liveMidiPortsCombo->addItem(tr("RtMidi desativado nesta build."));
-  logMessage("Aviso: Tentativa de listar portas, mas RtMidi está desativado.");
-#endif
 }
 
 void MainWindow::openMidiPortClicked() {
-#ifdef USE_RTMIDI
   int index = m_liveMidiPortsCombo->currentIndex();
   if (index < 0)
     return;
@@ -947,13 +916,9 @@ void MainWindow::openMidiPortClicked() {
     logMessage("Erro ao tentar abrir porta MIDI.");
   }
   updateDiagnostics();
-#else
-  logMessage("Aviso: Tentativa de abrir porta, mas RtMidi está desativado.");
-#endif
 }
 
 void MainWindow::closeMidiPortClicked() {
-#ifdef USE_RTMIDI
   if (m_midiBackend->isOpen()) {
     if (m_liveMidiTimer)
       m_liveMidiTimer->stop();
@@ -972,13 +937,9 @@ void MainWindow::closeMidiPortClicked() {
     updateLiveMidiStatus();
     updateDiagnostics();
   }
-#else
-  logMessage("Aviso: Tentativa de fechar porta, mas RtMidi está desativado.");
-#endif
 }
 
 void MainWindow::pollLiveMidi() {
-#ifdef USE_RTMIDI
   if (!m_midiBackend || !m_midiBackend->isOpen())
     return;
 
@@ -1115,12 +1076,6 @@ void MainWindow::pollLiveMidi() {
   }
   refreshLiveMidiStatsUi();
   updateLiveMidiStatus();
-#else
-  // Stub seguro para quando RtMidi está desativado
-  if (m_liveMidiTimer && m_liveMidiTimer->isActive()) {
-    m_liveMidiTimer->stop();
-  }
-#endif
 }
 
 void MainWindow::addLiveUmpPreviewRow(const QString &timestamp,
@@ -1193,7 +1148,6 @@ void MainWindow::clearLiveMidiLogClicked() {
 }
 
 void MainWindow::updateLiveMidiStatus() {
-#ifdef USE_RTMIDI
   if (!m_midiBackend || !m_midiBackend->isOpen()) {
     m_liveMidiStatusLabel->setText("Status: Porta fechada");
     m_pauseLiveMidiBtn->setEnabled(false);
@@ -1205,10 +1159,6 @@ void MainWindow::updateLiveMidiStatus() {
       m_liveMidiStatusLabel->setText("Status: Monitorando");
     }
   }
-#else
-  m_liveMidiStatusLabel->setText("Status: RtMidi desativado nesta build");
-  m_pauseLiveMidiBtn->setEnabled(false);
-#endif
 
   m_liveMidiCountersLabel->setText(QString("Recebidas: %1 | Exibidas: %2")
                                        .arg(m_liveMidiStats.received)
@@ -2405,7 +2355,7 @@ QString MainWindow::formatFakeUmpSessionSummaryReport(const FakeUmpSessionSummar
     stream << "- The Experimental UMP table may be cleared without clearing the recorded session.\n";
     stream << "- FakeUmpInputBackend generates artificial UMP words for testing the UI and parser pipeline.\n";
     stream << "- This report does not prove operating system UMP capture.\n";
-    stream << "- Windows MIDI Services, ALSA UMP, libremidi and JUCE are not implemented in this version.\n";
+    stream << "- libremidi is implemented in this version for cross-platform UMP capture.\n";
     stream << "- MIDI-CI and Property Exchange are not implemented.\n";
 
     return out;
