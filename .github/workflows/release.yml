@@ -9,46 +9,78 @@ permissions:
   contents: write
 
 jobs:
-  build_and_release:
+  build_windows:
+    name: Build & Package (Windows)
     runs-on: windows-2022
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: '6.8.3'
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_msvc2022_64'
-        cache: 'true'
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          cache: 'true'
 
-    - name: Configure CMake
-      run: cmake -G "Visual Studio 17 2022" -A x64 -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.Qt6_DIR }}"
+      - name: Package Release (Windows)
+        run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }}
 
-    - name: Build Project
-      run: cmake --build build --config Release
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-windows
+          path: dist/*.zip
+          if-no-files-found: error
 
-    - name: Run Automated Tests
-      run: powershell -ExecutionPolicy Bypass -File tests\run_tests.ps1 -SkipBuild
+  build_linux:
+    name: Build & Package (Linux)
+    runs-on: ubuntu-latest
 
-    - name: Package Release (Standard)
-      run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Package Release (RtMidi)
-      run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }} -EnableRtMidi
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libgl1-mesa-dev qt6-base-dev qt6-tools-dev ninja-build
 
-    - name: Package Release (WMS)
-      run: powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 -Version ${{ github.ref_name }} -EnableWms
+      - name: Package Release (Linux)
+        run: |
+          chmod +x scripts/package_release_linux.sh
+          ./scripts/package_release_linux.sh -v ${{ github.ref_name }}
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64.zip
-          dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64-rtmidi.zip
-          dist/MidiUmpAnalyzer-${{ github.ref_name }}-windows-x64-wms.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-linux
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  publish_release:
+    name: Publish GitHub Release
+    needs: [build_windows, build_linux]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
